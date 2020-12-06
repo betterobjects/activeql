@@ -9,7 +9,7 @@ The GraphQL framework with an oppionated approach and _convention over configura
   * provides an Admin UI for basic CRUD applications 
   * allows to be extended for any non-convention requirement with custom code
 
-You can find the [documentation here](./libs/doc/gama.md)
+You can find the [documentation here](./doc/gama.md)
 
 # Use Gama
 
