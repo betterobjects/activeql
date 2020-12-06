@@ -1,3 +1,10 @@
+---
+layout: page
+title: Attribute Configuration
+permalink: /attribute-configuration/
+nav_order: 30
+---
+
 # Attribute Configuration
 
 Entities have attributes describing the data of the entity. You can define its aspects by the this configuration type.
