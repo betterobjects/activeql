@@ -30,7 +30,7 @@ twitter_username: betterobjects
 github_username:  thorek
 
 # Build settings
-theme: just-the-docs
+theme: jekyll-theme-slate
 remote_theme: pmarsceill/just-the-docs
 
 plugins:
