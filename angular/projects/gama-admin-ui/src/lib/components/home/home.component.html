@@ -1,0 +1,33 @@
+<mat-toolbar-row>
+  <div>
+    <h1>GAMA Admin UI</h1>
+  </div>
+  <span style="flex: 1 1 auto;"></span>
+  <div mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="onSeed()"> Seed data </button>
+  </div>
+</mat-toolbar-row>
+
+
+<div class="content" fxLayout="row wrap" fxLayoutGap="16px grid">
+  <div fxFlex="25%" fxFlex.xs="100%" fxFlex.sm="33%" *ngFor="let entity of entities">
+    <a [routerLink]="['/admin', entity.path]">
+      <mat-card class="mat-elevation-z4">
+        <mat-card-header>
+          <mat-card-title>
+            {{ title( 'index', entity ) }}
+          </mat-card-title>
+        </mat-card-header>
+        <hr>
+        <mat-card-content>
+          <p *ngFor="let field of fields( entity )">
+            {{ field.name }} ({{field.type}}) {{ field.required && '*' }}
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </a>
+  </div>
+</div>
+
+
+<admin-breadcrumb></admin-breadcrumb>

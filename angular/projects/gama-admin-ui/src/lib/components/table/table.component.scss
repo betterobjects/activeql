@@ -1,0 +1,17 @@
+
+table {
+  width: 100%;
+
+  .action {
+    text-align: right;
+    min-width: 100px;
+  }
+
+  a { cursor: pointer; }
+}
+
+
+:host ::ng-deep img.defaultImageRender {
+  max-height: 40px;
+  padding: -5px;
+}

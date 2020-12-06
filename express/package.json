@@ -1,0 +1,41 @@
+{
+  "name": "gama-express",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "rimraf dist && tsc",
+    "watch:build": "tsc --watch",
+    "start": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --watch ./ --no-notify --inspect -- ./app.ts",
+    "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./seed.ts",
+    "test": "jest --watch --detectOpenHandles"
+  },
+  "dependencies": {
+    "graph-on-rails": "file:../graph-on-rails",
+    "apollo-server-express": "^2.9.3",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "dotenv": "^8.2.0",
+    "es6-template-strings": "^2.0.1",
+    "express-jwt": "^6.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "yaml": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/compression": "^1.7.0",
+    "@types/express-jwt": "0.0.42",
+    "@types/jest": "^25.2.3",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/lodash": "^4.14.138",
+    "@types/node": "^14.0.9",
+    "jest": "^26.0.1",
+    "nodemon": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.1.0",
+    "ts-node": "^8.10.2",
+    "ts-node-dev": "^1.0.0-pre.43",
+    "typescript": "^3.9.3"
+  }
+}

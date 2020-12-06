@@ -1,0 +1,11 @@
+entity:
+  Car:
+    attributes:
+      maker:
+        type: string
+      licence:
+        type: string
+      color: string
+      fuel: Fuel
+    assocTo:
+      - Person

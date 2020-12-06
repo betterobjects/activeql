@@ -1,0 +1,61 @@
+<form [formGroup]="form" (ngSubmit)="submitForm()">
+  <mat-list>
+    <mat-list-item *ngFor="let field of fields">
+
+      <ng-container [ngSwitch]="field.control">
+
+      <mat-form-field *ngSwitchCase="'select'" class="full-width">
+        <mat-label>{{ label( field ) }}</mat-label>
+          <mat-select
+              *ngSwitchCase="'select'"
+              [required]="field.required"
+              (selectionChange)="onSelectionChange(field, $event.value)"
+              [formControl]="form.controls[field.name]">
+            <mat-option *ngFor="let option of options[field.name]" [value]="option.value">
+              {{option.label}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.controls[field.name].invalid">
+            {{errorTip(field)}}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field *ngSwitchCase="'multiple'" >
+          <mat-label>{{ label( field ) }}</mat-label>
+          <mat-select
+              [multiple]="true"
+              [required]="field.required"
+              [formControl]="form.controls[field.name]">
+            <mat-option *ngFor="let option of options[field.name]" [value]="option.value">
+              {{option.label}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.controls[field.name].invalid">
+            {{errorTip(field)}}
+          </mat-error>
+        </mat-form-field>
+
+        <admin-file-upload
+            *ngSwitchCase="'File'"
+            [field]="field"
+            [item]="data.item"
+            (onLoad)="this.onFileLoad($event)">
+        </admin-file-upload>
+
+        <mat-form-field *ngSwitchDefault >
+          <mat-label>{{ label( field ) }}</mat-label>
+          <input
+            matInput
+            [required]="field.required"
+            [formControl]="form.controls[field.name]">
+
+            <mat-error *ngIf="form.controls[field.name].invalid">
+              {{errorTip(field)}}
+            </mat-error>
+        </mat-form-field>
+
+      </ng-container>
+
+    </mat-list-item>
+   </mat-list>
+</form>

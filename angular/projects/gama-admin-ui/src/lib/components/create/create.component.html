@@ -1,0 +1,14 @@
+<mat-toolbar-row>
+  <h1> New {{ title('show') }} </h1>
+  <span style="flex: 1 1 auto;"></span>
+  <div mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="onSave()"> Save </button>
+    &nbsp;
+    <button mat-flat-button (click)="onList()"> Cancel </button>
+  </div>
+</mat-toolbar-row>
+
+
+<admin-form [data]="data" [submit]="submit" (saveSuccess)="onSuccess($event)"></admin-form>
+
+<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

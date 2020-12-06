@@ -1,0 +1,23 @@
+entity:
+  Person:
+    attributes:
+      firstname: String
+      lastname: String
+      birthdate: String
+      gender: Gender
+      age: Int
+    assocFrom:
+      - type: Address
+      - type: Car
+
+  Address:
+    attributes:
+      street: string
+      city: string
+      zip: string!
+
+enum:
+  Gender:
+    MALE: male
+    FEMALE: female
+    DIVERSE: diverse
