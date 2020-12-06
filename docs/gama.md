@@ -7,7 +7,7 @@ nav_order: 1
 
 # GAMA
 
-From business domain definition to GraphQL API and Admin UI in minutes - or _**GraphQL on Steroids**_
+From business domain definition to full fledged GraphQL API and Admin UI in minutes - or _**GraphQL on Steroids**_
 
 We think [GraphQL](https://graphql.org) is a great way to expose your business domain to any client or 3rd party system.  Implementing a GraphQL API is a tedious task though. You need to decide how to structure your schema, how to handle concepts like searching, sorting, paging, how to implement resolvers that read data from
 and write data to a database or similar, validate input, relationships etc.
