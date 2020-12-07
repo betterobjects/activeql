@@ -1,3 +1,10 @@
+---
+layout: page
+title: Resolver Hooks
+nav_order: 50
+parent: Domain Configuration
+---
+
 # Resolver Hooks
 
 An easy way to extend the implementation of GAMA resolvers are _entitiy hooks_. You can define this as part of the `EntityConfiguration` object. 

@@ -3,6 +3,7 @@ layout: page
 title: Attribute Configuration
 permalink: /attribute-configuration/
 nav_order: 30
+parent: Domain Configuration
 ---
 
 # Attribute Configuration

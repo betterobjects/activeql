@@ -1,3 +1,10 @@
+---
+layout: page
+title: Queries & Mutations
+description: "How a client would use the genereated default queries and mutations."
+nav_order: 50
+---
+
 # How to use the GAMA generated GraphQL API
 
 ## Queries

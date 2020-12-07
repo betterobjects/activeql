@@ -1,3 +1,9 @@
+---
+layout: page
+title: Principal
+nav_order: 20
+---
+
 # Principal
 
 To control access to the entity queries and mutations GAMA includes a default `EntityPermission` module that uses the concept of a `principal` object (with the properties "roles") that is expected in the `context` (under the name "principal") of any query or mutation.

@@ -1,3 +1,9 @@
+---
+layout: page
+title: Best Practices
+nav_order: 40
+---
+
 # Best Practises
 
 ## Structure your configuration 

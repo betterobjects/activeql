@@ -1,3 +1,9 @@
+---
+layout: page
+title: Tutorial
+nav_order: 60
+---
+
 # Tutorial
 
 ### The taks

@@ -1,3 +1,10 @@
+---
+layout: page
+title: Permissions
+nav_order: 40
+parent: Domain Configuration
+---
+
 # Permissions
 
 Everything described here refers to the default `EntityPermissions` implementation. You could replace this with your own implementation though - as described in [Custom Implementations](./custom-implementations.md).

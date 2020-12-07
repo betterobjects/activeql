@@ -2,6 +2,7 @@
 layout: page
 title: Domain Configuration
 permalink: /domain-configuration/
+has_children: true
 nav_order: 10
 ---
 

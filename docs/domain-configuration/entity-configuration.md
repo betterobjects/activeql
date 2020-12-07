@@ -3,6 +3,7 @@ layout: page
 title: Entity Configuration
 permalink: /entity-configuration/
 nav_order: 20
+parent: Domain Configuration
 ---
 
 # Entity Configuration
