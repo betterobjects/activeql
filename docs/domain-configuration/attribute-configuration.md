@@ -1,14 +1,13 @@
 ---
 layout: page
 title: Attribute Configuration
-permalink: /attribute-configuration/
 nav_order: 30
 parent: Domain Configuration
 ---
 
 # Attribute Configuration
 
-Entities have attributes describing the data of the entity. You can define its aspects by the this configuration type.
+Entities have attributes describing the data of the entity. You can define its aspects by the this configuration type, in YAML, JSON or a configuration object. In the following examples we will prefer YAML and use a configuration object only when necessary.  
 
 ### Configuration Type
 
@@ -27,8 +26,6 @@ export type AttributeConfig = {
   resolve?:(arc:AttributeResolveContext) => any
 }
 ```
-
-Except of the callback functions you can use either an configuration object or YAML for the configuration. In the following examples we will use YAML and object configuration equally.  
 
 All configuration options are documented in detail further below: 
 
@@ -50,28 +47,26 @@ All configuration options are documented in detail further below:
 
 ### Shortcut Notation
 
-Instead of providing the configuration object you can simply just write the type instead. 
-The rest of the attribute configuration object would then be set as default. 
-You can even use all type shortcut notations (such as `String!` or `Key` as described below) 
-when using this. The follwing examples are equivalant:
+Instead of providing the configuration object you can skip everything and just write the type as value for the attribute instead.  The rest of the attribute configuration object would then be set as default.  You can even use all type shortcut notations (such as `String!` or `Key` as described below) when using this. The follwing examples are equivalant:
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top"><td width="50%"> Shortcut </td><td width="50%"> Similar notation </td></tr>
 <tr valign="top"><td width="50%">
 
-```yaml
+{% highlight yaml %}
 entity:
   Car: 
     attributes:
       brand: String!
       mileage: Int
       licence: Key
-```
+
+{% endhighlight %}
 
 </td>
 <td width="50%">
 
-```yaml
+{% highlight yaml %}
 entity:
   Car: 
     attributes:
@@ -84,58 +79,7 @@ entity:
         type: String
         required: true
         unique: true    
-```
-
-</td>
-</tr>
-</table>
-
-You can mix shortcut and regular configuration and of course also in code. So these notations are also similar
-to each other.
-
-<table width="100%" style="font-size: 0.9em">
-<tr valign="top"><td width="50%"> Shortcut </td><td width="50%"> Similar notation </td></tr>
-<tr valign="top"><td width="50%">
-
-```typescript
-{
-  entity: {
-    Car: {
-      attributes: {
-        brand: { type: 'String', required: true },
-        mileage: 'Int',
-        licence: 'Key'
-      }
-    }
-  }
-}
-```
-
-</td>
-<td width="50%">
-
-```typescript
-{
-  entity: {
-    Car: {
-      attributes: {        
-        brand: { 
-          type: 'String', 
-          required: true 
-        },
-        mileage: { 
-          type: 'Int' 
-        },
-        licence: { 
-          type: 'String', 
-          required: true, 
-          unique: true 
-        }        
-      }
-    }
-  }
-}
-```
+{% endhighlight %}
 
 </td>
 </tr>
@@ -145,13 +89,10 @@ to each other.
 ## type
 
 ```typescript
-  type?:string;
+type?:string
 ```
 
-The type of an attribute can be any Enum or Scalar type described as follows. Note that you should never use other 
-entity types as attribute types but instead describe the relations between entities as 
-[associations](./associations.md). 
-
+The type of an attribute can be any Enum, Object or Scalar type described as follows. Note that you should not use the object type of another entity as an attribute type but instead describe the relations between entities as [associations](./entity-associations.md). 
 
 #### **Shortcut Notation**
 
@@ -163,7 +104,6 @@ The most common attribute configurations can be done by via shortcut notation:
 | typeName!   | sets the type to 'typeName' and `required` to true, e.g. `Int!` becomes `{ type: 'Int, required: true}` |
 | [typeName]  | sets type to 'typeName' and `list` to `true`, e.g. `Int!` becomes `{ type: 'Int, list: true}` |
 | [typeName!] | sets type to 'typeName' and `list` and `required` to `true` |
-
 
 <br>
 
@@ -197,18 +137,7 @@ In addition to the GraphQL scalar types, GAMA provides the following types, that
 
 #### **File**
 
-To enable the handling of binary data you can use the following values for an attribute type:
-
-| Value       | Description                                             |
-| ----------- | ------------------------------------------------------- |
-| File        | attribute to hold binary data (images, pdf etc)         |
-| image       | short for `{ type: 'File', mediaType: 'image' }`        |
-| video       | short for `{ type: 'File', mediaType: 'video' }`        |
-| audio       | short for `{ type: 'File', mediaType: 'audio' }`        |
-
-<br>
-
-Gama provides a GrapqhQL type `File` that is defined as follows.
+Gama provides a GrapqhQL type `File` that you can use as an attribute type, defined as follows.
 
 ```graphql
 type File {
@@ -219,151 +148,46 @@ type File {
   }
 ```
 
-For any attribute of the type "File" an input of type [GraphQLUpload](https://www.apollographql.com/docs/apollo-server/data/file-uploads/) is added to the create and update mutation (not the input type). 
+To enable the upload of binary data you can use the following values for an attribute type:
 
-As you see from the type, if a client provides a File (in fact a FileStream) in either the create or update mutation, GAMA does not store any binary data in the _datastore_ but just metadata about the file. The actual save or write of the file is done by an implementation of `EntityFileSave`. 
+| Value       | Description                                             |
+| ----------- | ------------------------------------------------------- |
+| File        | attribute to hold binary data (images, pdf etc)         |
+| image       | short for `{ type: 'File', mediaType: 'image' }`        |
+| video       | short for `{ type: 'File', mediaType: 'video' }`        |
+| audio       | short for `{ type: 'File', mediaType: 'audio' }`        |
 
-The default `EntityFileSave` implementation writes the file to the local filesystem in the following path:
-```
-[Express rootDir]/[uploadRootDir]/[secret]/[Entity]/[ID]/[Attribute]/[Filename]
-```
-The delivery of the file to a client is out of scope for GAMA. The GAMA starter application nonetheless serves the file via ExpressJS. A client can obtain the necessary values (`filename`, `mimetype`, `encoding`, `secret`) from the `File` type in the query and create a http get request with the following path: 
-```
-/files/[secret]/[Entity]/[ID]/[Attribute]/[Filename]
-```
-Example:
-```
-http://host-of-express-app:port/files/0987654321/Car/5fc81/picture/mercedes.jpg
-```
+The `mediaType` property is only added to the metadata to be used by a UI client (e.g. GAMA Admin UI) to render the file accordingly.
 
-| path item | description |
-| --------- | - |
-| Express rootDir | the root directory of your Express app; disregaded if uploadRootDir is absolute path |
-| uploadRootDir   | as defined in GamConfig.uploadRootDir when creating a Runtime; default 'upload'  |
-| secret          | a secret token generated for every file upload; secures guessing file paths when serving to clients |
-| Entity          | type name of the entity  |
-| ID              | id of the entity item that holds the metadata |
-| Attribute       | name of attribute that holds the metadata |
-| Filename        | original filename from the upload; sanitized (blank to - and no # characters) |
+Files can be uploaded via the GraphQL API. Therefore any attribute of the type "File" will add an input of type [GraphQLUpload](https://www.apollographql.com/docs/apollo-server/data/file-uploads/) to the create and update mutation (not the input type). 
 
-<br>
+The actual file will then be handled by an instance of `EntityFileSave` (e.g. written to a filesystem or stored in a database. 
 
-If you prefer not to store and serve files from the local filesystem but e.g. directly to/from a database or a cloud file service like S3, you would implement your own `EntityFileSave` implementation. You would have to inform your API clients (ideally in the schema documentation) how to obtain the actual file download then.
+The GraphQL API will not serve any binary file data though, this must be implemented by the actual application. The GAMA starter application writes any file to the local filesystem and serves it statically via ExpressJS. 
 
-<br>
-
-### Example
-
-<table width="100%" style="font-size: 0.9em">
-<tr valign="top">
-<td width="30%"> YAML Configuration </td> <td width="70%"> Schema (excerpt) </td>
-</tr>
-<tr valign="top"><td>
-
-```yaml
-entity:
-  Car: 
-    attributes:
-      brand: String!
-      image: File
-```
-
-</td><td>
-
-```graphql
-type Car {
-  id: ID!
-  brand: String!
-  image: File
-  createdAt: Date
-  updatedAt: Date
-}
-
-type File {
-  filename: String!
-  mimetype: String!
-  encoding: String!
-}
-
-type Mutation {
-  createCar(car: CarCreateInput, image: Upload): SaveCarMutationResult
-  updateCar(car: CarUpdateInput, image: Upload): SaveCarMutationResult
-}
-
-scalar Upload
-```
-
-</td></tr>
-
-</table>
-
-You need a client with the ability to send multipart requests. Alas the GraphiQL playground that Apollo ships 
-with is not able to do that. You can test this feature with other API test tools like 
-[Altair](https://altair.sirmuel.design) though. 
-
-You should declare a variable for each file upload and set in the "Add Files" section accordingly. Be aware that variables begin with `$` - best practice would be use the same name as the attribute. So if you have an attribute `picture` you would declare the variable `$picture: Upload`. In the file upload dialog you refer to the variable without `$` prefix then. 
-
-![File Upload][file-upload]
-
-[file-upload]: ./img/file-upload.png "File Upload"
-
-<table width="100%" style="font-size: 0.8em">
-<tr valign="top">
-<td width="50%"> Request </td> <td width="50%"> Response </td>
-</tr>
-<tr valign="top"><td>
-
-```graphql
-mutation($image: Upload) {
-  createCar( car: { brand: "Mercedes" } image: $image ){
-    car{ id brand image { filename mimetype encoding secret } }
-    validationViolations { attribute message }
-  }
-}
-```
-
-</td><td>
-
-```json
-{
-  "data": {
-    "createCar": {
-      "car": {
-        "id": "5faaef9164e3abf9383ae141",
-        "brand": "Mercedes",
-        "image": {
-          "filename": "01-mercedes-benz.jpeg",
-          "mimetype": "image/jpeg",
-          "encoding": "7bit",
-          "secret": "234234238"
-        }
-      },
-      "validationViolations": []
-    }
-  }
-}
-```
-
-</td></tr>
-</table>
-
-<br>
+For details see [Handling Files](/gama/handling-files).
 
 #### **Enum**
 
 An attribute can use any Enum type you add to the business domain configuration or directly to the schema.
 
-### Example
+| Value    | Description |
+| -------- | ----------- |
+| enumName | will take this (enum) if exists as type for this attribute |
 
-in the following example you see the usage of possible type values and notations to describe a _Car_ entity.
+---
+
+### Attribute Type Example
+
+In the following example you see the usage of possible type values and notations to describe a _Car_ entity.
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
-<td width="35%"> YAML Configuration </td> <td width="65%"> Similar object notatation </td>
+<td width="50%"> YAML Configuration </td> <td width="50%"> Similar possible object notatation </td>
 </tr>
 <tr valign="top"><td>
 
-```yaml
+{% highlight yaml %}
 enum: 
   CarBrand:
     - Mercedes
@@ -376,7 +200,7 @@ entity:
     attributes: 
       brand: CarBrand
       licence: Key
-      mileage: Int    
+      mileage: Int!    
       fuelConsumption: 
         type: Float
         required: true
@@ -384,15 +208,11 @@ entity:
       hasHitch: Boolean
       repairProtocol: JSON
       registrationScan: image      
-
-
-
-
-```
+{% endhighlight %}
 
 </td><td>
 
-```typescript
+{% highlight typescript %}
 {
   enum: {
     CarBrand: { 
@@ -405,19 +225,40 @@ entity:
   entity: {
     Car: {
       attributes: {
-        brand: { type: 'CarBrand' }, 
-        license: { type: 'String', unique: true, required: true },
-        mileage: { type: 'Int' },
-        fuelConsumption: { type: 'Float', required: true },
-        registration: { type: 'Date' },
-        hasHitch: { type: 'Boolean' },
-        repairProtocol: { type: 'JSON' },
-        registrationScan: { type: 'File', mediaType: 'image' }
+        brand: { 
+          type: 'CarBrand' 
+        }, 
+        license: { 
+          type: 'String', 
+          unique: true, 
+          required: true 
+        },
+        mileage: { 
+          type: 'Int', 
+          required: true 
+        },
+        fuelConsumption: { 
+          type: 'Float', 
+          required: true 
+        },
+        registration: { 
+          type: 'Date' 
+        },
+        hasHitch: { 
+          type: 'Boolean' 
+        },
+        repairProtocol: { 
+          type: 'JSON' 
+        },
+        registrationScan: { 
+          type: 'File', 
+          mediaType: 'image' 
+        }
       }
     }
   }
 }
-```
+{% endhighlight %}
 
 </td></tr>
 </table>
@@ -435,28 +276,25 @@ required?:boolean|'create'|'update'
 | Value        | Shortcut        | Description                                                                    |
 | ------------ | --------------- | ------------------------------------------------------------------------------ |
 | **`false`**  | if not provided | no effect                                                                      |
-| `true`       | attributeName!  | NonNull in the type and create input type, `{presence: true}` validation added |
+| `true`       | attributeName!  | NonNull in entity object and create input type, `required` added to validation      |
 | 'create'     |                 | NonNull only create input type                                                 |
 | 'update'     |                 | NonNull only in update input type                                              | 
 
-<br>
 
-If you set the required modifier the corresponding field of the following types become an NonNull type in the 
-GraphQL schema: 
+If you set the required modifier the corresponding field of the following types become an NonNull type in the GraphQL schema: 
 
 * the type itself
 * the input type for the create mutation
 
-That means a client not providing a value for such field would result in a GrapqhQL error. 
-Since the "required-requirement" is part of the public API you can expect any client to handle this correctly. 
-If you prefer to allow a client to send null-values in a create mutation e.g. and instead of letting the GraphQL 
-layer handle this "error" (by throwing an exception) you could instead use an attribute validation.
+That means a client not providing a value for such field in a create mutation would result in a GrapqhQL error. Since the "required-requirement" is part of the public API you can expect any client to handle this correctly.  If you prefer to send ValidationMessages (instead of throwing an error) when a client sends null-values for required fields in a create mutation you can instead use an attribute validation.
 
 In addition to the schema field a _required validation_ is added to the validation of this attribute. You might ask 
 why, since the GraphQL layer would prevent any non-null value anyhow. The answer is that custom mutations
 could (and should) use an entity to create or update entity items. These values are not "checked" by the 
 GraphQL schema of course. Therefore before saving an entity item, all validations - incl. this required - validation
 must be met. 
+
+Please be aware there will also be an error thrown by the GraphQL layer if a resolver does not provide a non-null value for a required attribute. As long as only the default mutations handle data in the datastore, this should never happen but it could be the case in a custom query or mutation, or if the data in the datastore are manipulated by any custom code or external source.
 
 The information will also be part of the MetaData and therefore used in the GAMA Admin UI to render a mandatory
 input field for this attribute.
@@ -469,34 +307,34 @@ input field for this attribute.
   YAML
 </td>
 <td width="50%">
-  Schema (excerpt)
+  Resulting Schema (excerpt)
 </td>
 </tr>
 <tr valign="top">
 <td width="50%">
 
-```yaml
+{% highlight yaml %}
 entity:
   Car: 
     attributes:
       brand: 
         type: String
         required: true
-```
+{% endhighlight %}
 
 same as short
 
-```yaml
+{% highlight yaml %}
 entity:
   Car: 
     attributes:
       brand: String! 
-```
+{% endhighlight %}
 
 </td>
 <td width="50%">
 
-```graphql
+{% highlight graphql %}
 type Car {
   id: ID!
   brand: String!
@@ -507,7 +345,7 @@ type Car {
 input CarCreateInput {
   brand: String!
 }
-```
+{% endhighlight %}
 
 </td>
 </tr>
@@ -519,27 +357,28 @@ input CarCreateInput {
 </tr>
 <tr valign="top"><td>
 
-```graphql
+{% highlight graphql %}
 mutation{
   createCar( car: { } ){
     car{ id brand }
     validationViolations { attribute message }
   }
 }
-```
+{% endhighlight %}
 
 </td><td>
 
-```json
+{% highlight json %}
 {
   "error": {
     "errors": [
       {
         "message": "Field \"CarCreateInput.brand\" of required type \"String!\" was not provided."
       }
+    ]
   }
 }
-````
+{% endhighlight %}
 
 </td></tr>
 </table>
