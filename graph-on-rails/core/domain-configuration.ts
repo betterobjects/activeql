@@ -104,7 +104,7 @@ export type QueryConfigFn = (runtime:Runtime) => QueryMutationConfig
  */
 export type AttributeConfig = {
   type?:string;
-  required?:boolean|'create'|'update'
+  required?:boolean
   unique?:boolean|string
   description?:string
   list?:boolean

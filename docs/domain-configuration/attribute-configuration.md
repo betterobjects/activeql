@@ -14,7 +14,7 @@ Entities have attributes describing the data of the entity. You can define its a
 ```typescript
 export type AttributeConfig = {
   type?:string;
-  required?:boolean|'create'|'update'
+  required?:boolean
   unique?:boolean|string
   description?:string
   list?:boolean
@@ -270,29 +270,23 @@ entity:
 ## required
 
 ```typescript
-required?:boolean|'create'|'update'
+required?:boolean
 ```
 
 | Value        | Shortcut        | Description                                                                    |
 | ------------ | --------------- | ------------------------------------------------------------------------------ |
 | **`false`**  | if not provided | no effect                                                                      |
-| `true`       | attributeName!  | NonNull in entity object and create input type, `required` added to validation      |
-| 'create'     |                 | NonNull only create input type                                                 |
-| 'update'     |                 | NonNull only in update input type                                              | 
+| `true`       | attributeName!  | NonNull in entity object and create input type, `required` added to validation |
 
 
-If you set the required modifier the corresponding field of the following types become an NonNull type in the GraphQL schema: 
+If you set the required modifier for an attribute, the corresponding field of the following types become an NonNull type in the GraphQL schema: 
 
 * the type itself
 * the input type for the create mutation
 
-That means a client not providing a value for such field in a create mutation would result in a GrapqhQL error. Since the "required-requirement" is part of the public API you can expect any client to handle this correctly.  If you prefer to send ValidationMessages (instead of throwing an error) when a client sends null-values for required fields in a create mutation you can instead use an attribute validation.
+This means a client not providing a value for such field in a create mutation would result in a GrapqhQL error. Since the "required-requirement" is part of the public API you can expect any client to handle this correctly.  If you prefer to send ValidationMessages (instead of throwing an error) when a client sends null-values for required fields in a create mutation, you can leave the `required` option to `undefined` or `false` and use an attribute validation instead.
 
-In addition to the schema field a _required validation_ is added to the validation of this attribute. You might ask 
-why, since the GraphQL layer would prevent any non-null value anyhow. The answer is that custom mutations
-could (and should) use an entity to create or update entity items. These values are not "checked" by the 
-GraphQL schema of course. Therefore before saving an entity item, all validations - incl. this required - validation
-must be met. 
+In addition to the non-null schema field a _required validation_ is added to the validation of this attribute. You might ask why, since the GraphQL layer would prevent any non-null value anyhow. The answer is that custom mutations could (and should) use an entity to create or update entity items. These values are not "checked" by the GraphQL schema of course. Therefore before saving an entity item, all validations - incl. this required - validation must be met. 
 
 Please be aware there will also be an error thrown by the GraphQL layer if a resolver does not provide a non-null value for a required attribute. As long as only the default mutations handle data in the datastore, this should never happen but it could be the case in a custom query or mutation, or if the data in the datastore are manipulated by any custom code or external source.
 

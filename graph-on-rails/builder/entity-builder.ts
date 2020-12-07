@@ -365,9 +365,7 @@ export class EntityBuilder extends TypeBuilder {
     if( _.includes( ['createInput', 'updateInput'], purpose) && ! _.isNil( attribute.defaultValue ) ) return false;
     if( purpose === 'updateInput' ) return attribute.list ? attribute.required === true : false;
     if( attribute.required === true ) return _.includes( ['createInput', 'type'], purpose );
-    if( attribute.required === 'create' ) return _.includes( ['createInput', 'type'], purpose );
-    if( attribute.required === 'update' ) return false
-    throw `unallowed required attribute for '${this.entity.name}:${name}'`;
+    return false
   }
 
   //

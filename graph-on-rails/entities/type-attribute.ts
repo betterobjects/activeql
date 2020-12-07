@@ -9,7 +9,7 @@ export type TypeAttribute = {
   filterType?:string|false
   validation?:any
   unique?:string|boolean;
-  required?:boolean|'create'|'update'
+  required?:boolean
   description?:string
   defaultValue?:any|(( attributes:any, runtime:Runtime)=>any|Promise<any>)
   mediaType?:'image'|'video'|'audio'

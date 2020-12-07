@@ -70,9 +70,7 @@ describe('Schema Generation', () => {
             attributes: {
               alwaysRequired: { type: 'string', required: true },
               noRequired: { type: 'string' },
-              explicitNoRequired: { type: 'string', required: false },
-              createRequired: { type: 'string', required: 'create' },
-              updateRequired: { type: 'string', required: 'update' }
+              explicitNoRequired: { type: 'string', required: false }
             }
           }
         }

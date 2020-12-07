@@ -1,5 +1,12 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+# keep them clean in the repo
+/express/gama-app.ts
+/express/domain-configuration/*
+/express/domain-configuration.ts
+/express/misc
+
+
 /express/uploads/*
 
 # compiled output
