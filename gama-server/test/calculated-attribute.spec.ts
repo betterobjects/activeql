@@ -21,7 +21,7 @@ describe('Calculated Attributes', () => {
           attributes: {
             name: { type: 'string' },
             some: { type: 'int' },
-            calculatedA: { type: 'string!', resolve: () => 'calculatedA' },
+            calculatedA: { type: 'string!', resolve: () => 'calculatedA', virtual: true },
             calculatedB: { type: 'int', resolve: async () => 42 }
           },
           seeds: {
@@ -47,11 +47,12 @@ describe('Calculated Attributes', () => {
   //
   it('should resolve a virtual attribute', async () => {
     const alpha = runtime.entities['Alpha'];
-    const alpha1 = _.first( await alpha.findByAttribute( { name: 'alpha1' } ) );
 
-    expect( alpha1?.item ).toMatchObject({ name: 'alpha1' } );
-    expect( alpha1?.item.calculatedA ).toEqual( 'calculatedA'  );
-    expect( alpha1?.item.calculatedB ).toEqual( 42 );
+    const alphas = await alpha.resolver.resolveTypes( { args: { filter: { name: { is: 'alpha1' } } }, root: {}, context: {} } )
+    const alpha1 = _.first(alphas);
+    expect( alpha1 ).toMatchObject({ name: 'alpha1' } );
+    expect( alpha1.calculatedA ).toEqual( 'calculatedA'  );
+    expect( alpha1.calculatedB ).toEqual( 42 );
   })
 
 })

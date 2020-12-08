@@ -1,5 +1,5 @@
 import express from 'express';
-import { DomainDefinition } from 'graph-on-rails';
+import { DomainDefinition } from 'gama-server';
 import _ from 'lodash';
 
 export const addPrincipalFromHeader = ( domainDefinition:DomainDefinition ) => {

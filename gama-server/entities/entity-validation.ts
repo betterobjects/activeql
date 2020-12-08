@@ -86,8 +86,12 @@ export class EntityValidation  {
     const refEntity = this.runtime.entities[assocTo.type];
     const foreignKey = _.get( item, refEntity.foreignKey );
     if( ! foreignKey ) return {attribute: refEntity.foreignKey, message: 'must be provided'};
-    const refItem = await refEntity.findOneByAttribute( { id: _.toString(foreignKey) } );
-    if( ! refItem ) return { attribute: refEntity.foreignKey, message: 'must refer to existing item' };
+    try {
+      const refItem = await refEntity.findOneByAttribute( { id: _.toString(foreignKey) } );
+      if( ! refItem ) return { attribute: refEntity.foreignKey, message: 'must refer to existing item' };
+    } catch (error) {
+      return { attribute: refEntity.foreignKey, message: error.message };
+    }
   }
 
   /**

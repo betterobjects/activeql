@@ -172,7 +172,7 @@ describe('Permissions', () => {
 
     const superUser = _.defaults( { context: { principal: { roles: true } } }, resolverCtx  );
     await car.entityPermissions.ensureTypesRead( superUser );
-    expect( resolverCtx.args.filter ).toBeUndefined();
+    expect( resolverCtx.args.filter ).toEqual({});
     await car.entityPermissions.ensureTypeRead( redBmw.id, superUser );
   });
 
@@ -201,7 +201,7 @@ describe('Permissions', () => {
     if( ! foo1 ) throw new Error();
 
     await foo.entityPermissions.ensureTypesRead( resolverCtx );
-    expect( resolverCtx.args.filter ).toBeUndefined();
+    expect( resolverCtx.args.filter ).toEqual({});
     await foo.entityPermissions.ensureTypeRead( foo1.id, resolverCtx );
   })
 
@@ -213,7 +213,7 @@ describe('Permissions', () => {
 
     const superUser = _.defaults( { context: { principal: { roles: ['roleA','user'] } } }, resolverCtx  );
     await car.entityPermissions.ensureTypesRead( superUser );
-    expect( resolverCtx.args.filter ).toBeUndefined();
+    expect( resolverCtx.args.filter ).toEqual({});
     await car.entityPermissions.ensureTypeRead( redBmw.id, superUser );
   })
 
@@ -304,13 +304,13 @@ describe('Permissions', () => {
     expect( fleetUserCtx.args.filter.expression.accessoryId['$in'][0]).toBe( aForBlackPorsche.id );
   })
 
-  fit( 'should differentiate per action', async () => {
+  it( 'should differentiate per action', async () => {
     const resolverCtx:any = { root: {}, args: {}, context: {} };
     const car = runtime.entity('Car');
 
     const readUserCtx = _.defaults( { context: { principal: { roles: ['readUser'] } } }, _.clone(resolverCtx)  );
     await car.entityPermissions.ensureTypesRead( readUserCtx );
-    expect( readUserCtx.args.filter ).toBeUndefined();
+    expect( readUserCtx.args.filter ).toEqual({});
 
     const blueAudi = await car.findOneByAttribute( {licence: 'blueAudi'} );
     if( ! blueAudi ) throw new Error();

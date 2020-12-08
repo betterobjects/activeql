@@ -1,6 +1,6 @@
 {
-  "name": "graph-on-rails",
-  "version": "0.0.1",
+  "name": "gama-server",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "clean": "rimraf dist",

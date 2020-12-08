@@ -21,7 +21,7 @@ describe('Default Values', () => {
               name: 'key',
               number: {
                 type: 'int',
-                default: 23
+                defaultValue: 23
               }
             },
             assocTo: 'Beta',
@@ -37,7 +37,7 @@ describe('Default Values', () => {
               name: 'key',
               af: {
                 type: 'AngularFunction',
-                default: 'sin'
+                defaultValue: 'sin'
               }
             },
             assocFrom: 'Alpha',

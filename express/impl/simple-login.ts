@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import express from 'express';
-import { DomainConfiguration, DomainDefinition, Runtime } from 'graph-on-rails';
+import { DomainConfiguration, DomainDefinition, Runtime } from 'gama-server';
 import _ from 'lodash';
 
 export const addSimpleLogin = ( domainDefinition:DomainDefinition ) => {

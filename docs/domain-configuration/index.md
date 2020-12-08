@@ -137,7 +137,7 @@ export const domainConfiguration:DomainConfiguration = {
 You might realize we are using some helper methods (e.g. `findById`) and also not referring any GraphQL type
 directly but its string representation. All this we will be covered in the  [Custom Querys and Mutations]() section. 
 But you already should see that you can add any query and mutation that is not party of the default generated schema. 
-These queries and mutation can make use of the Graph-on-Rails library (as the mutation in this example) or can be 
+These queries and mutation can make use of the gama-server library (as the mutation in this example) or can be 
 totally independent from it (as the query shows). The use of [Lodash](https://lodash.com) `_.get( ... )` is optional
 of course.
 

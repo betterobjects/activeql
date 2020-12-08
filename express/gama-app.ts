@@ -1,5 +1,5 @@
 import { ApolloServerExpressConfig } from 'apollo-server-express';
-import { DomainDefinition, MongoDbDataStore, GamaServer } from 'graph-on-rails';
+import { DomainDefinition, MongoDbDataStore, GamaServer } from 'gama-server';
 import depthLimit from 'graphql-depth-limit';
 import path from 'path';
 import express from 'express';

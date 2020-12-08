@@ -46,7 +46,7 @@ export class MongoDbDataStore extends DataStore {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
-      _.set( attrValue, '_id', new ObjectID(id) );
+      _.set( attrValue, '_id', this.getObjectId( id, entity ) );
     }
     return this.findByExpression( entity, attrValue, sort );
   }

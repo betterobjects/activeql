@@ -30,7 +30,7 @@ export class DefaultEntityPermissions extends EntityModule implements EntityPerm
   async ensureTypeRead( ids:string|string[], resolverCtx:ResolverContext ) {
     if( ! _.isArray( ids ) ) ids = [ids];
     for( const id of ids ){
-      if( this.isIdPermitted( id, CRUD.READ, resolverCtx ) ) continue;
+      if( await this.isIdPermitted( id, CRUD.READ, resolverCtx ) ) continue;
       throw new Error(`id '${id}' does not exist`);
     }
   }

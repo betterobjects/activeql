@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Runtime } from 'graph-on-rails';
+import { Runtime } from 'gama-server';
 import { exit } from 'process';
 
 const domainConfiguration = './config-types/d2prom';

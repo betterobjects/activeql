@@ -80,7 +80,7 @@ describe('Validations', () => {
 
     result = await alpha.validate( { name: 'Cool this', some: 'Some that' } );
     expect( result ).toHaveLength( 0 );
-  })
+  }, 20000 )
 
   //
   //
@@ -125,7 +125,7 @@ describe('Validations', () => {
     expect( delta1 ).toBeDefined()
     result = await beta.validate( { name: 'someName', deltaId: delta1?.id } );
     expect( result ).toHaveLength( 0 );
-  })
+  }, 20000)
 
   //
   //
@@ -163,7 +163,7 @@ describe('Validations', () => {
 
     result = await alpha.validate( { name: 'aX', some: 'some1', deltaId: delta2?.id } );
     expect( result ).toHaveLength( 0 );
-  })
+  }, 10000 )
 
   //
   //

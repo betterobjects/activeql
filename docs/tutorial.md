@@ -1087,7 +1087,7 @@ We still want to use all the existing configuration (in YAML) and only add the n
 <div style="text-align: right">./tutorial/09/domain-definition.ts</div>
 
 ```typescript
-import { DomainConfiguration, DomainDefinition } from "graph-on-rails";
+import { DomainConfiguration, DomainDefinition } from "gama-server";
 
 // load all definition in yaml files here
 const domainConfigurationFolder = `${__dirname}/domain-configuration`;
@@ -1147,7 +1147,7 @@ Let's start with the query. We still want to use the existing configuration (in 
 <div style="text-align: right">./tutorial/10/domain-definition.ts</div>
 
 ```typescript
-import { DomainConfiguration, DomainDefinition } from "graph-on-rails";
+import { DomainConfiguration, DomainDefinition } from "gama-server";
 
 // load all definition in yaml files here
 const domainConfigurationFolder = `${__dirname}/domain-configuration`;
@@ -1200,8 +1200,8 @@ We could add the add also directly to the `domainConfiguration` object but this 
 // usage of lodash is optional
 import _ from 'lodash';
 
-// we import some basic types from the graph-on-rails library
-import { Runtime, ValidationViolation } from "graph-on-rails";
+// we import some basic types from the gama-server library
+import { Runtime, ValidationViolation } from "gama-server";
 
 // this is the definition of our mutation, we will later assign it to our "domain-definition"
 // it's a function that returns the config for the mutation

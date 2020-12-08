@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import express from 'express';
 import expressJwt from 'express-jwt';
-import { DomainConfiguration, DomainDefinition, Runtime } from 'graph-on-rails';
+import { DomainConfiguration, DomainDefinition, Runtime } from 'gama-server';
 import { sign } from 'jsonwebtoken';
 import _ from 'lodash';
 
