@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Entity Configuration
-permalink: /entity-configuration/
+title: Seed Configuration
+permalink: /Seed-configuration/
 nav_order: 70
 parent: Domain Configuration
 ---
