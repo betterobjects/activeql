@@ -168,8 +168,8 @@ type Car {
   brand: CarBrand
   mileage: Int
   color: String
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 ''' the GraphQL Enum type for the CarBrand enum '''
@@ -200,7 +200,7 @@ input CarCreateInput {
 
 ''' filter type on all attributes of the Car type that is used in the cars types query '''
 input CarFilter {
-  id: ID
+  id: IDFilter
   brand: CarBrandFilter
   mileage: IntFilter
   color: StringFilter

@@ -333,8 +333,8 @@ export class EntityBuilder extends TypeBuilder {
   //
   //
   private addTimestampFields( fields:Dictionary<AttrFieldConfig|undefined>, purpose:AttributePurpose ) {
-    _.set( fields, 'createdAt', this.getFieldConfig( 'createdAt', { graphqlType: 'Date' }, purpose ) );
-    _.set( fields, 'updatedAt', this.getFieldConfig( 'updatedAt', { graphqlType: 'Date' }, purpose ) );
+    _.set( fields, 'createdAt', { type: 'DateTime!', description: 'creation date of this item' } );
+    _.set( fields, 'updatedAt', { type: 'DateTime!', description: 'latest update date of this item' } );
   }
 
   //

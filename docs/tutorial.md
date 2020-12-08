@@ -711,8 +711,8 @@ type Car {
   licence: String!
   color: String!
   mileage: Int
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 enum CarBrand {
@@ -921,8 +921,8 @@ type Car {
   licence: String!
   color: String!
   mileage: Int
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
   driver: Driver
 }
 
@@ -957,8 +957,8 @@ type Driver {
   firstname: String
   lastname: String!
   licenceValid: Date!
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
   cars: [Car]
 }
 

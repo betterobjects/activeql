@@ -6,6 +6,8 @@ import { EntityDeleter } from './entity-deleter';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 import { ValidationViolation } from './entity-validation';
+import { TypeAttribute } from './type-attribute';
+import { parseGamaScalarDate } from '../core/gama-schema-types'
 
 //
 //
@@ -114,7 +116,7 @@ export class EntityAccessor extends EntityModule {
       const defaultValue = _.isFunction( attribute.defaultValue ) ?
         await Promise.resolve( attribute.defaultValue( attributes, this.runtime ) ) :
         attribute.defaultValue;
-      _.set( attributes, name, defaultValue );
+      _.set( attributes, name, this.sanitizedValue( attribute, defaultValue ) );
     }
   }
 
@@ -126,4 +128,17 @@ export class EntityAccessor extends EntityModule {
     if( ! attributes.id ) _.set( attributes, 'createdAt', now );
     _.set( attributes, 'updatedAt', now );
   }
+
+  private sanitizedValue( attribute:TypeAttribute, value:any ){
+    const typeName = _.isString( attribute.graphqlType ) ? attribute.graphqlType : _.get( attribute.graphqlType, 'name ');
+    switch( _.toLower(typeName) ){
+      case 'string': return _.isString( value ) ? value : _.toString( value );
+      case 'int': return _.isInteger( value ) ? value : _.toInteger( value );
+      case 'float': return _.isNumber( value ) ? value : _.toNumber( value );
+      case 'date': return parseGamaScalarDate( value )
+      case 'datetime': return _.isDate( value ) ? value : new Date( value )
+    }
+    return value;
+  }
+
 }

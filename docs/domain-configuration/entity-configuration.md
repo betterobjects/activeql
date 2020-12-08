@@ -169,7 +169,7 @@ input DriverCreateInput {
 }
 
 input DriverFilter {
-  carId: ID
+  carId: IDFilter
 }
 
 input DriverUpdateInput {

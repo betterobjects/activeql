@@ -121,19 +121,16 @@ You can use any GraphQL scalar type. Check also [GraphQL Type System](https://gr
 | ID          | represents a unique identifier, Although allowed it is advised not to use the `ID` type since GAMA uses this to identify entity items and establich relations between entities (think primary and foreign keys). |
 
 
-<br>
-
 #### **GAMA scalar types**
 
 In addition to the GraphQL scalar types, GAMA provides the following types, that can be used as a type for an attribute.
 
 | Value       | Description                                         |
 | ----------- | --------------------------------------------------- |
-| Date        | String representation of a Date in the JSON data it serializes to/from `new Date().toJSON()` internally it converts it to a TypeScript Date object |
+| DateTime    | String representation of a Date in the JSON data it serializes to/from `new Date().toJSON()` internally it converts it to a Javascript Date object |
+| Date        | String representation of a Date in simplified format `yyyy-mm-dd`; this type does not know about any timezones, it is merely a structured string, nonetheless sufficient in many situtaion when you don't care about timezones or complex date calculations. If you do, use `DateTime` instead. |
 | JSON        | arbitrary JSON structure (you should use this with caution and prefer GraphQL types instead) |
 
-
-<br>
 
 #### **File**
 
@@ -185,9 +182,9 @@ In the following example you see the usage of possible type values and notations
 <tr valign="top">
 <td width="50%"> YAML Configuration </td> <td width="50%"> Similar possible object notatation </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
-{% highlight yaml %}
+```yaml
 enum: 
   CarBrand:
     - Mercedes
@@ -208,11 +205,11 @@ entity:
       hasHitch: Boolean
       repairProtocol: JSON
       registrationScan: image      
-{% endhighlight %}
+```
 
-</td><td>
+</td><td markdown="block">
 
-{% highlight typescript %}
+```typescript
 {
   enum: {
     CarBrand: { 
@@ -258,7 +255,7 @@ entity:
     }
   }
 }
-{% endhighlight %}
+```
 
 </td></tr>
 </table>
@@ -279,21 +276,28 @@ required?:boolean
 | `true`       | attributeName!  | NonNull in entity object and create input type, `required` added to validation |
 
 
-If you set the required modifier for an attribute, the corresponding field of the following types become an NonNull type in the GraphQL schema: 
+**Non-Null Field in Schema**
 
-* the type itself
-* the input type for the create mutation
+If you set the required modifier for an attribute to `true`, the corresponding field of the following types become a NonNull field in the GraphQL schema: 
 
-This means a client not providing a value for such field in a create mutation would result in a GrapqhQL error. Since the "required-requirement" is part of the public API you can expect any client to handle this correctly.  If you prefer to send ValidationMessages (instead of throwing an error) when a client sends null-values for required fields in a create mutation, you can leave the `required` option to `undefined` or `false` and use an attribute validation instead.
+* the entity object type 
+* the input type for the _create mutation_
 
-In addition to the non-null schema field a _required validation_ is added to the validation of this attribute. You might ask why, since the GraphQL layer would prevent any non-null value anyhow. The answer is that custom mutations could (and should) use an entity to create or update entity items. These values are not "checked" by the GraphQL schema of course. Therefore before saving an entity item, all validations - incl. this required - validation must be met. 
+This means a client not providing a value for this field in a _create mutation_ would result in a GrapqhQL error. Since the "required-requirement" is part of the public API you can expect any client to handle this correctly.  If you prefer to send ValidationMessages (instead of throwing an error) when a client sends null-values for required fields in a create mutation, you can leave the `required` option to `undefined` or `false` and use an attribute validation instead.
 
-Please be aware there will also be an error thrown by the GraphQL layer if a resolver does not provide a non-null value for a required attribute. As long as only the default mutations handle data in the datastore, this should never happen but it could be the case in a custom query or mutation, or if the data in the datastore are manipulated by any custom code or external source.
+Please be aware there will also be an error thrown by the GraphQL layer if a resolver does not provide a non-null value for a required attribute. As long as the data are only handled by the default mutations or the `EntiyAccessor`, this should never happen. But it could be the case if the data in the datastore are manipulated directly by a custom query or mutation  or external source.
 
-The information will also be part of the MetaData and therefore used in the GAMA Admin UI to render a mandatory
-input field for this attribute.
+**Attribute Validation**
 
-### Example
+In addition to the non-null schema field a _required validation_ is added to the validation of any `required` attribute. You might ask why, since the GraphQL layer would prevent any non-null value anyhow. This is only true for the _create mutation_. The input type for the _update mutation_ allows a client to only send the attributes that should be updated. So even the field for a `required` attribute in the _update input type_ allows a null-value - to leave it untouched. But now a client could erroneus send something like `{brand: null}` even if "brand" is a `required` attribute. 
+
+In addition to this any custom mutation could (and should) use an entity to create or update entity items. These values are not "checked" by the GraphQL schema of course. Therefore before saving an entity item, all validations - incl. this required - validation must be met. 
+
+**Meta Data**
+
+The information will also be part of the MetaData and can therefore used by any UI client. E.g. the GAMA Admin UI uses this information to render a mandatory input field for this attribute.
+
+### Required Example 
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
@@ -304,42 +308,40 @@ input field for this attribute.
   Resulting Schema (excerpt)
 </td>
 </tr>
-<tr valign="top">
-<td width="50%">
+<tr valign="top"><td markdown="block">
 
-{% highlight yaml %}
+```yaml
 entity:
   Car: 
     attributes:
       brand: 
         type: String
         required: true
-{% endhighlight %}
+```
 
 same as short
 
-{% highlight yaml %}
+```yaml
 entity:
   Car: 
     attributes:
       brand: String! 
-{% endhighlight %}
+```
 
-</td>
-<td width="50%">
+</td><td markdown="block">
 
-{% highlight graphql %}
+```graphql
 type Car {
   id: ID!
   brand: String!
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 input CarCreateInput {
   brand: String!
 }
-{% endhighlight %}
+```
 
 </td>
 </tr>
@@ -349,20 +351,20 @@ input CarCreateInput {
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
-{% highlight graphql %}
+```graphql
 mutation{
   createCar( car: { } ){
     car{ id brand }
     validationViolations { attribute message }
   }
 }
-{% endhighlight %}
+```
 
-</td><td>
+</td><td markdown="block">
 
-{% highlight json %}
+```json
 {
   "error": {
     "errors": [
@@ -372,7 +374,7 @@ mutation{
     ]
   }
 }
-{% endhighlight %}
+```
 
 </td></tr>
 </table>
@@ -392,11 +394,7 @@ unique?:boolean|string
 | [other attribute]   |           | adding validation of uniqueness of this attribute to the entity within the scope ot this attribute |
 | [assocTo Name]      |           | adding validation of uniqueness within the scope of the assoc of this attribute to the entity |
 
-<br>
-
-If an attribute is declared as unique, the entity validation checks that no equal value for this entity already
-exists before any actual write to the datastore happens. If it finds the input value not unique it adds a message
-to the `ValidationViolaton` return type.
+If an attribute is declared as unique, a validation is added to check that no entity item with an equal value for this attribute exists. If it finds the input value not unique it adds a message to the `ValidationViolaton` return type.
 
 If the attribute is not `required` - it would allow many null values though.
 
@@ -416,9 +414,9 @@ entity:
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
-<td width="50%"> Request </td> <td width="50%"> Response </td>
+<td width="30%"> Request </td> <td width="70%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 Let's see what cars already exist. 
 
@@ -428,7 +426,7 @@ query {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 One car with the licence nr "HH-BO 2020" exists.
 
@@ -444,23 +442,26 @@ One car with the licence nr "HH-BO 2020" exists.
     ]
   }
 }
-````
+```
 
 </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
-If we would attempt to create a 2nd car with the same licence ...
+If we try to create a 2nd car with the same licence ...
 
 ```graphql
 mutation{
-  createCar( car: { brand: "BMW", licence: "HH-BO 2020" } ) {
+  createCar( car: { 
+    brand: "BMW", 
+    licence: "HH-BO 2020" 
+  }) {
     car{ id brand licence }
     validationViolations { attribute message }
   }
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ... we would get a validation violation.
 
@@ -478,23 +479,26 @@ mutation{
     }
   }
 }
-````
+```
 
 </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 Adding a car with a different licence ...
 
 ```graphql
 mutation{
-  createCar( car: { brand: "BMW", licence: "HRO-TR 1970" } ) {
+  createCar( car: { 
+    brand: "BMW", 
+    licence: "HRO-TR 1970" 
+  }) {
     car{ id brand licence }
     validationViolations { attribute message }
   }
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ... passes all validations.
 
@@ -511,17 +515,14 @@ mutation{
     }
   }
 }
-````
+```
 
 </td></tr>
 </table>
 
 ### **Scoped attribute unique**
 
-Sometimes a value must only be unique in a certain scope. Let' assume we want to make sure there is only one car
-of a certain color in our car park. 
-
-We could write
+Sometimes a value must only be unique in a certain scope. Let' assume we want to make sure that there are no two cars with same color of the same brand.
 
 ```yaml
 entity: 
@@ -532,11 +533,11 @@ entity:
       unique: brand
 ```
 
-<table width="100%" style="font-size: 0.9em">
+<table width="100%">
 <tr valign="top">
-<td width="50%"> Request </td> <td width="50%"> Response </td>
+<td width="30%"> Request </td> <td width="70%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 Let's see what cars already exist. 
 
@@ -546,7 +547,7 @@ query {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 There is a red Mercedes.
 
@@ -562,23 +563,26 @@ There is a red Mercedes.
     ]
   }
 }
-````
+```
 
 </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 Let's try to create another red Mercedes.
 
 ```graphql
 mutation{
-  createCar( car: { brand: "Mercedes", color: "red" } ) {
+  createCar( car: { 
+    brand: "Mercedes", 
+    color: "red" 
+  }){
     car{ id brand color }
     validationViolations { attribute message }
   }
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 Validation does not pass. 
 
@@ -596,23 +600,26 @@ Validation does not pass.
     }
   }
 }
-````
+```
 
 </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 A red BMW though ... 
 
 ```graphql
 mutation{
-  createCar( car: { brand: "BMW", color: "red" } ) {
+  createCar( car: { 
+    brand: "BMW", 
+    color: "red" 
+  }){
     car{ id brand color }
     validationViolations { attribute message }
   }
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ... is created without objection.
 
@@ -629,7 +636,7 @@ mutation{
     }
   }
 }
-````
+```
 
 </td></tr>
 </table>
@@ -638,33 +645,32 @@ mutation{
 
 If you have an `assocTo` relation to another entity - you can also scope the `unique` to this association. 
 
-Lets assume we have multiple car parks and a car belong to exactly one car park. Any car has a "license" which 
-is truly unique and also a "nickname" which should also be unique. 
-But making the attribute "nickname" `unique` would prevent any two car parks to use the
-same nickname - it should only be unique within the scope of a car park. So we could write:
+Lets assume we have multiple vehicle fleets and a car belong to exactly one vehicle fleet. A car should manually assigned order number to express a rating. This rating should be unique for a fleet, only one car should be on position 1, 2, 3 etc. 
+
+Making the attribute "rating" unique would prevent to have independent rating numbers per fleet. So you can scope this unique option to the `assocTo` relationship.
 
 ```yaml 
 entity: 
-  CarPark: 
+  VehicleFleet: 
     attributes: 
       name: String!
   Car:
-    assocTo: CarPark
+    assocTo: VehicleFleet
     attributes: 
       licence: Key
+      brand: String!
       nickname: 
         type: String
         required: true
-        unique: CarPark
-
+        unique: VehicleFleet
 ```
-<br>
 
 ---
+
 ## list
 
 ```typescript
-  list?:boolean
+list?:boolean
 ```
 
 | Value        | Shortcut        | Description                                                                    |
@@ -672,27 +678,28 @@ entity:
 | **`false`**  | (default)       | no effect                                                                      |
 | `true`       | [attributeName] | type of this attrribute is a list of the scalar type                           |
 
-<br>
+Setting list to `true` will set the field for this attribute in the following schema types as a `GraphQLList` type: 
 
-Setting this to `true` will set the attribute `field` as a `GraphQLList` type. Please be aware that your datastore 
-implementation might not be able to handle this or at least makes it harder or impossible to filter or sort 
-these attributes. The default datastore implementation nontheless uses MongoDB and will therefor store arrays 
-in the entity item document quiet easily.
+* for the entity object type
+* for the input type for the _create mutation_
+* for the input type for the _update mutation_
+* for the input type for the _types query_ filter
 
-Please note it is only possible to set one `required` configuration per attribute. This is always treated as 
+Please be aware that your datastore implementation might not be able to handle this or at least makes it harder or impossible to filter or sort these attributes. The default datastore implementation nontheless uses MongoDB and will therefor store arrays in the entity item document quiet easily.
+
+Also note it is only possible to set one `required` configuration per attribute. If `true` it is treated as 
 setting the list values to a NonNull type, but never the list field itself. So you can set the configuration to 
-`[String!]` which would be treated as `{ type: 'String', required: true, list: true }` and the resulting field type
-of the expected value `[String!]`. But you cannot express a configuration that would lead to a schema field type
+`[String!]` or explicit `{ type: 'String', required: true, list: true }` and the resulting field type
+of the expected GraphQL type `[String!]`. But you cannot express a configuration that would lead to a schema field type
 of `[String]!` or `[String!]!`. In other words: list scalar fields are never `required`.
 
-
-### Example
+### List Example
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
 <td width="40%"> YAML Configuration </td> <td width="60%"> Schema (exerpt) </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```yaml
 entity: 
@@ -716,15 +723,15 @@ entity:
 ```
 
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
   id: ID!
   licence: String!
   repairsAtKm: [Int!]
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 input CarCreateInput {
@@ -733,7 +740,7 @@ input CarCreateInput {
 }
 
 input CarFilter {
-  id: ID
+  id: IDFilter
   licence: StringFilter
   repairsAtKm: IntFilter
 }
@@ -776,29 +783,25 @@ as seperate entities with associations with eachother.
 defaultValue?:any|(( attributes:any, runtime:Runtime)=>any|Promise<any>)
 ```
 
-| Value                    | Shortcut  | Description                                           |
-| ------------------------ | --------- | ----------------------------------------------------- |
-| [empty]                  | (default) | no effect                                             |
-| [any value]              |           | default value when creating a new entity item         |
-| [Function] |           | called to get the default value for a new entity item; can return a value or a Promise |
+| Value       | Shortcut  | Description                                           |
+| ----------- | --------- | ----------------------------------------------------- |
+| [empty]     | (default) | no effect                                             |
+| [any value] |           | default value when creating a new entity item         |
+| [Function]  |           | called to get the default value for a new entity item; can return a value or a Promise |
 
-<br>
-
-You can set either a value or a callback function (configuration object only) to determine a default value for an attribute if a client does not provide a value for it. There will be no checks if the `value` matches  the `type` of the attribute. If you provide a value of another type it can come to unwanted casts or error, so you have to ensure the correct type of the defaultValue.
+You can set either a value or a callback function (configuration object only) to determine a default value for an attribute if a client does not provide a value for it. There will be some checks if the `value` matches  the `type` of the attribute and some sanitizing if possible. But you should be aware of the correct type since it could come to unwanted unwanted casts or errors if it doesn't.
 
 If you provide `defaultValue` (literal or function) in the configuration, this attribut becomes no longer mandatory in the `CreateInputType` schema type. Since there will always be a default value the required condition will be met when creating a new items even when a value is not provided by a client. 
 
-<br>
+### Default Value Example
 
-### Example
-
-Let's assume any new car should have a mileage of _0_ and the color _white_. Notice how the required attribute "mileage" becomes still a NonNull field in the `Car` schema type but no longer in the `CarCreateInput` type. 
+Let's assume any new car should have a mileage of _0_ and the color _white_. Notice how the required attribute "mileage" remains a NonNull field in the `Car` schema type but no longer in the `CarCreateInput` type. 
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
 <td width="50%"> YAML Configuration </td> <td width="65%"> Schema (exerpt) </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```yaml
 entity: 
@@ -813,7 +816,7 @@ entity:
         default: 0
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
@@ -821,8 +824,8 @@ type Car {
   brand: String!
   color: String
   mileage: Int!
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 input CarCreateInput {
@@ -842,22 +845,15 @@ input CarUpdateInput {
 </td></tr>
 </table>
 
-Sometimes we need dynamic default values. Let's say the registration date of a car should be set to _today_ when not provided by a client. We could not add a static value for that - so we use the callback. We do not use the  `runtime` in this implementation - but it could be used to access other entities or similar.
-
+Sometimes we need dynamic default values. Let's say the registration date of a car should be set to _today_ when not provided by a client. We could not add a static value for that - so we use the callback. We do not use the  `runtime` in this implementation - but it could be used to access other entities or access a 3rd party API or anything else. We cant add the callback function in YAML but it is totally ok to have the entity definition in a YAML configuration and only add the specific attribute option in a configuration object.
 
 ```typescript
 {
   entity: {
     Car: {
-      attributes: {
-        brand: 'String!',
-        color: {
-          type: 'String',
-          default: 'white'
-        },
         registration: {
-          type: 'Date',
-          default: (rt:Runtime) => new Date()
+          type: 'Date!',
+          defaultValue: (rt:Runtime) => new Date()
         }
       }
     }
@@ -868,7 +864,7 @@ Sometimes we need dynamic default values. Let's say the registration date of a c
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```graphql
 mutation { 
@@ -878,7 +874,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -887,7 +883,7 @@ mutation {
       "car": {
         "id": "5fac51ca22e89a4ed29e172e",
         "brand": "Mercedes",
-        "registration": "2020-11-11T21:04:10.731Z"
+        "registration": "2020-11-11"
       }
     }
   }
@@ -895,21 +891,21 @@ mutation {
 ```
 
 </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```graphql
 mutation { 
   createCar( 
     car: { 
       brand: "Mercedes", 
-      registration: "2020-11-01" } 
+      registration: "2019-12-03" } 
     ){
     car { id brand registration }
   }
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -918,7 +914,7 @@ mutation {
       "car": {
         "id": "5fac554ac0c9164fcce7530e",
         "brand": "Mercedes",
-        "registration": "2020-11-01T00:00:00.000Z"
+        "registration": "2019-12-03"
       }
     }
   }
@@ -940,49 +936,44 @@ filterType?:string|false
 | ------------ | --------- | ----------------------------------------------------- |
 | [empty]      | (default) | attribute will be added to the entity filter type if a default filter for the attribute type exists |
 | `false`      |           | attribute will not be added to the entity filter type  |
-| 'filterName' |           | attribute will be added to the entity filter type if this filter type exists |
+| 'filterName' |           | attribute will be added to the entity filter type if filter type "filterName" exists |
 
 <br>
 
-Usually every attribute will be added to the filter type for the entity, so a client could filter or search 
-for entity items over this attribute's values. This is true with the exception of
+Usually every attribute will be added to the filter type for the entity, so a client could filter or search for entity items over this attribute's values. This is true with the exception of
 
   * `File` 
   * `JSON`
 
-For any other attribute it is tried to determine a filter type per convention `[TypeName]Filter` 
-so e.g. for the field type `String` a filter type `StringFilter` is used. These FilterTypes must come from the 
-_datastore_ implementation, since they are in their behaviour dependent on how a  _datastore_ gathers data. 
+For any other attribute it is tried to determine a filter type per convention `[TypeName]Filter` so e.g. for the field type `String` a filter type `StringFilter` is used. These FilterTypes must come from the _datastore_ implementation, since they are in their behaviour dependent on how a  _datastore_ gathers data. 
 
 The default GAMA _datastore_ uses MongoDB and provides the following FilterTypes: 
 
+  * `IDFilterType`
   * `StringFilterType`
   * `IntFilterType`
   * `FloatFilterType`
   * `BooleanFilterType`
   * `DateFilterType`
+  * `DateTimeFilterType`
 
-also for any `Enum` type a FilterType is added. So if you have an enum `CarBrand` the filter type `CarBrandFilter` 
-should exist.
+Also for any `Enum` type a FilterType is added. So if you have an enum `CarBrand` the filter type `CarBrandFilter` will be generated.
 
-If you want to prevent to filter / search for a certain attribute you can set the `filter` configuration for this 
-attribute to `false`. 
+If you want to prevent to filter / search for a certain attribute you can set the `filter` configuration for this attribute to `false`. 
 
-If your _datastore_ implementations offers more or other filter types you can also override the convention by 
-declaring the filter type name here. 
+If your _datastore_ implementations offers more or other filter types you can also override the convention by declaring the filter type name here. 
 
-<br>
+For more information how to use filter check out the Filter/Search section in [Queries and Mutations](../queries-and-mutations.md).
 
-### Example
+### Filter Type Example
 
-Let's assume we do not want to allow a client to filter _cars_ by their "brand", only by its other attributes 
-("mileage" or "color"). We will set the filter for "brand" to `false`. Notice how the "brand" is no longer part of the `CarFilter` type.
+Let's assume we do not want to allow a client to filter _cars_ by their "brand", only by its other attributes ("mileage" or "color"). We will set the filter for "brand" to `false`. Notice how the "brand" is no longer part of the `CarFilter` type.
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
 <td width="50%"> Object Configuration </td> <td width="50%"> Schema (excerpt) </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```typescript
 {
@@ -1001,7 +992,7 @@ Let's assume we do not want to allow a client to filter _cars_ by their "brand",
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
@@ -1009,12 +1000,12 @@ type Car {
   brand: String!
   color: String!
   mileage: Int!
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 input CarFilter {
-  id: ID
+  id: IDFilter
   color: StringFilter
   mileage: IntFilter
 }
@@ -1031,19 +1022,15 @@ input CarFilter {
 description?:string
 ```
 
-You can add arbritary information / documentation to an attribute that will become part of the schema documentation.  
-In some circumstances GAMA adds some description itself (e.g. the validation information) but will always
-leave your description intact. 
+You can add any information / documentation to an attribute that will become part of the schema documentation.  In some circumstances GAMA adds some description itself (e.g. the validation information) but will always leave your description intact. 
 
-<br>
-
-### Example
+### Description Example
 
 <table width="100%" style="font-size: 0.8em">
 <tr valign="top">
 <td width="30%"> YAML Configuration </td> <td width="70%"> Schema (excerpt) </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```yaml
 entity:
@@ -1059,9 +1046,9 @@ entity:
           collected
 ```
 
-We use the standard YAML feature of multiline text input here
+(We use the standard YAML feature of multiline text input here.)
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
@@ -1070,8 +1057,8 @@ type Car {
   # this is not really evaluated anywhere and just informally collected
   #
   color: String
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 input CarCreateInput {
@@ -1082,7 +1069,7 @@ input CarCreateInput {
 }
 
 input CarFilter {
-  id: ID
+  id: IDFilter
   brand: StringFilter
   color: StringFilter
 }
@@ -1098,6 +1085,10 @@ input CarUpdateInput {
 
 </td></tr>
 </table>
+
+**Schema Documentation**
+
+![Color Description](../img/color-description.png)
 
 --- 
 
@@ -1115,7 +1106,7 @@ validation?:object
 <br>
 
 Validations take place before saving an entity item. If validation, either any attribute-validation or 
-entity-validation returns something different then `undefined` or `[]` the validation fails and no save 
+entity-validation returns something different then `undefined` or `[]` the validation fails and no create or update 
 happens. The validations create a list of `ValidationViolation` that informs the client about the failed
 validations. 
 
@@ -1134,7 +1125,7 @@ The default `EntityValidation` uses ValidateJS for configurable validations of a
 use another validation library (by providing another `EntityValidation` implementation) you should use the syntax of 
 the chosen library then. 
 
-For ValidateJS syntax check out their [documentation](https://validatejs.org).
+For ValidateJS syntax check out their extensive [documentation](https://validatejs.org).
 
 #### **Validation Function**
 
@@ -1142,8 +1133,7 @@ For non-trivial validations not expressable by configuring ValidatJS validation,
 a callback function on the entity definition and implement any custom validation logic there. 
 See [Entity Validation](./entity-configuration.md#validation)
 
-
-### Example
+### Attribute Validation Example
 
 Let's assume we want to ensure that the "brand" of a _car_ item as at least 2 and max 20 characters, also the 
 "mileage" should be a positive number. The "brand" is required, we do not need to add a validation for this, 
@@ -1154,7 +1144,7 @@ The "mileage" is optional though but if provided must match the validation.
 <tr valign="top">
 <td width="40%"> YAML Configuration </td> <td width="60%"> Schema Doc Viewer </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 We can ValidateJS syntax in yaml. 
 
@@ -1176,11 +1166,11 @@ entity:
             lessThanOrEqualTo: 500000    
 ```
 
-</td><td>
+</td><td markdown="block">
 
 The stringified JSON is added to the description of the field in the schema.
 
-![Validation Description](./img/validation-description.png)
+![Validation Description](../img/validation-description.png)
 
 </td></tr>
 </table>
@@ -1189,7 +1179,7 @@ The stringified JSON is added to the description of the field in the schema.
 <tr valign="top">
 <td width="40%"> Request </td> <td width="60%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 If we now try to create _car_ item with invalid values ... 
 
@@ -1202,7 +1192,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ... we get the ValidationViolations and no _car_ item was created.
 

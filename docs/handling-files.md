@@ -74,8 +74,8 @@ type Car {
   id: ID!
   brand: String!
   image: File
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type File {

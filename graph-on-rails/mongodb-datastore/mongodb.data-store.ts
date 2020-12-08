@@ -8,6 +8,7 @@ import { Entity } from '../entities/entity';
 import { AssocFromFilterType } from './filter/assoc-from-filter-type';
 import { BooleanFilterType } from './filter/boolean-filter-type';
 import { DateFilterType } from './filter/date-filter-type';
+import { DateTimeFilterType } from './filter/date-time-filter-type';
 import { EnumFilterType } from './filter/enum-filter-type';
 import { FloatFilterType } from './filter/float-filter-type';
 import { IdFilterType } from './filter/id-filter-type';
@@ -130,6 +131,7 @@ export class MongoDbDataStore extends DataStore {
       new FloatFilterType(),
       new BooleanFilterType(),
       new DateFilterType(),
+      new DateTimeFilterType(),
       new IdFilterType(),
       new AssocFromFilterType( this.db )
     ]

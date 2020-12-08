@@ -5,6 +5,16 @@ import { DomainDefinition } from './domain-definition';
 import { GraphQLTypes } from './graphx';
 import { Runtime } from './runtime';
 
+export const parseGamaScalarDate = (value:string) => {
+  const date = new Date( _.toString(value) );
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+  if( _.isNaN( y + m + d) ) return null;
+  const pad = (i:number) => _.padStart( _.toString(i), 2, '0' );
+  return `${y}-${pad(m+1)}-${pad(d)}`;
+}
+
 
 export class GamaSchemaTypes {
 
@@ -14,11 +24,18 @@ export class GamaSchemaTypes {
 
   async createTypes(){
 
-    this.graphx.type( 'Date', {
+    this.graphx.type( 'DateTime', {
       from: GraphQLTypes.GraphQLScalarType,
       parseValue: (value:any) => new Date(value),
       parseLiteral: (ast:any) => ast.kind === Kind.STRING ? new Date(ast.value) : null,
       serialize: (value:any) => value instanceof Date ? value.toJSON() : `[${value}]`
+    });
+
+    this.graphx.type( 'Date', {
+      from: GraphQLTypes.GraphQLScalarType,
+      parseValue: (value:any) => parseGamaScalarDate( value ),
+      parseLiteral: (ast:any) => ast.kind === Kind.STRING ? parseGamaScalarDate( ast.value ) : null,
+      serialize: (value:any) => value
     });
 
     this.graphx.type( 'JSON', {

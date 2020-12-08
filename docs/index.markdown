@@ -57,8 +57,8 @@ type Car {
   id: ID!
   brand: String!
   mileage: Int
-  createdAt: Date
-  updatedAt: Date
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 ```
 
