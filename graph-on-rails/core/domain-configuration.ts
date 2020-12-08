@@ -11,7 +11,7 @@ export type DomainConfiguration = {
   mutation?:{[name:string]:MutationConfigFn},
 }
 
-export type EntityConfig  = {
+export type EntityConfig = {
   typeName?:string;
 
   attributes?:{[name:string]:string|AttributeConfig};
@@ -33,7 +33,6 @@ export type EntityConfig  = {
   implements?:string|string[]
 
   description?:string
-  extendEntity?:( runtime:Runtime ) => void | Promise<void>
   validation?:( item:any, runtime:Runtime ) => ValidationReturnType
   hooks?:EntityHooksType
 

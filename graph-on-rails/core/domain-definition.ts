@@ -10,9 +10,9 @@ import { Runtime } from './runtime';
 
 export class DomainDefinition {
 
-  extendSchema?:(runtime:Runtime) => void
   readonly entities:Entity[] = [];
   readonly enums:EnumBuilder[] = [];
+  readonly extendSchemaFn:((runtime:Runtime) => void)[] = []
   readonly contextFn:((expressContext:any, apolloContext:any) => void)[] = [];
   private configuration:DomainConfiguration;
 

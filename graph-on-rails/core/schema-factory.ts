@@ -11,9 +11,6 @@ import { EntityConfig, EnumConfig, MutationConfigFn, QueryConfigFn } from './dom
 import { GamaSchemaTypes } from './gama-schema-types';
 import { Runtime } from './runtime';
 
-
-//
-//
 export class SchemaFactory {
 
   private _builders?:SchemaBuilder[];
@@ -124,8 +121,7 @@ export class SchemaFactory {
   }
 
   private async extendSchema(){
-    const extendSchemaFn = this.runtime.domainDefinition.extendSchema;
-    if( _.isFunction( extendSchemaFn ) ) extendSchemaFn( this.runtime );
+    _.forEach( this.runtime.domainDefinition.extendSchemaFn, extendSchemaFn => extendSchemaFn( this.runtime) );
   }
 
   private async extendTypeBuilders(){
@@ -134,10 +130,6 @@ export class SchemaFactory {
     _.forEach( entityBuilders, builder => builder.createUnionType() );
     _.forEach( entityBuilders, builder => builder.extendTypes() );
     _.forEach( enumBuilders, builder => builder.extendTypes() );
-    for( const entity of _.values( this.runtime.entities) ) {
-      const extendFn = entity.extendEntity();
-      if( _.isFunction(extendFn) ) await Promise.resolve( extendFn( this.runtime ) );
-    }
   }
 
 

@@ -17,8 +17,6 @@ export class ConfigEntity extends Entity {
 
   protected constructor( protected readonly _name:string, public readonly entityConfig:EntityConfig ){ super() }
 
-  extendEntity() { return this.entityConfig.extendEntity }
-
   protected getName() { return this._name }
 
   protected getTypeName() { return this.entityConfig.typeName || super.getTypeName() }

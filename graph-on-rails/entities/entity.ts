@@ -59,8 +59,6 @@ export abstract class Entity {
     this._entityAccessor = new EntityAccessor( this );
   }
 
-  extendEntity():void|((runtime:Runtime ) => void|Promise<void>) {}
-
   get name() { return this.getName() }
   get typeName(){ return this.getTypeName() }
   get attributes() { return this.getAttributes() }
