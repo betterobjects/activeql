@@ -21,9 +21,9 @@ export type AttributeConfig = {
   defaultValue?:any|(( attributes:any, runtime:Runtime)=>any|Promise<any>)
   filterType?:string|false
   validation?:object
-  mediaType?:'image'|'video'|'audio'
-  virtual?:boolean
   resolve?:(arc:AttributeResolveContext) => any
+  virtual?:boolean
+  mediaType?:'image'|'video'|'audio'
 }
 ```
 
@@ -31,17 +31,17 @@ All configuration options are documented in detail further below:
 
 | parameter | type | purpose |
 | - | - | - |
-| [type](#type)               |  string           | type of attribute values, can be any GraphQL or GAMA scalar or any of your defined enums |
-| [required](#required)       | boolean           | mandatory attribute value; adds schema and business validations for non-null values |
-| [unique](#unique)           | boolean           | uniqueness of value; adds business validation for unique values, also within a scope |
-| [list](#list)               | boolean           | list of scalar types |
-| [defaultValue](#defaultValue)         | any or Function   | static or dynamic default values for new entity items |
-| [filterType](#filterType)   | string or boolean | disable or change filter behaviour for attributes |
-| [description](#description) | string            | adding documentaton to the public API / schema | 
-| [validation](#validation)   | object            | configure business validation using extensive ValidateJS syntax |
-| [mediatype](#mediatype)     | string            | only used as metadata for UI clients, e.g. GAMA Admin UI |
-| [resolve](#resolve)         | Function          | callback to determine custom value for a field that will be send to a client |
-| [virtual](#virtual)         | boolean           | non-persistant value; value is never written or read from datastore |
+| [type](#type)                 |  string           | type of attribute values, can be any GraphQL or GAMA scalar or any of your defined enums |
+| [required](#required)         | boolean           | mandatory attribute value; adds schema and business validations for non-null values |
+| [unique](#unique)             | boolean           | uniqueness of value; adds business validation for unique values, also within a scope |
+| [list](#list)                 | boolean           | list of scalar types |
+| [defaultValue](#defaultValue) | any or Function   | static or dynamic default values for new entity items |
+| [filterType](#filterType)     | string or boolean | disable or change filter behaviour for attributes |
+| [description](#description)   | string            | adding documentaton to the public API / schema | 
+| [validation](#validation)     | object            | configure business validation using extensive ValidateJS syntax |
+| [resolve](#resolve)           | Function          | callback to determine custom value for a field that will be send to a client |
+| [virtual](#virtual)           | boolean           | non-persistant value; value is never written or read from datastore |
+| mediatype                     |  string           | only used as metadata for UI clients, e.g. GAMA Admin UI |
 
  <br>
 
@@ -1100,7 +1100,7 @@ validation?:object
 
 | Value        | Shortcut  | Description                                                                              |
 | ------------ | --------- | ------------------------------------------------------------------------------------     |
-| [empty]      | (default) | no validation will be added (defaults like `required` are not influenced)                 |
+| [empty]      | (default) | no validation will be added (defaults like `required` are not influenced)                |
 | object       |           | validation configuration for the current `Validator` instance, default uses ValidateJS   |
 
 <br>
@@ -1211,6 +1211,167 @@ mutation {
           "message": "Mileage must be greater than 0"
         }
       ]
+    }
+  }
+}
+```
+
+</td></tr>
+</table>
+
+
+## resolve 
+
+```typescript
+resolve?:(arc:AttributeResolveContext) => any
+
+export type AttributeResolveContext = {
+  item:any
+  resolverCtx:ResolverContext
+  runtime:Runtime
+  principal:PrincipalType
+}
+```
+
+Any attribute resolve function is called on every _entity item_ before it is delivered to an API client. Any value returned by the `resolve` functions becomes the attribute value in the _entity item_ in the following results
+
+* `typeQuery`
+* `typesQuery`
+* return of _create mutation_
+* return of _update mutation_
+* embedded items for `assocTo`, `assocToMany` and `assocFrom` relationships
+
+You get (amongst others) the _item_ as it comes from the dastore in the `AttributeResolveContext` argument.
+
+## Attribute Resolve Example 
+
+Let's assume you want to deliver the "brand" of a car always in upper letters, regardles how it is stored in the _datastore_. 
+
+```typescript
+{
+  entity: {
+    Car: {
+      attributes: {
+        brand: {
+          type: 'String!',
+          resolve: ({item}) => _.toUpper( item.brand )
+        }
+      }
+    }
+  }
+}
+```
+
+<table width="100%" style="font-size: 0.9em">
+<tr valign="top">
+<td width="50%"> Request </td> <td width="50%"> Response </td>
+</tr>
+<tr valign="top"><td markdown="block">
+
+```graphql
+mutation createCar { 
+  createCar( car: { 
+    	brand: "Mercedes" } 
+  	){
+    car{ id brand }
+    validationViolations { attribute message }
+  }
+}
+```
+
+</td><td markdown="block">
+
+```json
+{
+  "data": {
+    "createCar": {
+      "car": {
+        "id": "5fcf8820c878031c94d18ab1",
+        "brand": "MERCEDES"
+      },
+      "validationViolations": []
+    }
+  }
+}
+```
+
+</td></tr>
+</table>
+
+
+## virtual
+
+```typescript
+virtual?:boolean
+```
+
+| Value        | Shortcut  | Description                                 |
+| ------------ | --------- | ------------------------------------------- |
+| **`false`**  | (default) | attribute is persisted in datastore         |
+| `true`       |           | attribute is not persiste in datastore      |
+
+Usually any attribute will be persisted in the datastore when saved by a _create_ or _update mutation_. You could decide that an _entity item_ should have an attribute value that is not simply a value from the _datastore_ but should be resolved otherwise. If an attribute has `virtual: true` - this attribute will only be included in the _entity type_ and not the input types, filter or sort type. 
+
+These are the possible ways to resolve a virtual attribute: 
+
+* `resolve` function of the attribute itself
+* `afterTypeQuery` and `afterTypesQuery` hook
+
+### Virtual Attribute Example 
+
+Let's assume we know the year of manufactoring of a car and want to provide the age of the car as part of the car item. The "age" attribute should not provided by an API client, nor stored in the _datastore_ but calculated everytime a car item is delivered for a query.
+
+Since "age" is a virtual attribute is not a field in the input, filter or sort types. 
+
+```typescript
+{ 
+  entity: {
+    Car: {
+      attributes: {
+        brand: 'String!',        
+        manufacturedYear: 'Int!',
+        age: {
+          type: 'Int!',
+          virtual: true,
+          resolve: ({item}) => new Date().getFullYear() - item.manufacturedYear
+        }
+      }
+    }
+  }
+}
+```
+
+
+<table width="100%" style="font-size: 0.9em">
+<tr valign="top">
+<td width="50%"> Request </td> <td width="50%"> Response </td>
+</tr>
+<tr valign="top"><td markdown="block">
+
+```graphql
+mutation createCar { 
+  createCar( car: { 
+    	brand: "Mercedes" manufacturedYear: 2015  } 
+  	){
+    car{ id brand manufacturedYear age }
+    validationViolations { attribute message }
+  }
+}
+```
+
+</td><td markdown="block">
+
+```json
+{
+  "data": {
+    "createCar": {
+      "car": {
+        "id": "5fcf89af35c4651db00e2fba",
+        "brand": "Mercedes",        
+        "manufacturedYear": 2015,
+        "age": 5
+      },
+      "validationViolations": []
     }
   }
 }

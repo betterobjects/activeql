@@ -59,6 +59,7 @@ export class EntityValidation  {
     const violations:ValidationViolation[] = [];
     _.forEach( this.entity.attributes, (attribute, name:string) => {
       if( ! attribute.required ) return;
+      if( attribute.virtual ) return;
       const value = _.get( item, name );
       if( _.isNil( value )) violations.push({ attribute: name, message: 'can\'t be blank' });
     });
