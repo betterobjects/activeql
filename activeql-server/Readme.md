@@ -19,7 +19,7 @@ You can clone this here: [https://betterobjects.github.com/activeql-app](https:/
 You find all necessary instructions there. 
 
 
-## Using this library 
+## Embedding the library in your own application
 
 Instead of using the ActiveQL-Starter-Application you can of course also embedd this library in your own [Express](http://expressjs.com) application. 
 
@@ -28,6 +28,65 @@ We would nonetheless recommend to look into the ActiveQL-Starter-Application at 
 
 ### Creating an ActivQL server instance 
 
+If you want to apply all defaults you can simply create an instance of the ActiveQLServer and apply your app as a middleware to it.
+
+`./app.ts`
+```typescript
+import { ActiveQLServer } from 'activeql-server';
+import compression from 'compression';
+import cors from 'cors';
+import express from 'express';
+import { createServer } from 'http';
+
+(async () => {
+  const app = express();
+  app.use('*', cors());
+  app.use(compression());
+
+  const server = await ActiveQLServer.create();
+  server.applyMiddleware({ app, path: '/graphql' });
+
+  const httpServer = createServer( app );
+
+  httpServer.listen(
+    { port: 3000 },
+    () => console.log(`
+      🚀 GraphQL is now running on http://localhost:3000/graphql`)
+  );
+
+})();
+```
+
+### Customizing the ActiveQLServer instance
+
+If you want to apply some more options to the creation of the ActiveQLServer instance (which is probably the case), you could extract this to a seperate file, that you call from you app.ts: 
+
+`./app.ts`
+```typescript
+import compression from 'compression';
+import cors from 'cors';
+import express from 'express';
+import { createServer } from 'http';
+
+import { activeql } from './activeql-app';
+
+(async () => {
+  const app = express();
+  app.use('*', cors());
+  app.use(compression());
+
+  await activeql( app );
+
+  const httpServer = createServer( app );
+
+  httpServer.listen(
+    { port: 3000 },
+    () => console.log(`
+      🚀 GraphQL is now running on http://localhost:3000/graphql`)
+  );
+
+})();
+```
 
 `./activeql-server.ts`
 ```typescript
@@ -62,7 +121,7 @@ export const activeql = async( app: any ) => {
   // add JWT Authentication
   addJwtLogin( domainDefinition, app );
   
-  // serve files uploaded via API statically from this folder
+  // serve files uploaded via API statically 
   app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
   
   // create ActiveQLServer instance 

@@ -11,7 +11,8 @@ import { RuntimeConfig, Runtime } from './core/runtime';
  */
 export class ActiveQLServer {
 
-  static async create( apolloConfig:ApolloServerExpressConfig, runtimeConfig:RuntimeConfig|DomainDefinition|DomainConfiguration|string ):Promise<ApolloServer> {
+  static async create( apolloConfig:ApolloServerExpressConfig = {}, runtimeConfig?:RuntimeConfig|DomainDefinition|DomainConfiguration|string ):Promise<ApolloServer> {
+    if( ! runtimeConfig ) runtimeConfig = './domain-configuration';
     const runtime = await Runtime.create( runtimeConfig );
     apolloConfig.schema = runtime.schema;
     apolloConfig.context = async (expressContext:any) => {
