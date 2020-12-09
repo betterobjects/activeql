@@ -3,7 +3,7 @@
 # keep them clean in the repo
 /express/activeql-app.ts
 /express/domain-configuration/*
-/express/domain-configuration.ts
+
 /express/misc
 
 

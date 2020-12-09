@@ -9,7 +9,7 @@ A framework for building domain driven GraphQL APIs with an oppionated approach 
   * provides an Admin UI for basic CRUD applications 
   * allows to be extended for any non-convention requirement with custom code
 
-You can find the [documentation here](./doc/activeql.md)
+You can find the [documentation here](https://betterobjects.github.io/activeql/)
 
 # Use ActiveQL
 
