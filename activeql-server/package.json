@@ -1,6 +1,16 @@
 {
-  "name": "gama-server",
-  "description": "the GAMA server to be emebeddd as ExressJS middleware",
+  "name": "activeql-server",
+  "description": "the ActiveQL server to be emebeddd as ExressJS middleware",
+  "keywords": [
+    "graphql",
+    "GraphQL",
+    "API",
+    "GraphQL on rails",
+    "Simple GraphQL",
+    "GraphQL Start",
+    "GraphQL Easy"
+  ],
+  "homepage": "https://github.com/betterobjects/activeql",
   "version": "1.0.0-rc",
   "license": "MIT",
   "author": {

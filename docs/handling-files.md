@@ -6,7 +6,7 @@ nav_order: 50
 
 # Handling Files
 
-Gama provides a GrapqhQL type `File` that is defined as follows.
+ActiveQL provides a GrapqhQL type `File` that is defined as follows.
 
 ```graphql
 type File {
@@ -20,13 +20,13 @@ type File {
 
 For any attribute of the type "File" an input of type [GraphQLUpload](https://www.apollographql.com/docs/apollo-server/data/file-uploads/) is added to the create and update mutation (not the input type). 
 
-As you see from the type, if a client provides a File (in fact a FileStream) in either the create or update mutation, GAMA does not store any binary data in the _datastore_ but just metadata about the file. The actual save or write of the file is done by an implementation of `EntityFileSave`. 
+As you see from the type, if a client provides a File (in fact a FileStream) in either the create or update mutation, ActiveQL does not store any binary data in the _datastore_ but just metadata about the file. The actual save or write of the file is done by an implementation of `EntityFileSave`. 
 
 The default `EntityFileSave` implementation writes the file to the local filesystem in the following path:
 ```
 [Express rootDir]/[uploadRootDir]/[secret]/[Entity]/[ID]/[Attribute]/[Filename]
 ```
-The delivery of the file to a client is out of scope for GAMA. The GAMA starter application nonetheless serves the file via ExpressJS. A client can obtain the necessary values (`filename`, `mimetype`, `encoding`, `secret`) from the `File` type in the query and create a http get request with the following path: 
+The delivery of the file to a client is out of scope for ActiveQL. The ActiveQL starter application nonetheless serves the file via ExpressJS. A client can obtain the necessary values (`filename`, `mimetype`, `encoding`, `secret`) from the `File` type in the query and create a http get request with the following path: 
 ```
 /files/[secret]/[Entity]/[ID]/[Attribute]/[Filename]
 ```

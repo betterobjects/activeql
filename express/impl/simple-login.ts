@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import express from 'express';
-import { DomainConfiguration, DomainDefinition, Runtime } from 'gama-server';
+import { DomainConfiguration, DomainDefinition, Runtime } from 'activeql-server';
 import _ from 'lodash';
 
 export const addSimpleLogin = ( domainDefinition:DomainDefinition ) => {

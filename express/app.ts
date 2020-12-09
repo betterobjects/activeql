@@ -3,7 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 
-import { gama } from './gama-app';
+import { activeql } from './activeql-app';
 
 require('dotenv').config();
 
@@ -12,7 +12,7 @@ require('dotenv').config();
   app.use('*', cors());
   app.use(compression());
 
-  await gama( app );
+  await activeql( app );
 
   const httpServer = createServer( app );
 

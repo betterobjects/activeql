@@ -15,9 +15,9 @@ The users of the vehicle fleet application will probably get a mobile applicatio
 
 Given the requirements you decide to follow an API 1st approach - meaning you want expose all data and functionality through an API.  You are aware that you don't know yet what clients or 3rd party systems would want to use this API, so [GraphQL](https://graphql.org) seems  like a great choice. Based on this API you would allow to connect any customer UI. You also want to build an Admin UI application based on the same API to give access to the data and functionality to an admin or manager.
 
-A great task for GAMA!
+A great task for ActiveQL!
 
-Analyzing the business domain teaches your, you have two entities: _Car_ and _Driver_. So you start by simply describing the first entity _Car_ with some basic attributes you might think are helpful. You enter this configuration in a YAML file called `car.yaml` and put it in the `./domain-configuration` folder of your GAMA application.
+Analyzing the business domain teaches your, you have two entities: _Car_ and _Driver_. So you start by simply describing the first entity _Car_ with some basic attributes you might think are helpful. You enter this configuration in a YAML file called `car.yaml` and put it in the `./domain-configuration` folder of your ActiveQL application.
 
 <div style="text-align:right">./tutorial/01/domain-configuration/car.yaml</div>
 
@@ -37,7 +37,7 @@ You start your express application
 $ npm run start
 
       🚀 GraphQL is now running on http://localhost:3000/graphql
-      Uploads in /Projects/gama.d/gama/express/uploads
+      Uploads in /Projects/activeql.d/activeql/express/uploads
 ```
 
 You start your browser and point it to the GraphQL playground at `http://localhost:3000/graphql` and check the generated schema.
@@ -331,9 +331,9 @@ entity:
             lessThan: 1000000
 ```
 
-You may now see that `String!` was in fact a shortcut notation for ` { type: 'String', required: true } ` which we write now. Having an  attribute as a kind of an identifier; thus being of type `String`, `required` and `unique` is quite common - therefore GAMA offers a shortcut notation for this as `type Key`. So we could have written the attribute also as `licence: Key`. 
+You may now see that `String!` was in fact a shortcut notation for ` { type: 'String', required: true } ` which we write now. Having an  attribute as a kind of an identifier; thus being of type `String`, `required` and `unique` is quite common - therefore ActiveQL offers a shortcut notation for this as `type Key`. So we could have written the attribute also as `licence: Key`. 
 
-Be aware these kind of validations (greater, less, unique etc) other than `required` can not be enforced by the GraphQL layer; instead it's handled by GAMA. To inform an API client about an invalid mutation call no error is thrown, but a list of so called `ValidationViolation` is returned. Clients should add this to their mutations to get any validation error. 
+Be aware these kind of validations (greater, less, unique etc) other than `required` can not be enforced by the GraphQL layer; instead it's handled by ActiveQL. To inform an API client about an invalid mutation call no error is thrown, but a list of so called `ValidationViolation` is returned. Clients should add this to their mutations to get any validation error. 
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
@@ -413,7 +413,7 @@ mutation {
 
 ## Seed data
 
-Creating, updating and deleting of cars obviously works nicely. But before we continue adding new functionality it would be great to have reliable test or example data to play around. Having to add cars, and later drivers etc. via API call or even a UI would be tedious. So let GAMA handle this and seeding data into our application. 
+Creating, updating and deleting of cars obviously works nicely. But before we continue adding new functionality it would be great to have reliable test or example data to play around. Having to add cars, and later drivers etc. via API call or even a UI would be tedious. So let ActiveQL handle this and seeding data into our application. 
 
 A nice effect would also that we do not have to clean up entity items in the _datastore_ that no longer fit to our current configuration, like if we had with cars created with unwanted data before we added validations to the configuration.
 
@@ -569,8 +569,8 @@ query {
 </td></tr>
 </table>
 
-Let's say a user wants to see only BMW. GAMA provides us with a filter type for the `cars` query we can use to 
-filter the result on every attribute so we could write `cars(filter: { brand: { is: "BMW" } } )`. You can add filters to any attribute and GAMA will return any _items_ that matches _all_ filter criteria. 
+Let's say a user wants to see only BMW. ActiveQL provides us with a filter type for the `cars` query we can use to 
+filter the result on every attribute so we could write `cars(filter: { brand: { is: "BMW" } } )`. You can add filters to any attribute and ActiveQL will return any _items_ that matches _all_ filter criteria. 
 
 So if a client only wanted to get _red BMW or Mercedes with a mileage below 30000_ a query would look like:
 
@@ -788,7 +788,7 @@ entity:
     seeds:
       thomas:
         firstname: Thomas
-        lastname: Gama
+        lastname: ActiveQL
         licenceValid:
           eval: new Date("2020-12-01")
       max:
@@ -806,7 +806,7 @@ entity:
           eval: faker.date.future()
 ```
 
-Some new concepts are used here. E.g. you see the usage of a Scalar Type GAMA provides - `Date`. You can use it as any other scalar and it serializes and deserializes a Date object via the `Date.toJSON()` method. It comes with an attribute filter and sort functionality too.
+Some new concepts are used here. E.g. you see the usage of a Scalar Type ActiveQL provides - `Date`. You can use it as any other scalar and it serializes and deserializes a Date object via the `Date.toJSON()` method. It comes with an attribute filter and sort functionality too.
 
 Also we see a bit more complex _Seed data_. First we no longer simply provide an array of seed data but a dictionary (or map). We can use the names of certain _seed items_ later on when we reference them from the seed data of other entities. Also we no longer just enter hard coded seed data but build them dynamically. If you state an `eval` expression, this evaluated result will be used for seed data. We can make use of the library [FakerJS](https://github.com/marak/faker.js) which offers many possibilities to generate fake or test data. You also can access the [Lodash](https://lodash.com) Library under the name `ld` and the `ids` of other's entities seed data via a map under the name `idsMap`. We only use `faker` for now.
 
@@ -814,7 +814,7 @@ A special feature of the seed data ist that when you use a number as key for a s
 
 After calling the `seed( truncate: true )` mutation you could play around with the driver data and see if everything works as expected.
 
-Now that we have a `Driver` entity we could add the relationship between cars and drivers. Let's assume you learned from the analysis of your buiness domain that a car is either assigned to none or one driver at a time. A driver however could "rent out" multiple cars at once. A very common `1 -- N` relationship. In GAMA this is modeled by a `assocTo` relation from the car to the driver. Optionally we are also interested in the reverse or `assocFrom` relationship from the driver to the cars.
+Now that we have a `Driver` entity we could add the relationship between cars and drivers. Let's assume you learned from the analysis of your buiness domain that a car is either assigned to none or one driver at a time. A driver however could "rent out" multiple cars at once. A very common `1 -- N` relationship. In ActiveQL this is modeled by a `assocTo` relation from the car to the driver. Optionally we are also interested in the reverse or `assocFrom` relationship from the driver to the cars.
 
 ```
               +-------------------+                    +--------------------+
@@ -894,7 +894,7 @@ entity:
     seeds:
       thomas:
         firstname: Thomas
-        lastname: Gama
+        lastname: ActiveQL
         licenceValid:
           eval: new Date("2020-12-01")
       max:
@@ -1018,7 +1018,7 @@ query {
         "driver": {
           "id": "5fb38ab03fa363db96564850",
           "firstname": "Thomas",
-          "lastname": "Gama"
+          "lastname": "ActiveQL"
         }
       },
       {
@@ -1038,7 +1038,7 @@ query {
         "driver": {
           "id": "5fb38ab03fa363db96564850",
           "firstname": "Thomas",
-          "lastname": "Gama"
+          "lastname": "ActiveQL"
         }
       }
     ]
@@ -1061,7 +1061,7 @@ query {
 }
 ```
 
-On the other hand a client could want to get all drivers who have currently no car assigned. Luckily GAMA provides every `assocFrom` relation with a filter to achieve exactly that. 
+On the other hand a client could want to get all drivers who have currently no car assigned. Luckily ActiveQL provides every `assocFrom` relation with a filter to achieve exactly that. 
 
 ```graqphql
 query { 
@@ -1087,7 +1087,7 @@ We still want to use all the existing configuration (in YAML) and only add the n
 <div style="text-align: right">./tutorial/09/domain-definition.ts</div>
 
 ```typescript
-import { DomainConfiguration, DomainDefinition } from "gama-server";
+import { DomainConfiguration, DomainDefinition } from "activeql-server";
 
 // load all definition in yaml files here
 const domainConfigurationFolder = `${__dirname}/domain-configuration`;
@@ -1131,14 +1131,14 @@ const domainConfiguration:DomainConfiguration = {
 
 You see we use the same domain configuration type here as in our yaml files. At the end every definition from every configuration file and configuration object is merged together. We could have configured the whole entity (its attributes, associations, seeds etc.) also in this configuration object. On the other hand, since we now add functions we can no longer put this is YAML but have to add it in this way.
 
-The implementation is obiously no longer oppionated, you can implement this kind of logic as you see fit. Here, we first obtain an entity item for the `driverId` with the usage of some of the GAMA helper classes here. This is of course optional. You might smile about the very trivial validation implementation - we simply calculate the number of milliseconds for 30 days, subtract the `licenceValid` of the driver from the current date and simply check if its more than that. You would probbly use a library like [Moment.js](https://momentjs.com) or similar. For now it's seems sufficient enough to know the driver has a licence expiring within 30 days and return a respective `ValidationViolation`. As always if anything else but `undefined` or `[]` is returned it prevents the assignment of this driver to a car. 
+The implementation is obiously no longer oppionated, you can implement this kind of logic as you see fit. Here, we first obtain an entity item for the `driverId` with the usage of some of the ActiveQL helper classes here. This is of course optional. You might smile about the very trivial validation implementation - we simply calculate the number of milliseconds for 30 days, subtract the `licenceValid` of the driver from the current date and simply check if its more than that. You would probbly use a library like [Moment.js](https://momentjs.com) or similar. For now it's seems sufficient enough to know the driver has a licence expiring within 30 days and return a respective `ValidationViolation`. As always if anything else but `undefined` or `[]` is returned it prevents the assignment of this driver to a car. 
 
 
 ## Custom Query and Mutation
 
-So fare you are happy with your API. Every known business requirement is covered. Thanks to GAMA you spent just a couple of minutes to achieve that and feel you should add some of the following functionaliy in the rest of the time: Although a client could get a list of _unassigned cars_ by simple using a filtered query you want to have a dedicated query `unassignedCars` for that. Also the assignment of a driver to a car is possible by using the `updateCar` mutation - but you think it would be nice to have a dedicated `assignDriverToCar` for that. 
+So fare you are happy with your API. Every known business requirement is covered. Thanks to ActiveQL you spent just a couple of minutes to achieve that and feel you should add some of the following functionaliy in the rest of the time: Although a client could get a list of _unassigned cars_ by simple using a filtered query you want to have a dedicated query `unassignedCars` for that. Also the assignment of a driver to a car is possible by using the `updateCar` mutation - but you think it would be nice to have a dedicated `assignDriverToCar` for that. 
 
-GAMA creates a lot of types, queries and mutations by convention but does not know of course about these requirements, so you have to add this as a _custom query and mutation_.
+ActiveQL creates a lot of types, queries and mutations by convention but does not know of course about these requirements, so you have to add this as a _custom query and mutation_.
 
 Let's start with the query. We still want to use the existing configuration (in YAML) and only add the new functionalaty to the _domain definition_. Currently in your `./domainDefinition.ts` you have something like the following. 
 
@@ -1147,7 +1147,7 @@ Let's start with the query. We still want to use the existing configuration (in 
 <div style="text-align: right">./tutorial/10/domain-definition.ts</div>
 
 ```typescript
-import { DomainConfiguration, DomainDefinition } from "gama-server";
+import { DomainConfiguration, DomainDefinition } from "activeql-server";
 
 // load all definition in yaml files here
 const domainConfigurationFolder = `${__dirname}/domain-configuration`;
@@ -1183,9 +1183,9 @@ const domainConfiguration:DomainConfiguration = {
 }
 ```
 
-This is admittely a very simple example - but is shows how you would add any functionality and still use most of the features GAMA offers out-of-the-box.
+This is admittely a very simple example - but is shows how you would add any functionality and still use most of the features ActiveQL offers out-of-the-box.
 
-A _custom query_ configuration is always a function that returns an object of type `QueryConfig`. Inside that function you have access to an instance of the GAMA `runtime` which includes all entities, enums, filter, types and more. In this example we define the return type of our query as a _list of car items_ and allow two args (sort and paging). It is basically the same query as the standard `cars` query but instead of offering the API's client to create a filter itself we set the filter criteria in the _custom query_. 
+A _custom query_ configuration is always a function that returns an object of type `QueryConfig`. Inside that function you have access to an instance of the ActiveQL `runtime` which includes all entities, enums, filter, types and more. In this example we define the return type of our query as a _list of car items_ and allow two args (sort and paging). It is basically the same query as the standard `cars` query but instead of offering the API's client to create a filter itself we set the filter criteria in the _custom query_. 
 
 In the _resolver_ we obtain a reference to a certain _entity_ `Car` and use its `resolveTypes` function to return a list of cars, since we added our custom filter to `args` we can use the default resolver without further effort, for it this looks just as a client would have requested this filter regularely.
 
@@ -1200,8 +1200,8 @@ We could add the add also directly to the `domainConfiguration` object but this 
 // usage of lodash is optional
 import _ from 'lodash';
 
-// we import some basic types from the gama-server library
-import { Runtime, ValidationViolation } from "gama-server";
+// we import some basic types from the activeql-server library
+import { Runtime, ValidationViolation } from "activeql-server";
 
 // this is the definition of our mutation, we will later assign it to our "domain-definition"
 // it's a function that returns the config for the mutation
@@ -1215,7 +1215,7 @@ export const assignCarMutation = ( rt:Runtime ) => ({
 });
 
 // this creates a GraphQLObjectType with the given fields
-// see how we use the GAMA type (ValidationViolation) and one of our configured types (Car)
+// see how we use the ActiveQL type (ValidationViolation) and one of our configured types (Car)
 // this is the return type of the mutation - meaning in our resolver we have to proivde an object 
 // with the properties "car" and "validationValidations" - bot could be null
 const returnType = (rt:Runtime) => rt.type('AssignCarReturnType', {

@@ -8,7 +8,7 @@ import { QueryBuilder, QueryConfigBuilder } from '../builder/query-builder';
 import { SchemaBuilder } from '../builder/schema-builder';
 import { ConfigEntity } from '../entities/config-entity';
 import { EntityConfig, EnumConfig, MutationConfigFn, QueryConfigFn } from './domain-configuration';
-import { GamaSchemaTypes } from './gama-schema-types';
+import { ActiveQLSchemaTypes } from './activeql-schema-types';
 import { Runtime } from './runtime';
 
 export class SchemaFactory {
@@ -36,7 +36,7 @@ export class SchemaFactory {
   private async createSchema():Promise<GraphQLSchema> {
     this.graphx.init( this.runtime );
     await this.buildFromBuilders();
-    await new GamaSchemaTypes( this.runtime ).createTypes();
+    await new ActiveQLSchemaTypes( this.runtime ).createTypes();
     await this.extendSchema();
     const schema = this.graphx.generate();
     return schema;

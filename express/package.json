@@ -1,5 +1,5 @@
 {
-  "name": "gama-express",
+  "name": "activeql-express",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -11,7 +11,6 @@
     "test": "jest --watch --detectOpenHandles"
   },
   "dependencies": {
-    "gama-server": "file:../gama-server",
     "apollo-server-express": "^2.9.3",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",

@@ -4,13 +4,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "gama",
+      "activeql",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "gama",
+      "activeql",
       "kebab-case"
     ]
   }

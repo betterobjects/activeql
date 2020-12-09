@@ -1,9 +1,9 @@
 /*
- * Public API Surface of gama-admin-ui
+ * Public API Surface of activeql-admin-ui
  */
 
-export * from './lib/gama-admin-ui.module';
-export * from './lib/gama-admin-routing.module';
+export * from './lib/activeql-admin-ui.module';
+export * from './lib/activeql-admin-routing.module';
 export * from './lib/components/home/home.component';
 export * from './lib/components/index/index.component';
 export * from './lib/components/confirm-dialog/confirm-dialog.component';

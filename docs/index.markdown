@@ -2,18 +2,18 @@
 layout: default
 title: Home
 nav_order: 1
-description: "Overview about GAMA"
+description: "Overview about ActiveQL"
 permalink: /
 ---
 
-# GAMA
+# ActiveQL
 
 From business domain definition to full fledged GraphQL API and Admin UI in minutes - or _**GraphQL on Steroids**_
 
 We think [GraphQL](https://graphql.org) is a great way to expose your business domain to any client or 3rd party system.  Implementing a GraphQL API is a tedious task though. You need to decide how to structure your schema, how to handle concepts like searching, sorting, paging, how to implement resolvers that read data from
 and write data to a database or similar, validate input, relationships etc.
 
-GAMA supports this development with an oppinionated approach based on the configuration of a business domain
+ActiveQL supports this development with an oppinionated approach based on the configuration of a business domain
 (mainly entities and its relations to each other).
 
 We believe - as Alan Kay puts it - "Simple things should be simple, complex things should be possible". Let's see
@@ -32,7 +32,7 @@ entity:
       mileage: Int
 ```
 
-and will generate the following schema, incl. resolvers using (per default) a MongoDB to read and write data, executable by the GAMA starter app without any further efforts.
+and will generate the following schema, incl. resolvers using (per default) a MongoDB to read and write data, executable by the ActiveQL starter app without any further efforts.
 
 * a type definition
 * a query for the type (by id)
@@ -507,14 +507,14 @@ Query and Mutation Resolvers are generated.
 
 ## Technologies
 
-GAMA is an acronym for **G**raphQL-**A**pollo-**M**ongodb-**A**ngular which should indicate the technologies it uses
+ActiveQL is an acronym for **G**raphQL-**A**pollo-**M**ongodb-**A**ngular which should indicate the technologies it uses
 to provide a framework for business domain driven APIs / applications.
 
-Although you can use GAMA without deep knowledge of the underlying technologies - in fact GAMAs goal is exactly
+Although you can use ActiveQL without deep knowledge of the underlying technologies - in fact ActiveQLs goal is exactly
 to enable you to fully concentrate on your business domain without the need to engage in technical details - we
 encourage to familiarize with this technologies:
 
-- GAMA is a [NodeJS](https://nodejs.org) framework that uses [Express](http://expressjs.com).
+- ActiveQL is a [NodeJS](https://nodejs.org) framework that uses [Express](http://expressjs.com).
 
 - It uses the [Apollo Data Graph Platform](https://www.apollographql.com)
 and the [Apollo Server Express Middleware](https://www.apollographql.com/docs/apollo-server/)
@@ -522,7 +522,7 @@ and the [Apollo Server Express Middleware](https://www.apollographql.com/docs/ap
 - The configuration of your business domain can be done in Javascript/[Typescript](https://www.typescriptlang.org) or
 in [YAML](https://yaml.org) files
 
-- GAMA has the concept of a _datastore_ where application data are read from and written to. GAMA ships with a default
+- ActiveQL has the concept of a _datastore_ where application data are read from and written to. ActiveQL ships with a default
 implementation of a datastore that uses [MongoDB](https://www.mongodb.com/try/download/community). Other
 implemenatations that use e.g. relational databeses or even another API (e.g. REST) can be implemented.
 
@@ -531,14 +531,14 @@ provide users with the possibility to access your business domain API via web ap
 
 ## Overview
 
-The following diagram shows an overview of GAMA
+The following diagram shows an overview of ActiveQL
 
-![GAMA Overview][overview]
+![ActiveQL Overview][overview]
 
-[overview]: ./img/gama-overview.png "GAMA Overview"
+[overview]: ./img/activeql-overview.png "ActiveQL Overview"
 
 
-### GAMA Server
+### ActiveQL Server
 
 This library includes the oppionated generation of a GraphOL API based on the definition of a domain definition and was largely influenced by [Ruby-on-Rails](https://rubyonrails.org). It uses the concept of [Convention over configuration](https://en.wikipedia.org/wiki/Convention_over_configuration) and [Don't repeat yourself](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself).
 
@@ -546,17 +546,17 @@ It can be embedded in an ExpressJS application server and uses a typed configura
 
   * a [GraphQL schema](https://graphql.org/graphql-js/basic-types/),
   * default [Resolvers](https://graphql.org/learn/execution/) that uses a datastore to read/write application data from/to and
-  * helper queries / resolver to provide the GAMA Admin UI with metadata so it can generate a generic UI.
+  * helper queries / resolver to provide the ActiveQL Admin UI with metadata so it can generate a generic UI.
 
-### GAMA Admin UI
+### ActiveQL Admin UI
 
-An Angular Module that uses a GAMA GraphQL API to create generic (often Admin) views and services to enable
+An Angular Module that uses a ActiveQL GraphQL API to create generic (often Admin) views and services to enable
 a human user to interact with your API - search, list, sort entries and create, update, delete operations etc.
 
 Please check out the [documentation](./admin-ui) for more information.
 
-### GAMA Starter Application
+### ActiveQL Starter Application
 
-A ready to run application to run a GAMA Server and Admin UI. You can add your domain logic and custom implementation here or use this as a starting point or referece for your own GAMA powered application.
+A ready to run application to run a ActiveQL Server and Admin UI. You can add your domain logic and custom implementation here or use this as a starting point or referece for your own ActiveQL powered application.
 
 Please check out the [documentation](./starter-app) for more information.

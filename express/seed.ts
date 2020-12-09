@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Runtime } from 'gama-server';
+import { Runtime } from 'activeql-server';
 import { exit } from 'process';
 
 const domainConfiguration = './config-types/d2prom';

@@ -1,4 +1,4 @@
-export * from './gama-server';
+export * from './activeql-server';
 
 export * from './core/data-store';
 export * from './core/domain-definition';

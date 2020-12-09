@@ -7,7 +7,7 @@ parent: Domain Configuration
 
 # Resolver Hooks
 
-An easy way to extend the implementation of GAMA resolvers are _entitiy hooks_. You can define this as part of the `EntityConfiguration` object. 
+An easy way to extend the implementation of ActiveQL resolvers are _entitiy hooks_. You can define this as part of the `EntityConfiguration` object. 
 
 ```typescript
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { EntityConfigType } from 'gama-admin-ui';
+import { EntityConfigType } from 'activeql-admin-ui';
 
 
 export const clientsConfig:EntityConfigType = {

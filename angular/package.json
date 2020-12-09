@@ -1,5 +1,5 @@
 {
-  "name": "gama",
+  "name": "activeql",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "gama": "node bin/gama.dev.js",
+    "activeql": "node bin/activeql.dev.js",
     "generate": "graphql-codegen --config codegen.yml"
   },
   "private": true,

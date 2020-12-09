@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import inflection from 'inflection';
 import { Component, OnInit } from '@angular/core';
-import { AdminService, EntityConfigType } from 'gama-admin-ui';
+import { AdminService, EntityConfigType } from 'activeql-admin-ui';
 
 import {Event,
 NavigationCancel,

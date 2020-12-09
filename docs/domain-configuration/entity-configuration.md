@@ -101,7 +101,7 @@ From the definition of an _entity_ a lot of GraphQL schema types, queries and mu
 | [plural](#plural) | the plural of the entity, used for generated queries and others |
 | [singular](#singular) |  the singular of the entity, used for generated queries and others |
 | [collection](#collection) | the name of the collection (e.g. table) in the datastore for this entity |
-| [path](#path) | the name of the path in a UI (e.g. GAMA Admin UI)  for this entity |
+| [path](#path) | the name of the path in a UI (e.g. ActiveQL Admin UI)  for this entity |
 | [foreignKey](#foreignKey) | the name to use as foreignKey for has-one relationships for this entity |
 | [foreignKeys](#foreignKeys) | the name to use as foreignKey for has-many relationships for this entity |
 | [createInputTypeName](#createInputTypeName) | the name of the GraphQL input type for the create mutatiom |
@@ -168,9 +168,9 @@ entity:
   Car: 
     description: >
       A simple version of a car entity, purely for demonstration purposes.
-      We will try to demonstrate as much GAMA features as possible. 
-      If you like GAMA - feel free to contribute more examples at
-      https://github.com/betterobjects/gama
+      We will try to demonstrate as much ActiveQL features as possible. 
+      If you like ActiveQL - feel free to contribute more examples at
+      https://github.com/betterobjects/activeql
 ```
 
 
@@ -687,7 +687,7 @@ Role based declaration of permssions to access this entity's
   }
 ```
 
-You can allow/disallow access to any query and mutation (via CRUD actions) based on the role(s) of a [Principal](../gama-principal.md) and even filter allowed entity items via _expressions_. For details see [Permissions](./permissions.md).
+You can allow/disallow access to any query and mutation (via CRUD actions) based on the role(s) of a [Principal](../activeql-principal.md) and even filter allowed entity items via _expressions_. For details see [Permissions](./permissions.md).
 
 ## typeName
 

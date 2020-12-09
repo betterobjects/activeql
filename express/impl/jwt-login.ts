@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import express from 'express';
 import expressJwt from 'express-jwt';
-import { DomainConfiguration, DomainDefinition, Runtime } from 'gama-server';
+import { DomainConfiguration, DomainDefinition, Runtime } from 'activeql-server';
 import { sign } from 'jsonwebtoken';
 import _ from 'lodash';
 
@@ -11,7 +11,7 @@ export const addJwtLogin = ( domainDefinition:DomainDefinition, app:any ) => {
   domainDefinition.contextFn.push( addPrincipalToApolloContext );
 }
 
-const claim = 'https://betterobjects.github.io/gama';
+const claim = 'https://betterobjects.github.io/activeql';
 
 const hash = (password:string):string => bcrypt.hashSync( password, bcrypt.genSaltSync(10) );
 

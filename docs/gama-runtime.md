@@ -1,7 +1,7 @@
 ---
 layout: page
-title: GAMA Runtime
+title: ActiveQL Runtime
 nav_order: 20
 ---
 
-# GAMA Runtime
+# ActiveQL Runtime

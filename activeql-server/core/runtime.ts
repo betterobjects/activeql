@@ -19,7 +19,7 @@ import { GraphQLTypeDefinition, GraphX } from './graphx';
 import { SchemaFactory } from './schema-factory';
 import { Seeder } from './seeder';
 
-export type GamaConfig = {
+export type RuntimeConfig = {
   name?:string
   dataStore?:(name?:string) => Promise<DataStore>
   validator?:(entity:Entity) => Validator
@@ -44,22 +44,22 @@ export class Runtime {
   readonly enums:string[] = [];
   readonly filterTypes:{[name:string]:FilterType} = {};
 
-  private constructor( public readonly config:GamaConfig ){ }
+  private constructor( public readonly config:RuntimeConfig ){ }
 
   /**
    *
    */
-  static async create( config:GamaConfig|DomainDefinition|DomainConfiguration|string ):Promise<Runtime> {
+  static async create( config:RuntimeConfig|DomainDefinition|DomainConfiguration|string ):Promise<Runtime> {
     const runtime = new Runtime( this.resolveConfig( config ) );
     await runtime.init();
     await runtime.createSchema();
     return runtime;
   }
 
-  private static getDefaultConfig():GamaConfig {
+  private static getDefaultConfig():RuntimeConfig {
     return {
-      name: 'GAMA',
-      dataStore: ( name?:string ) => MongoDbDataStore.create({ url: 'mongodb://localhost:27017', dbName: name || 'GAMA' }),
+      name: 'ActiveQL',
+      dataStore: ( name?:string ) => MongoDbDataStore.create({ url: 'mongodb://localhost:27017', dbName: name || 'ActiveQL' }),
       validator: ( entity:Entity ) => new ValidateJs( entity ),
       entityResolver: ( entity:Entity ) => new EntityResolver( entity ),
       entityPermissions: ( entity:Entity ) => new DefaultEntityPermissions( entity ),
@@ -72,7 +72,7 @@ export class Runtime {
     };
   }
 
-  private static resolveConfig(config:GamaConfig|DomainDefinition|DomainConfiguration|string):GamaConfig {
+  private static resolveConfig(config:RuntimeConfig|DomainDefinition|DomainConfiguration|string):RuntimeConfig {
     if( _.isString( config ) ) config = { domainDefinition: config };
     if( config instanceof DomainDefinition ) config = { domainDefinition: config as DomainDefinition };
     if( ! _.has( config, 'domainDefinition') ) config = { domainDefinition: config as DomainConfiguration };

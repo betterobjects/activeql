@@ -57,12 +57,12 @@ In your `app.ts` you could point to these locations like so:
 import { MyLogin } from './cars-management-src';
 import { schemaExtension } from './schema-extension';
 
-const createGamaServer = async (apolloConfig:ApolloServerExpressConfig) => {
+const createActiveQLServer = async (apolloConfig:ApolloServerExpressConfig) => {
   const domainDefintion = new DomainDefinition( ['./cars-management-config', './cars-management-seeds'] );
   domainDefintion.add( schemaExtension );
   domainDefintion.add( new MyLogin( apolloConfig ).getConfiguration() );
   
-  return GamaServer.create( apolloConfig, domainDefintion );
+  return ActiveQLServer.create( apolloConfig, domainDefintion );
 }
 
 // default express app
@@ -76,7 +76,7 @@ const createGamaServer = async (apolloConfig:ApolloServerExpressConfig) => {
 
   const apolloConfig:ApolloServerExpressConfig = { validationRules: [depthLimit(7)] };
   
-  const server = await createGamaServer( apolloConfig );
+  const server = await createActiveQLServer( apolloConfig );
   server.applyMiddleware({ app, path: '/graphql' });
 
   const httpServer = createServer( app );

@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 import { AboutComponent } from './components/about/about.component';
 import { LoginComponent } from './components/login/login.component';
-import { AdminRoutingModule } from 'gama-admin-ui';
+import { AdminRoutingModule } from 'activeql-admin-ui';
 
 @NgModule({ imports: [AdminRoutingModule] } )
 export class AdminRoutingModuleWrapper {}

@@ -7,7 +7,7 @@ import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 import { ValidationViolation } from './entity-validation';
 import { TypeAttribute } from './type-attribute';
-import { parseGamaScalarDate } from '../core/gama-schema-types'
+import { parseActiveQLScalarDate } from '../core/activeql-schema-types'
 
 //
 //
@@ -135,7 +135,7 @@ export class EntityAccessor extends EntityModule {
       case 'string': return _.isString( value ) ? value : _.toString( value );
       case 'int': return _.isInteger( value ) ? value : _.toInteger( value );
       case 'float': return _.isNumber( value ) ? value : _.toNumber( value );
-      case 'date': return parseGamaScalarDate( value )
+      case 'date': return parseActiveQLScalarDate( value )
       case 'datetime': return _.isDate( value ) ? value : new Date( value )
     }
     return value;

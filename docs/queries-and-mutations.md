@@ -5,7 +5,7 @@ description: "How a client would use the genereated default queries and mutation
 nav_order: 50
 ---
 
-# How to use the GAMA generated GraphQL API
+# How to use the ActiveQL generated GraphQL API
 
 ## Queries
 

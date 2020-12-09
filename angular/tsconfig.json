@@ -17,8 +17,8 @@
       "esnext.asynciterable"
     ],
     "paths": {
-      "gama-admin-ui": [
-        "projects/gama-admin-ui/src/public-api"
+      "activeql-admin-ui": [
+        "projects/activeql-admin-ui/src/public-api"
       ]
     },
     "allowSyntheticDefaultImports": true

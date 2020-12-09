@@ -8,7 +8,7 @@ import {
   GraphQLString,
   GraphQLType,
 } from 'graphql';
-import _, { Dictionary, filter } from 'lodash';
+import _ from 'lodash';
 
 import { AssocToType, AssocType } from '../core/domain-configuration';
 import { GraphQLTypes } from '../core/graphx';
@@ -323,16 +323,16 @@ export class EntityBuilder extends TypeBuilder {
   /**
    *
    */
-  protected getAttributeFields( purpose:AttributePurpose, entity?:Entity ):Dictionary<AttrFieldConfig> {
+  protected getAttributeFields( purpose:AttributePurpose, entity?:Entity ):_.Dictionary<AttrFieldConfig> {
     const attributes = entity ? entity.attributes : this.attributes();
     const fields = _.mapValues( attributes, (attribute, name) => this.getFieldConfig(name, attribute, purpose));
     if( _.includes(['type', 'filter'], purpose) ) this.addTimestampFields( fields, purpose );
-    return _.pickBy( fields, _.identity) as Dictionary<AttrFieldConfig>;
+    return _.pickBy( fields, _.identity) as _.Dictionary<AttrFieldConfig>;
   }
 
   //
   //
-  private addTimestampFields( fields:Dictionary<AttrFieldConfig|undefined>, purpose:AttributePurpose ) {
+  private addTimestampFields( fields:_.Dictionary<AttrFieldConfig|undefined>, purpose:AttributePurpose ) {
     _.set( fields, 'createdAt', { type: 'DateTime!', description: 'creation date of this item' } );
     _.set( fields, 'updatedAt', { type: 'DateTime!', description: 'latest update date of this item' } );
   }

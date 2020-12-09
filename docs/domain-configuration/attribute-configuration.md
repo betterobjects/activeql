@@ -31,7 +31,7 @@ All configuration options are documented in detail further below:
 
 | parameter | type | purpose |
 | - | - | - |
-| [type](#type)                 |  string           | type of attribute values, can be any GraphQL or GAMA scalar or any of your defined enums |
+| [type](#type)                 |  string           | type of attribute values, can be any GraphQL or ActiveQL scalar or any of your defined enums |
 | [required](#required)         | boolean           | mandatory attribute value; adds schema and business validations for non-null values |
 | [unique](#unique)             | boolean           | uniqueness of value; adds business validation for unique values, also within a scope |
 | [list](#list)                 | boolean           | list of scalar types |
@@ -41,7 +41,7 @@ All configuration options are documented in detail further below:
 | [validation](#validation)     | object            | configure business validation using extensive ValidateJS syntax |
 | [resolve](#resolve)           | Function          | callback to determine custom value for a field that will be send to a client |
 | [virtual](#virtual)           | boolean           | non-persistant value; value is never written or read from datastore |
-| mediatype                     |  string           | only used as metadata for UI clients, e.g. GAMA Admin UI |
+| mediatype                     |  string           | only used as metadata for UI clients, e.g. ActiveQL Admin UI |
 
  <br>
 
@@ -118,12 +118,12 @@ You can use any GraphQL scalar type. Check also [GraphQL Type System](https://gr
 | String      | A UTF‐8 character sequence.                         |
 | Boolean     | true or false                                       |
 | String      | A UTF‐8 character sequence.                         |
-| ID          | represents a unique identifier, Although allowed it is advised not to use the `ID` type since GAMA uses this to identify entity items and establich relations between entities (think primary and foreign keys). |
+| ID          | represents a unique identifier, Although allowed it is advised not to use the `ID` type since ActiveQL uses this to identify entity items and establich relations between entities (think primary and foreign keys). |
 
 
-#### **GAMA scalar types**
+#### **ActiveQL scalar types**
 
-In addition to the GraphQL scalar types, GAMA provides the following types, that can be used as a type for an attribute.
+In addition to the GraphQL scalar types, ActiveQL provides the following types, that can be used as a type for an attribute.
 
 | Value       | Description                                         |
 | ----------- | --------------------------------------------------- |
@@ -134,7 +134,7 @@ In addition to the GraphQL scalar types, GAMA provides the following types, that
 
 #### **File**
 
-Gama provides a GrapqhQL type `File` that you can use as an attribute type, defined as follows.
+ActiveQL provides a GrapqhQL type `File` that you can use as an attribute type, defined as follows.
 
 ```graphql
 type File {
@@ -154,15 +154,15 @@ To enable the upload of binary data you can use the following values for an attr
 | video       | short for `{ type: 'File', mediaType: 'video' }`        |
 | audio       | short for `{ type: 'File', mediaType: 'audio' }`        |
 
-The `mediaType` property is only added to the metadata to be used by a UI client (e.g. GAMA Admin UI) to render the file accordingly.
+The `mediaType` property is only added to the metadata to be used by a UI client (e.g. ActiveQL Admin UI) to render the file accordingly.
 
 Files can be uploaded via the GraphQL API. Therefore any attribute of the type "File" will add an input of type [GraphQLUpload](https://www.apollographql.com/docs/apollo-server/data/file-uploads/) to the create and update mutation (not the input type). 
 
 The actual file will then be handled by an instance of `EntityFileSave` (e.g. written to a filesystem or stored in a database. 
 
-The GraphQL API will not serve any binary file data though, this must be implemented by the actual application. The GAMA starter application writes any file to the local filesystem and serves it statically via ExpressJS. 
+The GraphQL API will not serve any binary file data though, this must be implemented by the actual application. The ActiveQL starter application writes any file to the local filesystem and serves it statically via ExpressJS. 
 
-For details see [Handling Files](/gama/handling-files).
+For details see [Handling Files](/activeql/handling-files).
 
 #### **Enum**
 
@@ -295,7 +295,7 @@ In addition to this any custom mutation could (and should) use an entity to crea
 
 **Meta Data**
 
-The information will also be part of the MetaData and can therefore used by any UI client. E.g. the GAMA Admin UI uses this information to render a mandatory input field for this attribute.
+The information will also be part of the MetaData and can therefore used by any UI client. E.g. the ActiveQL Admin UI uses this information to render a mandatory input field for this attribute.
 
 ### Required Example 
 
@@ -947,7 +947,7 @@ Usually every attribute will be added to the filter type for the entity, so a cl
 
 For any other attribute it is tried to determine a filter type per convention `[TypeName]Filter` so e.g. for the field type `String` a filter type `StringFilter` is used. These FilterTypes must come from the _datastore_ implementation, since they are in their behaviour dependent on how a  _datastore_ gathers data. 
 
-The default GAMA _datastore_ uses MongoDB and provides the following FilterTypes: 
+The default ActiveQL _datastore_ uses MongoDB and provides the following FilterTypes: 
 
   * `IDFilterType`
   * `StringFilterType`
@@ -1022,7 +1022,7 @@ input CarFilter {
 description?:string
 ```
 
-You can add any information / documentation to an attribute that will become part of the schema documentation.  In some circumstances GAMA adds some description itself (e.g. the validation information) but will always leave your description intact. 
+You can add any information / documentation to an attribute that will become part of the schema documentation.  In some circumstances ActiveQL adds some description itself (e.g. the validation information) but will always leave your description intact. 
 
 ### Description Example
 
@@ -1116,7 +1116,7 @@ non-null values, but also wenn used by any custom code. In other words only non-
 validated.
 
 Any validation configuration is added as stringified JSON to the description of an attribute, thus becoming
-part of your public API documentation. It is also provided as MetaData so any UI client (as the GAMA Admin UI) 
+part of your public API documentation. It is also provided as MetaData so any UI client (as the ActiveQL Admin UI) 
 could use this for client-side validation.
 
 #### **ValidateJS**

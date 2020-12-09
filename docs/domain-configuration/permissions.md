@@ -11,9 +11,9 @@ Everything described here refers to the default `EntityPermissions` implementati
 
 ## Securing your API
 
-Per default your API is public. Anyone with access to the GraphQL endpoint can request any query or mutation. You can of course add restrictions on higher levels, e.g. enabling access via VPN or limit to certain IPs etc. These measures would be out of scope for GAMA. 
+Per default your API is public. Anyone with access to the GraphQL endpoint can request any query or mutation. You can of course add restrictions on higher levels, e.g. enabling access via VPN or limit to certain IPs etc. These measures would be out of scope for ActiveQL. 
 
-On a functional level though GAMA supports three quite common approaches to control the access of an API by a client:
+On a functional level though ActiveQL supports three quite common approaches to control the access of an API by a client:
 
   * access to queries and mutations based on roles and rights 
   * limiting the data a client can read or manage, e.g. based on assigned items (think of seeing only employees of any organisation a certain user is member of but not of other organisation's)
@@ -22,7 +22,7 @@ On a functional level though GAMA supports three quite common approaches to cont
 
 ## Principal 
 
-To evaluate access rights GAMA expects an object of type `PrincipalType` under the name `principal` in the resolver context. This can be either the `object` itself or a function returning the principal object.
+To evaluate access rights ActiveQL expects an object of type `PrincipalType` under the name `principal` in the resolver context. This can be either the `object` itself or a function returning the principal object.
 
 ```typescript
 export type PrincipalType = {
@@ -38,7 +38,7 @@ export type context = {
 }
 ```
 
-See how an application can provide a principal here: [GAMA Principal](./gama-principal.md).
+See how an application can provide a principal here: [ActiveQL Principal](./activeql-principal.md).
 
 <br>
 
@@ -252,7 +252,7 @@ const domainConfiguration:DomainConfiguration = {
 
 Any principal with the role "manager" is allowed any query and mutation of the entity, except the `delete` mutation. Of course this could have also be written as `action !== 'delete'` or even with static configuration.
 
-Any principal with the role "assistant" might access the read queries if the principal object has an `active` property with the value `true`. This is assuming that the principal object somehow has this property set correctly - see [GAMA Principal](./gama-principal.md) how to achieve this. Here we just to demonstrate that you can use any object from the `PermissionExpressionContext` to determine the permission. 
+Any principal with the role "assistant" might access the read queries if the principal object has an `active` property with the value `true`. This is assuming that the principal object somehow has this property set correctly - see [ActiveQL Principal](./activeql-principal.md) how to achieve this. Here we just to demonstrate that you can use any object from the `PermissionExpressionContext` to determine the permission. 
 
 <br>
 
@@ -536,7 +536,7 @@ entity:
         read: true
 ```
 
-So far a principal with the role "manager" might read and write any car item, a principal with the role "assistant" can read all car items. Let's assume you do not want to provide an "assistant" with the mileage of a car. While GAMA does not provide an explicit solution to this, there are many ways to achieve this. 
+So far a principal with the role "manager" might read and write any car item, a principal with the role "assistant" can read all car items. Let's assume you do not want to provide an "assistant" with the mileage of a car. While ActiveQL does not provide an explicit solution to this, there are many ways to achieve this. 
 
 ***Attribute Resolver***
 
@@ -567,7 +567,7 @@ So only if the principal has the role "manager" we actually return the "mileage"
 
 ***Shadow Entity***
 
-GAMA uses a _convention over configuration_ approach wherever possible. But the 2nd part is equaly important, we can override any convention. And use that for a neat little trick to split access to certain attribute sets of an entity for different principal roles. 
+ActiveQL uses a _convention over configuration_ approach wherever possible. But the 2nd part is equaly important, we can override any convention. And use that for a neat little trick to split access to certain attribute sets of an entity for different principal roles. 
 
 Take a look at the following example: 
 

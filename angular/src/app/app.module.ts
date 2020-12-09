@@ -6,7 +6,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AdminService } from 'gama-admin-ui';
+import { AdminService } from 'activeql-admin-ui';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AboutComponent } from './components/about/about.component';
@@ -51,7 +51,7 @@ import { GraphQLModule } from './graphql.module';
 import { LoginComponent } from './components/login/login.component';
 
 import { adminConfig } from './config/admin.config';
-import { GamaAdminUIModule } from 'gama-admin-ui';
+import { ActiveQLAdminUIModule } from 'activeql-admin-ui';
 
 registerLocaleData(en);
 
@@ -65,7 +65,7 @@ registerLocaleData(en);
   ],
   imports: [
     GraphQLModule.forRoot({uri: 'http://localhost:3000/graphql'}),
-    GamaAdminUIModule.forRoot( adminConfig ),
+    ActiveQLAdminUIModule.forRoot( adminConfig ),
     BrowserModule,
     AppRoutingModule,
     FormsModule,

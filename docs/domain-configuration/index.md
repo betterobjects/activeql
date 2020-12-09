@@ -47,23 +47,23 @@ For detailed documentation see
 The generated Schema and Resolvers can be made available as a GraphQL API using an [Express](http://expressjs.com)
 / [Apollo](https://www.apollographql.com) NodeJS application. 
 
-GAMA includes a default / example application that you can customize.
+ActiveQL includes a default / example application that you can customize.
 
 This can be used by any GrapqhQL Client - restrictions in regards of accessing 
-the API technical (e.g. API call limits, restriced client IPs) are out of concern of GAMA and should be 
+the API technical (e.g. API call limits, restriced client IPs) are out of concern of ActiveQL and should be 
 handled on a custom level.
 
-For detailed documentation see: [GAMA Express Application](./gama-express.md)
+For detailed documentation see: [ActiveQL Express Application](./activeql-express.md)
 
 
-### GAMA Admin UI
+### ActiveQL Admin UI
 
-Based on the Schema and some meta information from the Domain Configuration GAMA includes an optional 
+Based on the Schema and some meta information from the Domain Configuration ActiveQL includes an optional 
 [Angular](https://angular.io) application that provides a generic Admin UI. 
 
 This Application can be customized as well.
 
-For detailed documentation see: [GAMA Angular Admin UI](./gama-angular.md)
+For detailed documentation see: [ActiveQL Angular Admin UI](./activeql-angular.md)
 
 ## Example
 
@@ -137,7 +137,7 @@ export const domainConfiguration:DomainConfiguration = {
 You might realize we are using some helper methods (e.g. `findById`) and also not referring any GraphQL type
 directly but its string representation. All this we will be covered in the  [Custom Querys and Mutations]() section. 
 But you already should see that you can add any query and mutation that is not party of the default generated schema. 
-These queries and mutation can make use of the gama-server library (as the mutation in this example) or can be 
+These queries and mutation can make use of the activeql-server library (as the mutation in this example) or can be 
 totally independent from it (as the query shows). The use of [Lodash](https://lodash.com) `_.get( ... )` is optional
 of course.
 
@@ -152,7 +152,7 @@ This example would lead to the following schema (the annotations / desciptions) 
 and are not part of the schema generation: 
 
 ```graphql
-''' meta information for the Gama Admin UI so it can generate a generic UI for a human user '''
+''' meta information for the ActiveQL Admin UI so it can generate a generic UI for a human user '''
 type assocMetaData {
   path: String
   query: String
@@ -229,7 +229,7 @@ input CarUpdateInput {
 ''' a Data scalar you can use in your entity configurations, queries or mutations '''
 scalar Date
 
-''' meta information for the Gama Admin UI so it can generate a generic UI for a human user '''
+''' meta information for the ActiveQL Admin UI so it can generate a generic UI for a human user '''
 type entityMetaData {
   path: String
   typeQuery: String
@@ -260,7 +260,7 @@ type EntityStats {
   updatedLast: Date
 }
 
-''' meta information for the Gama Admin UI so it can generate a generic UI for a human user '''
+''' meta information for the ActiveQL Admin UI so it can generate a generic UI for a human user '''
 type fieldMetaData {
   name: String!
   type: String
@@ -339,7 +339,7 @@ type ValidationViolation {
 Wouldn't it be great if you could inspect the current domain configuration via GraqpQL? You might ask, why though? 
 You may not always have access to the actual configuration. Since this could also be a security concern, 
 this feature is only available in the development stage. See how you can set the stage in the 
-[GAMA Configuration Documentation](./gama-configuration).
+[ActiveQL Configuration Documentation](./activeql-configuration).
 
 
 You can query the whole configuration via GraphQL, we of course see always the typed configuration and no longer any
@@ -396,7 +396,7 @@ query {
 </td></tr>
 </table>
 
-GAMA even offers Enums for all Enties and Enum Configurations in your Domain Configuration which you can use to get a 
+ActiveQL even offers Enums for all Enties and Enum Configurations in your Domain Configuration which you can use to get a 
 specific Entity or Enum Configuration in your query which might be practical with large configuration sets.
 
 <table width="100%" style="font-size: 0.9em">

@@ -5,7 +5,7 @@ import { DomainDefinition } from './domain-definition';
 import { GraphQLTypes } from './graphx';
 import { Runtime } from './runtime';
 
-export const parseGamaScalarDate = (value:string) => {
+export const parseActiveQLScalarDate = (value:string) => {
   const date = new Date( _.toString(value) );
   const y = date.getFullYear();
   const m = date.getMonth();
@@ -16,7 +16,7 @@ export const parseGamaScalarDate = (value:string) => {
 }
 
 
-export class GamaSchemaTypes {
+export class ActiveQLSchemaTypes {
 
   get graphx() { return this.runtime.graphx }
 
@@ -33,8 +33,8 @@ export class GamaSchemaTypes {
 
     this.graphx.type( 'Date', {
       from: GraphQLTypes.GraphQLScalarType,
-      parseValue: (value:any) => parseGamaScalarDate( value ),
-      parseLiteral: (ast:any) => ast.kind === Kind.STRING ? parseGamaScalarDate( ast.value ) : null,
+      parseValue: (value:any) => parseActiveQLScalarDate( value ),
+      parseLiteral: (ast:any) => ast.kind === Kind.STRING ? parseActiveQLScalarDate( ast.value ) : null,
       serialize: (value:any) => value
     });
 

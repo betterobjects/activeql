@@ -1,5 +1,5 @@
 import { ApolloServerExpressConfig } from 'apollo-server-express';
-import { DomainDefinition, MongoDbDataStore, GamaServer } from 'gama-server';
+import { DomainDefinition, MongoDbDataStore, ActiveQLServer } from 'activeql-server';
 import depthLimit from 'graphql-depth-limit';
 import path from 'path';
 import express from 'express';
@@ -13,7 +13,7 @@ const UPLOAD_DIR = '/uploads';
 const UPLOAD_PATH = '/files';
 const GRAPHQL_URL = '/graphql';
 const MONGODB_URL = 'mongodb://localhost:27017';
-const MONGODB_DBNAME = 'GAMA';
+const MONGODB_DBNAME = 'ActiveQL';
 const DOMAIN_CONFIGURATION_FOLDER = './domain-configuration';
 
 // load domain configuration from yaml files in folder ./domain-configuration
@@ -31,13 +31,13 @@ const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONG
 // default Apollo configuration
 const apolloConfig:ApolloServerExpressConfig = { validationRules: [depthLimit(7)] };
 
-// GAMA config
-const gamaConfig = { domainDefinition, dataStore };
+// ActiveQL config
+const runtimeConfig = { domainDefinition, dataStore };
 
-export const gama = async( app: any ) => {
+export const activeql = async( app: any ) => {
   addJwtLogin( domainDefinition, app );
   app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
-  const server = await GamaServer.create( apolloConfig, gamaConfig );
+  const server = await ActiveQLServer.create( apolloConfig, runtimeConfig );
   server.applyMiddleware({ app, path: GRAPHQL_URL });
 }
 

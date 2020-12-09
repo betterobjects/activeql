@@ -39,7 +39,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-import { AdminRoutingModule as GamaAdminRoutingModule } from './gama-admin-routing.module';
+import { AdminRoutingModule as ActiveQLAdminRoutingModule } from './activeql-admin-routing.module';
 import { BreadcrumComponent } from './components/breadcumb.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { CreateComponent } from './components/create/create.component';
@@ -60,7 +60,7 @@ import { AdminService } from './services/admin.service';
 registerLocaleData(en);
 
 export function initializeApp1(adminService:AdminService) {
-  return () => adminService.init( async ():Promise<AdminConfigType> => GamaAdminUIModule.adminConfig );
+  return () => adminService.init( async ():Promise<AdminConfigType> => ActiveQLAdminUIModule.adminConfig );
 }
 
 @NgModule({
@@ -80,7 +80,7 @@ export function initializeApp1(adminService:AdminService) {
     SafePipe
   ],
   imports: [
-    GamaAdminRoutingModule,
+    ActiveQLAdminRoutingModule,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -136,15 +136,15 @@ export function initializeApp1(adminService:AdminService) {
     { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminService], multi: true },
   ]
 })
-export class GamaAdminUIModule {
+export class ActiveQLAdminUIModule {
 
   static adminConfig:AdminConfigType;
 
-  public static forRoot(adminConfig:AdminConfigType): ModuleWithProviders<GamaAdminUIModule> {
+  public static forRoot(adminConfig:AdminConfigType): ModuleWithProviders<ActiveQLAdminUIModule> {
     return {
-      ngModule: GamaAdminUIModule,
+      ngModule: ActiveQLAdminUIModule,
       providers: (() => {
-        GamaAdminUIModule.adminConfig = adminConfig;
+        ActiveQLAdminUIModule.adminConfig = adminConfig;
         return [{
           provide: 'adminConfig',
           useValue: adminConfig

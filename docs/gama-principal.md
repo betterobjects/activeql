@@ -6,7 +6,7 @@ nav_order: 20
 
 # Principal
 
-To control access to the entity queries and mutations GAMA includes a default `EntityPermission` module that uses the concept of a `principal` object (with the properties "roles") that is expected in the `context` (under the name "principal") of any query or mutation.
+To control access to the entity queries and mutations ActiveQL includes a default `EntityPermission` module that uses the concept of a `principal` object (with the properties "roles") that is expected in the `context` (under the name "principal") of any query or mutation.
 
 A principal bears the information of API client / user
   * possible _roles_ for the current 
@@ -15,13 +15,13 @@ A principal bears the information of API client / user
 
 ## Setting the principal 
 
-Whether and how an application determines a principial object is usually specific to the actual implementation. You would probably integrate a Authentication Provider or SSO, or implement your own logic. In the _GAMA starter application_ you will find a JWT based implementation that you can use right away or adapt to your applications requirement.
+Whether and how an application determines a principial object is usually specific to the actual implementation. You would probably integrate a Authentication Provider or SSO, or implement your own logic. In the _ActiveQL starter application_ you will find a JWT based implementation that you can use right away or adapt to your applications requirement.
 
 ## Example - User as Principal
 
-To show how you would add your own implementation to obtain and provide a `principal` to your GAMA application we will create a bit similar solution to the default JWT based implementation but use a quite simple approach with a _User_ entity as `prinicipal` that will hold all information to grant or prohibit any API client's access to certain queries and mutations. 
+To show how you would add your own implementation to obtain and provide a `principal` to your ActiveQL application we will create a bit similar solution to the default JWT based implementation but use a quite simple approach with a _User_ entity as `prinicipal` that will hold all information to grant or prohibit any API client's access to certain queries and mutations. 
 
-We will provide a method that we can call from our's apps `gama-app.ts` to include this implementation to our application.
+We will provide a method that we can call from our's apps `activeql-app.ts` to include this implementation to our application.
 
 ```typescript
 export const addSimpleLogin = ( domainDefinition:DomainDefinition ) => {

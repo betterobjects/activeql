@@ -1,6 +1,6 @@
 const concurrently = require('concurrently');
 
-console.info('Starting GAMA-on-Rails 🚀');
+console.info('Starting ActiveQL-on-Rails 🚀');
 concurrently(
   [
     {
