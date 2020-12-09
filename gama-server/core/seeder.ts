@@ -2,7 +2,6 @@ import * as faker from 'faker';
 import _ from 'lodash';
 
 import { Entity } from '../entities/entity';
-import { ValidationViolation } from '../entities/entity-validation';
 import { Runtime } from './runtime';
 
 export class Seeder {

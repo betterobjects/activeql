@@ -1,9 +1,17 @@
 {
   "name": "gama-server",
-  "version": "0.1.0",
+  "description": "the GAMA server to be emebeddd as ExressJS middleware",
+  "version": "1.0.0-rc",
   "license": "MIT",
+  "author": {
+    "name": "Thomas Rekittke",
+    "email": "betterobjects@mac.com",
+    "url": "https://betterobjects.github.io"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rimraf dist",
+    "prepublish": "rimraf dist && tsc",
     "build": "rimraf dist && tsc",
     "watch:build": "tsc --watch",
     "test": "jest --watch --detectOpenHandles"

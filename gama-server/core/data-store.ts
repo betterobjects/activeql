@@ -11,11 +11,6 @@ export type Paging = {
   size:number
 }
 
-export enum JOIN {
-  AND,
-  OR
-}
-
 /**
  *
  */

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Collection, Db, FilterQuery, MongoClient, ObjectID, ObjectId } from 'mongodb';
 
 import { FilterType } from '../builder/filter-type';
-import { DataStore, JOIN, Paging, Sort } from '../core/data-store';
+import { DataStore, Paging, Sort } from '../core/data-store';
 import { Entity } from '../entities/entity';
 import { AssocFromFilterType } from './filter/assoc-from-filter-type';
 import { BooleanFilterType } from './filter/boolean-filter-type';
