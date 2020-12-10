@@ -45,6 +45,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { CreateComponent } from './components/create/create.component';
 import { DynContentComponent } from './components/dyn-content.component';
 import { EditComponent } from './components/edit/edit.component';
+import { ErrorComponent } from './components/error.component';
 import { FileUploadComponent } from './components/file-upload.component';
 import { FormComponent } from './components/form/form.component';
 import { HomeComponent } from './components/home/home.component';
@@ -59,10 +60,12 @@ import { AdminService } from './services/admin.service';
 
 registerLocaleData(en);
 
+// @dynamic
 export function initializeApp1(adminService:AdminService) {
   return () => adminService.init( async ():Promise<AdminConfigType> => ActiveQLAdminUIModule.adminConfig );
 }
 
+// @dynamic
 @NgModule({
   declarations: [
     IndexComponent,
@@ -76,6 +79,7 @@ export function initializeApp1(adminService:AdminService) {
     FormComponent,
     ConfirmDialogComponent,
     MessageDialogComponent,
+    ErrorComponent,
     HomeComponent,
     SafePipe
   ],
@@ -128,7 +132,8 @@ export function initializeApp1(adminService:AdminService) {
     EditComponent,
     CreateComponent,
     TableComponent,
-    DynContentComponent
+    DynContentComponent,
+    ErrorComponent
   ],
   providers: [
     AdminService,

@@ -114,9 +114,7 @@ export type ViolationType = {
 }
 
 
-/**
- *
- */
+// @dynamic
 export class AdminConfig {
 
   private static adminConfig:AdminConfig;

@@ -53,7 +53,7 @@ You can also use the following libraries in your in your ExpressJS and optionall
 | Libray            | URL                                                 | 
 | ----------------- | --------------------------------------------------- | 
 | ActiveQLServer    | https://www.npmjs.com/package/activeql-server       |
-| ngActiveQLAdminUI | https://www.npmjs.com/package/ng-activeql-admin-ui  |
+| ActiveQLAdminUI   | https://www.npmjs.com/package/activeql-admin-ui     |
 
 
 # Developing ActiveQL
