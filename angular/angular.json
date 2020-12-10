@@ -4,7 +4,7 @@
   "newProjectRoot": "projects",
   "projects": {
     "activeql": {
-      "projectType": "application",
+      "projectType": "library",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"

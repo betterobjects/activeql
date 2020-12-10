@@ -1,24 +1,28 @@
 # ActiveQLAdminUI
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.11.
+This is the Admin UI library for ActiveQL. Build domain driven GraphQL APIs with convention over configuration and DRY in mind. From domain model to full fledged GraphQL API and Admin UI in minutes.
 
-## Code scaffolding
+The ActiveQL Admin UI will offer you default views for 
 
-Run `ng generate component component-name --project ActiveQLAdminUI` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ActiveQLAdminUI`.
-> Note: Don't forget to add `--project ActiveQLAdminUI` or else it will be added to the default project in your `angular.json` file. 
+* Menu for entities
+* List of entity items (with search, sort and pagination)
+* Detail view of an entity item
+* Master-Detail View for relationships between entities
+* Navigation to related entity items
+* File-Upload 
 
-## Build
+## Installation
 
-Run `ng build ActiveQLAdminUI` to build the project. The build artifacts will be stored in the `dist/` directory.
+You can embedd this library in your existing Angular application. We suggest to run the generator directly to create a stater application though.
 
-## Publishing
+```
+npx betterobjects/activeql-generator
+```
 
-After building your library with `ng build ActiveQLAdminUI`, go to the dist folder `cd dist/activeql-admin-ui` and run `npm publish`.
+You can also fork an clone the ActiveQL Starter App from this repository: [https://github.com/betterobjects/activeql-starter](https://github.com/betterobjects/activeql-starter).
 
-## Running unit tests
+## Usage and Customization 
 
-Run `ng test ActiveQLAdminUI` to execute the unit tests via [Karma](https://karma-runner.github.io).
+You can learn more about to use and customize this application in the [Documentation ](https://betterobjects.github.io/activeql/) 
 
-## Further help
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
