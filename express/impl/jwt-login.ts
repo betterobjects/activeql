@@ -6,7 +6,7 @@ import { sign } from 'jsonwebtoken';
 import _ from 'lodash';
 
 export const addJwtLogin = ( domainDefinition:DomainDefinition, app:any ) => {
-  app.use( expressJwt({ secret: process.env.JWT_SECRET || '', algorithms: ["HS256"], credentialsRequired: false } ) );
+  app.use( expressJwt({ secret: process.env.JWT_SECRET || 'SomeSecret', algorithms: ["HS256"], credentialsRequired: false } ) );
   domainDefinition.add( domainConfiguration );
   domainDefinition.contextFn.push( addPrincipalToApolloContext );
 }

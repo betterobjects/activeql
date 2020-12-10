@@ -5,6 +5,8 @@ import { createServer } from 'http';
 
 import { activeql } from './activeql-app';
 
+require('dotenv').config();
+
 (async () => {
   const app = express();
   app.use('*', cors());

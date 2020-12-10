@@ -1,0 +1,4 @@
+{"brand":"Audi","color":"blue","mileage":20000,"createdAt":{"$$date":1607643729155},"updatedAt":{"$$date":1607643729155},"_id":"A51t7LZ5kawCRA8L"}
+{"brand":"Porsche","color":"black","mileage":90000,"createdAt":{"$$date":1607643556264},"updatedAt":{"$$date":1607643556264},"_id":"TK2mKo7577dv7SWb"}
+{"brand":"Audi","color":"blue","mileage":20000,"createdAt":{"$$date":1607643782237},"updatedAt":{"$$date":1607643782237},"_id":"o2vXofT1IP8aKzrY"}
+{"brand":"Porsche","color":"black","mileage":90000,"createdAt":{"$$date":1607643594165},"updatedAt":{"$$date":1607643594165},"_id":"yxpOUNDMZAG0BZDg"}

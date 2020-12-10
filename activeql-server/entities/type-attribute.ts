@@ -1,4 +1,4 @@
-import { Runtime } from 'core/runtime';
+import { Runtime } from '../core/runtime';
 import { GraphQLType } from 'graphql';
 
 import { AttributeResolveContext } from '../core/domain-configuration';

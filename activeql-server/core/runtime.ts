@@ -9,7 +9,7 @@ import { EntityFileSave } from '../entities/entity-file-save';
 import { DefaultEntityPermissions, EntityPermissions } from '../entities/entity-permissions';
 import { EntityResolver } from '../entities/entity-resolver';
 import { EntitySeeder } from '../entities/entity-seeder';
-import { MongoDbDataStore } from '../mongodb-datastore/mongodb.data-store';
+import { NedbDataStore } from '../nedb-datastore/nedb.data-store';
 import { ValidateJs } from '../validation/validate-js';
 import { Validator } from '../validation/validator';
 import { DataStore } from './data-store';
@@ -59,7 +59,7 @@ export class Runtime {
   private static getDefaultConfig():RuntimeConfig {
     return {
       name: 'ActiveQL',
-      dataStore: ( name?:string ) => MongoDbDataStore.create({ url: 'mongodb://localhost:27017', dbName: name || 'ActiveQL' }),
+      dataStore: ( name?:string ) => NedbDataStore.create({ filePath: './db' }),
       validator: ( entity:Entity ) => new ValidateJs( entity ),
       entityResolver: ( entity:Entity ) => new EntityResolver( entity ),
       entityPermissions: ( entity:Entity ) => new DefaultEntityPermissions( entity ),
