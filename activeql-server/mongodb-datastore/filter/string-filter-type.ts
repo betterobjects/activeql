@@ -12,15 +12,16 @@ export class StringFilterType extends AttributeFilterType {
   //
   //
   attributes() { return {
-    is: { graphqlType: GraphQLString },
-    isNot: { graphqlType: GraphQLString },
-    in: { graphqlType: new GraphQLList(GraphQLString) },
-    notIn: { graphqlType: new GraphQLList(GraphQLString) },
-    contains: { graphqlType: GraphQLString },
-    doesNotContain: { graphqlType: GraphQLString },
-    beginsWith: { graphqlType: GraphQLString },
-    endsWith: { graphqlType: GraphQLString },
-    caseSensitive: { graphqlType: GraphQLBoolean }
+    is: { graphqlType: GraphQLString, description: 'equal this value, case-sensitive can be be applied (default: true)' },
+    isNot: { graphqlType: GraphQLString, description: 'does not equal this value, case-sensitive can be be applied (default: true)' },
+    in: { graphqlType: new GraphQLList(GraphQLString), description: 'value is in the list of strings, case-sensitive' },
+    notIn: { graphqlType: new GraphQLList(GraphQLString), description: 'value is not in the list of strings, case-sensitive' },
+    contains: { graphqlType: GraphQLString, description: 'contains this value, case-sensitive can be be applied (default: true)' },
+    doesNotContain: { graphqlType: GraphQLString, description: 'does not contain this value, case-sensitive can be be applied (default: true)' },
+    beginsWith: { graphqlType: GraphQLString, description: 'begins with this value, case-sensitive can be be applied (default: true)' },
+    endsWith: { graphqlType: GraphQLString, description: 'ends with this value, case-sensitive can be be applied (default: true)' },
+    caseSensitive: { graphqlType: GraphQLBoolean, description: 'default:true, can be applied to all operators except "in" and "notIn"' },
+    regex: { graphqlType: GraphQLString, description: 'any regex, case-sensitive can be be applied (default: true)' }
   }}
 
   //
@@ -46,6 +47,7 @@ export class StringFilterType extends AttributeFilterType {
       case 'doesNotContain':return { $not: { $regex : new RegExp(`.*(${operand}).*`, i) } };
       case 'beginsWith': return { $regex : new RegExp(`^(${operand})`, i) };
       case 'endsWith': return { $regex : new RegExp(`(${operand})$`, i) };
+      case 'regex': return { $regex : new RegExp(operand, i) };
     }
     console.warn(`StringFilterType unknown operator '${operator}' `);
 

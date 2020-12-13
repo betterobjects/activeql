@@ -100,18 +100,9 @@ describe('Validations', () => {
   //
   it( 'should validate existing foreignKey', async () => {
     const beta = runtime.entities['Beta'];
-    let result = await beta.validate( { name: 'someName', deltaId: '1234' } );
-    expect( result ).toHaveLength( 1 );
-    expect( result ).toEqual( expect.arrayContaining([
-      expect.objectContaining({
-        attribute: 'deltaId',
-        message: expect.stringContaining('could not convert')
-      })
-    ]));
-
     const alpha = runtime.entities['Alpha']; // to get a valid but not matching id
     const alpha1 = _.first( await alpha.findByAttribute( {name: 'alpha1'}) );
-    result = await beta.validate( { name: 'someName', deltaId: alpha1?.id } );
+    let result = await beta.validate( { name: 'someName', deltaId: alpha1?.id } );
     expect( result ).toHaveLength( 1 );
     expect( result ).toEqual( expect.arrayContaining([
       expect.objectContaining( {

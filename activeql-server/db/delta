@@ -1,0 +1,11 @@
+{"name":"delta2","createdAt":{"$$date":1607898818690},"updatedAt":{"$$date":1607898818690},"_id":"AYulQsXxG8jVbBKn"}
+{"name":"delta3","createdAt":{"$$date":1607898818690},"updatedAt":{"$$date":1607898818690},"_id":"N0ufKJBUi8PshRrX"}
+{"name":"delta1","createdAt":{"$$date":1607898818690},"updatedAt":{"$$date":1607898818690},"_id":"ky9TCDXkiWAinxgV"}
+{"$$deleted":true,"_id":"AYulQsXxG8jVbBKn"}
+{"$$deleted":true,"_id":"N0ufKJBUi8PshRrX"}
+{"$$deleted":true,"_id":"ky9TCDXkiWAinxgV"}
+{"name":"delta1","createdAt":{"$$date":1607898829822},"updatedAt":{"$$date":1607898829822},"_id":"0NIewtm9hMon0lh0"}
+{"name":"delta2","createdAt":{"$$date":1607898829823},"updatedAt":{"$$date":1607898829823},"_id":"uitTcqugI2keiONI"}
+{"name":"delta3","createdAt":{"$$date":1607898829823},"updatedAt":{"$$date":1607898829823},"_id":"DBZB5d6gAFjRNaLC"}
+{"name":"delta1","createdAt":{"$$date":1607898829822},"updatedAt":{"$$date":1607898829867},"_id":"0NIewtm9hMon0lh0","alphaIds":["jDoSGOgHTLxRotws","1jgj2x7HENpdHlUa","ij4ZxkV9VZ0QBNlo"]}
+{"name":"delta2","createdAt":{"$$date":1607898829823},"updatedAt":{"$$date":1607898829885},"_id":"uitTcqugI2keiONI","alphaIds":["ZmEnketrhEi6YH2B","ij4ZxkV9VZ0QBNlo"]}

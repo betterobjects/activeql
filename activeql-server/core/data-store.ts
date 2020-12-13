@@ -22,8 +22,6 @@ export abstract class DataStore {
 
   abstract findByAttribute( entity:Entity, attrValue:{[name:string]:any} ):Promise<any[]>;
 
-  abstract aggregateFind( entities:Entity[], filter:any, sort?:Sort, paging?:Paging ):Promise<any[]>;
-
   /**
    *
    * @param entity the entity
@@ -32,7 +30,7 @@ export abstract class DataStore {
    *                filter of { expression: any } is not evaluated by FilterTypes but handled as is
    * @returns all items matching the filter
    */
-  abstract findByFilter( entity:Entity, filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]>;
+  abstract findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]>;
 
   abstract create( entity:Entity, attrs: any ):Promise<any>;
 

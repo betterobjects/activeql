@@ -144,7 +144,7 @@ export class EntityBuilder extends TypeBuilder {
   //
   //
   addQueries():void  {
-    if( ! this.entity.isPolymorph ) this.addTypeQuery();
+    this.addTypeQuery();
     this.addTypesQuery();
     this.addStatsQuery();
   }
@@ -333,8 +333,8 @@ export class EntityBuilder extends TypeBuilder {
   //
   //
   private addTimestampFields( fields:_.Dictionary<AttrFieldConfig|undefined>, purpose:AttributePurpose ) {
-    _.set( fields, 'createdAt', { type: 'DateTime!', description: 'creation date of this item' } );
-    _.set( fields, 'updatedAt', { type: 'DateTime!', description: 'latest update date of this item' } );
+    _.set( fields, 'createdAt', { type: purpose === 'filter' ? 'DateTime' : 'DateTime!', description: 'creation date of this item' } );
+    _.set( fields, 'updatedAt', { type: purpose === 'filter' ? 'DateTime' : 'DateTime!', description: 'latest update date of this item' } );
   }
 
   //
@@ -408,6 +408,7 @@ export class EntityBuilder extends TypeBuilder {
    *
    */
   protected addTypeQuery(){
+    if( this.entity.isPolymorph ) return;
     if( this.entity.typeQuery === false ) return;
     const typeQuery = this.entity.typeQueryName;
     if( ! typeQuery ) return;
@@ -510,6 +511,7 @@ export class EntityBuilder extends TypeBuilder {
    *
    */
   protected addDeleteMutation():void {
+    if( this.entity.isPolymorph ) return;
     if( this.entity.deleteMutation === false ) return;
     this.graphx.type( 'mutation' ).extendFields( () => {
       return _.set( {}, this.entity.deleteMutationName, {

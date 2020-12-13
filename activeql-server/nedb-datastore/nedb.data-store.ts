@@ -1,5 +1,5 @@
-// import ts from 'es6-template-strings';
-import _, { reject } from 'lodash';
+import fs from 'fs-extra';
+import _, { result } from 'lodash';
 import path, { resolve } from 'path'
 import Nedb from 'nedb';
 
@@ -29,7 +29,7 @@ export class NedbDataStore extends DataStore {
   async findById( entity:Entity, id:string ):Promise<any> {
     const collection = this.getCollection( entity );
     return new Promise( (resolve, reject) => {
-      collection.findOne({id}, (error:any, item:any) => {
+      collection.findOne({ _id: id }, (error:any, item:any) => {
         if( error ) return reject( error );
         resolve( this.buildOutItem( item ) );
       })
@@ -50,50 +50,25 @@ export class NedbDataStore extends DataStore {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
-      _.set( attrValue, '_id', this.getObjectId( id, entity ) );
+      _.set( attrValue, '_id', id );
     }
     return this.findByExpression( entity, attrValue, sort );
   }
 
-  async findByFilter( entity:Entity, filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
+  async findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
+    if( _.isArray( entity ) ) {
+      const result:any[] = [];
+      for( const e of entity ){
+        const items = await this.findByFilter( e, filter, sort, paging );
+        result.push( ... _.map( items, item => _.set( item, '__typename', e.typeName ) ) );
+      }
+      return result;
+    }
     const expression = await this.buildExpressionFromFilter( entity, filter );
     return this.findByExpression( entity, expression, sort, paging );
   }
 
-  async aggregateFind( entities:Entity[], filter:any, sort?:Sort, paging?:Paging ):Promise<any[]>{
-    return [];
 
-    // if( entities.length === 0 ) return [];
-
-    // const expression = await this.buildExpressionFromFilter( _.first(entities) as Entity, filter );
-    // const lookups:any[] = _.map( entities, entity => ({
-    //   $lookup: {
-    //     from: entity.typesQueryName,
-    //     pipeline: [
-    //       { $addFields: { __typename: entity.typeName } },
-    //     ],
-    //     as: entity.typesQueryName
-    //   }
-    // }));
-    // const concatArrays = _.map( entities, entity => `$${entity.typesQueryName}` );
-    // const aggregateDefinition = _.compact( _.concat(
-    //   { $limit: 1 },
-    //   { $project: { _id: '$$REMOVE' } },
-    //   lookups,
-    //   { $project: { union: { $concatArrays: concatArrays } } },
-    //   { $unwind: '$union' },
-    //   { $replaceRoot: { newRoot: '$union' } },
-    //   { $sort: this.getSort( sort ) }
-    // ));
-
-    // const randomEntity = _.first( entities ) as Entity;
-    // const sortStage = this.getSort( sort );
-    // const sl = this.getSkipLimit( paging );
-    // if( sl.limit === 0 ) sl.limit = Number.MAX_SAFE_INTEGER;
-    // const aggregate = this.getCollection( randomEntity ).aggregate( aggregateDefinition ).match(expression);
-    // const items = await aggregate.sort( sortStage ).skip(sl.skip).limit(sl.limit).toArray();
-    // return _.map( items, item => this.buildOutItem( item ) );
-  }
 
   async create( entity:Entity, attrs:any ):Promise<any> {
     const collection = this.getCollection( entity );
@@ -107,30 +82,35 @@ export class NedbDataStore extends DataStore {
   }
 
   async update( entity:Entity, attrs: any ):Promise<any> {
-    // const _id = new ObjectId( attrs.id );
-    // delete attrs.id;
-    // const collection = this.getCollection( entity );
-    // const result = await collection.updateOne( { _id }, { $set: attrs }, { upsert: false } );
-    // return this.findById( entity, _id );
+    const collection = this.getCollection( entity );
+    return new Promise((resolve, reject) => {
+      const id =  _.toString( attrs.id );
+      _.unset( attrs, 'id' );
+      collection.update( { _id: id }, { $set: attrs }, { upsert: false}, (error:any) => {
+        if( error ) return reject( error );
+        resolve( this.findById( entity, id ) );
+      });
+    });
   }
 
-  async delete( entityType:Entity, id:any  ):Promise<boolean> {
-    return false
-    // const collection = this.getCollection( entityType );
-    // collection.deleteOne( { _id: new ObjectId( id ) } );
-    // return true;
+  async delete( entity:Entity, id:any  ):Promise<boolean> {
+    const collection = this.getCollection( entity );
+    return new Promise( (resolve, reject) => {
+      collection.remove( { _id: id }, {}, (error, numRemoved) => {
+        if( error ) reject( error );
+        resolve( numRemoved === 1 );
+      })
+    });
   }
 
   async truncate( entity:Entity ):Promise<boolean> {
-    return false;
-    // const collectionName = entity.collection;
-    // if( await this.collectionExist( collectionName ) ) try {
-    //   await this.db.dropCollection( collectionName );
-    //   return true;
-    // } catch (error) {
-    //   console.error( error );
-    // }
-    // return false;
+    const collection = this.getCollection( entity );
+    return new Promise( (resolve, reject) => {
+      collection.remove( {}, { multi: true }, (error, numRemoved) => {
+        if( error ) reject( error );
+        resolve( true );
+      })
+    });
   }
 
   getEnumFilterType( enumName: string ) {
@@ -160,38 +140,25 @@ export class NedbDataStore extends DataStore {
   }
 
   joinExpressions( expressions:any[], join:'and'|'or' = 'and' ):any {
-    // if( _.size( expressions )  <=1 ) return _.first(expressions);
-    // return _.set({}, join === 'and' ? '$and' : '$or', expressions );
+    if( _.size( expressions )  <=1 ) return _.first(expressions);
+    return _.set({}, join === 'and' ? '$and' : '$or', expressions );
   }
 
   // dont like the implementation but ran out if ideas
   async itemMatchesExpression( item:any, expression:any ):Promise<boolean> {
-    return false;
-    // let matches = true;
-    // const session = this.client.startSession();
-    // try {
-    //   session.withTransaction( async () => {
-    //     const collection = this.db.collection('__itemMatchesExpression');
-    //     const result = await collection.insertOne( item, { session } );
-    //     const found = await collection.findOneAndDelete(
-    //       { $and: [ { _id: result.insertedId }, expression ]}, { session } );
-    //     if( found ) return;
-    //     await collection.deleteOne( { _id : result.insertedId }, { session } );
-    //     matches = false;
-    //   });
-    // } finally {
-    //   session.endSession();
-    // }
-    // return matches;
-  }
-
-  protected getObjectId( id:any, entity:Entity ) {
-    // if( ! id ) throw new Error(`cannot resolve type '${entity.name}' without id`);
-    // try {
-    //   return new ObjectId( _.toString( id ) );
-    // } catch (error) {
-    //   throw new Error( `could not convert '${id}' for '${entity.name}' to an ObjectId` );
-    // }
+    const collection = new Nedb(); // in-memory
+    return new Promise<boolean>( (resolve, reject) => {
+      collection.insert( item, (error, item ) => {
+        if( error ) reject( error );
+        expression = { $and: [ { _id: item.id }, expression ] };
+        collection.findOne( expression, (error, found ) => {
+          if( error ) reject( error );
+          if( ! item ) return resolve( false );
+          collection.remove({ id: item.id });
+          resolve( true )
+        });
+      });
+    });
   }
 
   protected async findByExpression( entity:Entity, expression:any, sort?:Sort, paging?:Paging ):Promise<any[]> {
@@ -199,7 +166,7 @@ export class NedbDataStore extends DataStore {
     const sortStage = this.getSort( sort );
     const sl = this.getSkipLimit( paging );
     return new Promise( (resolve, reject) => {
-      collection.find( expression, (error:any, items:any[]) => {
+      collection.find( expression ).sort( sortStage ).skip( sl.skip ).limit( sl.limit ).exec( (error, items) =>{
         if( error ) return reject( error );
         resolve( _.map( items, item => this.buildOutItem( item ) ) );
       });

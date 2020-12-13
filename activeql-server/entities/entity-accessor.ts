@@ -48,7 +48,7 @@ export class EntityAccessor extends EntityModule {
    */
   async findByFilter( filter:any, sort?:Sort, paging?:Paging ):Promise<EntityItem[]> {
     const items = this.entity.isPolymorph ?
-      await this.dataStore.aggregateFind( this.entity.getThisOrAllNestedEntities(), filter, sort, paging ) :
+      await this.dataStore.findByFilter( this.entity.getThisOrAllNestedEntities(), filter, sort, paging ) :
       await this.dataStore.findByFilter( this.entity, filter, sort, paging );
     return Promise.all( _.map( items, item => EntityItem.create( this.entity, item ) ) );
   }

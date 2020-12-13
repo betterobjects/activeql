@@ -1,0 +1,9 @@
+{"username":"regular","roles":["user"],"someIds":[23,42],"createdAt":{"$$date":1607896885456},"updatedAt":{"$$date":1607896885456},"_id":"1iHx5740SoFeoS3m"}
+{"username":"admin","roles":["user","admin"],"someIds":[1,2,3],"createdAt":{"$$date":1607896885455},"updatedAt":{"$$date":1607896885455},"_id":"X3M9tYqHnKHaDmkp"}
+{"username":"another","roles":["foo","bar"],"someIds":[23],"createdAt":{"$$date":1607896885584},"updatedAt":{"$$date":1607896885584},"_id":"gn0VHiUgY6V5tO1i"}
+{"$$deleted":true,"_id":"1iHx5740SoFeoS3m"}
+{"$$deleted":true,"_id":"X3M9tYqHnKHaDmkp"}
+{"$$deleted":true,"_id":"gn0VHiUgY6V5tO1i"}
+{"username":"admin","roles":["user","admin"],"someIds":[1,2,3],"createdAt":{"$$date":1607898823073},"updatedAt":{"$$date":1607898823073},"_id":"EEJFCkrtA36DqTRd"}
+{"username":"regular","roles":["user"],"someIds":[23,42],"createdAt":{"$$date":1607898823073},"updatedAt":{"$$date":1607898823073},"_id":"UU9OCTVSww9Da1CU"}
+{"username":"another","roles":["foo","bar"],"someIds":[23],"createdAt":{"$$date":1607898823091},"updatedAt":{"$$date":1607898823091},"_id":"t3cdWlkB0XDBIFFj"}

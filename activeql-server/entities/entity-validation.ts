@@ -144,7 +144,8 @@ export class EntityValidation  {
     if( _.size( result ) === 0 ) return true;
     if( _.size( result ) > 1 ) return false;
     const currentId = _.toString( _.get( item, 'id' ) );
-    return currentId === _.toString( _.get( _.first(result), 'id') );
+    const foundId = _.toString( _.get( _.first(result), 'id') );
+    return currentId === foundId;
   }
 
 

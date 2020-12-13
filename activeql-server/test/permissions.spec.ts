@@ -71,7 +71,7 @@ const domainConfiguration:DomainConfiguration = {
       permissions: {
         roleA: true,
         user: ( { principal } ) => ({color: { $in: principal.colors }}),
-        userWithBlue: () => ({color: { $eq: 'blue' }}),
+        userWithBlue: () => ({color: 'blue' }),
         userC: ( {principal, runtime} ) =>
           runtime.dataStore.buildExpressionFromFilter( runtime.entity('Car'), { color: { in: principal.colors}} ),
         assistant: ( { action } ) => _.includes( [CRUD.READ], action ),
@@ -248,7 +248,7 @@ describe('Permissions', () => {
     const user = _.defaults( { context: { principal: { roles: ['user','userWithBlue'], colors: ['red', 'green'] } } }, resolverCtx  );
     await car.entityPermissions.ensureTypesRead( user );
     expect( user.args.filter ).toMatchObject(
-      { expression: { $or: [{ color: { $in: ['red', 'green' ] } }, { color: { $eq: 'blue'}}]} } );
+      { expression: { $or: [{ color: { $in: ['red', 'green' ] } }, { color: 'blue'} ] } } );
 
     const userWithBlueId = _.defaults( { args: { id: blueAudi.id } }, user );
     await expect( car.entityPermissions.ensureTypeRead( blueAudi.id, userWithBlueId ) ).resolves.not.toThrowError();
@@ -285,7 +285,7 @@ describe('Permissions', () => {
     const fleetUserCtx = _.defaults( { context: { principal: { roles: ['fleetUser'], fleetId: fleet1.id } } }, _.clone(resolverCtx)  );
     await car.entityPermissions.ensureTypesRead( fleetUserCtx );
     console.log( fleetUserCtx.args.filter.expression );
-    expect( fleetUserCtx.args.filter.expression.fleetId['$eq']).toBe( fleet1.id );
+    expect( fleetUserCtx.args.filter.expression.fleetId).toBe( fleet1.id );
   })
 
   it( 'should get permission from assignedEntity over multiple hops', async () => {

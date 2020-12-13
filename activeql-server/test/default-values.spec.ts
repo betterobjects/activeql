@@ -74,7 +74,7 @@ describe('Default Values', () => {
     expect( alpha1?.item.number ).toEqual( 23 );
     expect( alpha2?.item.number ).toEqual( 42 );
     expect( alpha3?.item.number ).toEqual( 0 );
-    expect( alpha4?.item.number ).toBeNull()
+    expect( alpha4?.item.number == null ).toBeTruthy();
 
     expect( beta1?.item.af ).toEqual('sin');
     expect( beta2?.item.af ).toEqual('tan');

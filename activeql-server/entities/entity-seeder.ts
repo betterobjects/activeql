@@ -3,7 +3,6 @@ import * as FakerEN from 'faker/locale/en';
 import _ from 'lodash';
 
 import { AssocToManyType, AssocToType, AssocType, SeedAttributeType, SeedType } from '../core/domain-configuration';
-import { Entity } from './entity';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 
@@ -63,7 +62,7 @@ export class EntitySeeder extends EntityModule {
       const entity = this.runtime.entity( entityName );
       const entityMap = idsMap[entityName];
       for( const seedName of _.keys( entityMap ) ){
-        try{
+        try {
           const id = entityMap[seedName];
           let ei = await entity.findOneByAttribute( {id} );
           if( ! ei ) continue;
@@ -75,7 +74,7 @@ export class EntitySeeder extends EntityModule {
           validationViolations.push( `${entityName}:${seedName} - ${result}` );
           _.unset( entityMap, seedName );
         } catch( error ){
-          // console.error( `While deleting '${entityName}:${seedName}'`, error );
+          console.error( `While deleting '${entityName}:${seedName}'`, error );
         }
       }
     }
@@ -100,7 +99,9 @@ export class EntitySeeder extends EntityModule {
    *
    */
   private async resolveAttributeValues( seed:SeedType ){
-    for( const attribute of _.keys(this.entity.attributes) ){
+    const attributes = _.keys( this.entity.attributes );
+    attributes.push( ... _.flatten( _.map( this.entity.implements, entity => _.keys( entity.attributes ) ) ) );
+    for( const attribute of attributes ){
       const value = _.get( seed, attribute );
       const result = await this.resolveSeedValue( value, seed );
       if( ! _.isUndefined( result ) ) _.set( seed, attribute, result );
@@ -111,6 +112,7 @@ export class EntitySeeder extends EntityModule {
     return  _.isFunction( value ) ? Promise.resolve( value( { seed, runtime: this.runtime, idsMap } ) ) :
             _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
             _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap ) :
+            _.has( value, 'random' ) ? this.getRandom( value, seed, idsMap ) :
             value;
   }
 
@@ -221,6 +223,13 @@ export class EntitySeeder extends EntityModule {
     } catch (error) {
       console.error( `could not evaluate '${value.eval}'\n`, error);
     }
+  }
+
+  private async getRandom( value:any, _seed:any, idsMap?:any ):Promise<any>{
+    if( this.skipShare( value ) ) return undefined;
+    const min = value.min || 0;
+    const max = value.min || 999999;
+    return _.random( min, max );
   }
 
   private async getSample( value:any, _seed:any, idsMap?:any ):Promise<any>{

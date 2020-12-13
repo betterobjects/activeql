@@ -54,11 +54,11 @@ describe('Resolver', () => {
     const resolverCtx = { root:{}, args:{}, context:{} };
     const alpha = runtime.entities['Alpha'];
 
-    resolverCtx.args = { filter: { number: { lt: 2 } } };
+    resolverCtx.args = { filter: { number: { lower: 2 } } };
     const aLt2 = await alpha.resolver.resolveTypes( resolverCtx );
     expect( aLt2 ).toHaveLength(1);
 
-    resolverCtx.args =  { filter: { number: { gt: 1 } } };
+    resolverCtx.args =  { filter: { number: { greater: 1 } } };
     const aGt1 = await alpha.resolver.resolveTypes( resolverCtx );
     expect( aGt1 ).toHaveLength(2);
 

@@ -51,7 +51,8 @@ export class MongoDbDataStore extends DataStore {
     return this.findByExpression( entity, attrValue, sort );
   }
 
-  async findByFilter( entity:Entity, filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
+  async findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
+    if( _.isArray( entity ) ) return this.aggregateFind( entity, filter, sort, paging );
     const expression = await this.buildExpressionFromFilter( entity, filter );
     return this.findByExpression( entity, expression, sort, paging );
   }
@@ -153,7 +154,6 @@ export class MongoDbDataStore extends DataStore {
 
   // dont like the implementation but ran out if ideas
   async itemMatchesExpression( item:any, expression:any ):Promise<boolean> {
-    let matches = true;
     const session = this.client.startSession();
     try {
       session.withTransaction( async () => {
@@ -161,14 +161,13 @@ export class MongoDbDataStore extends DataStore {
         const result = await collection.insertOne( item, { session } );
         const found = await collection.findOneAndDelete(
           { $and: [ { _id: result.insertedId }, expression ]}, { session } );
-        if( found ) return;
+        if( found ) return true;
         await collection.deleteOne( { _id : result.insertedId }, { session } );
-        matches = false;
       });
     } finally {
       session.endSession();
     }
-    return matches;
+    return false;
   }
 
   protected getObjectId( id:any, entity:Entity ):ObjectId {

@@ -1,0 +1,11 @@
+{"name":"alpha1","createdAt":{"$$date":1607898827278},"updatedAt":{"$$date":1607898827278},"_id":"5lIIqnHDqpGyLnhY"}
+{"name":"alpha2","createdAt":{"$$date":1607898827279},"updatedAt":{"$$date":1607898827279},"_id":"dLcaQYCEibC1GqZx"}
+{"$$deleted":true,"_id":"5lIIqnHDqpGyLnhY"}
+{"$$deleted":true,"_id":"dLcaQYCEibC1GqZx"}
+{"name":"alpha1","createdAt":{"$$date":1607898829818},"updatedAt":{"$$date":1607898829818},"_id":"jDoSGOgHTLxRotws"}
+{"name":"alpha2","createdAt":{"$$date":1607898829819},"updatedAt":{"$$date":1607898829819},"_id":"1jgj2x7HENpdHlUa"}
+{"name":"alpha3","createdAt":{"$$date":1607898829820},"updatedAt":{"$$date":1607898829820},"_id":"ZmEnketrhEi6YH2B"}
+{"name":"alpha4","createdAt":{"$$date":1607898829820},"updatedAt":{"$$date":1607898829820},"_id":"ij4ZxkV9VZ0QBNlo"}
+{"name":"alpha1","createdAt":{"$$date":1607898829818},"updatedAt":{"$$date":1607898829866},"_id":"jDoSGOgHTLxRotws","betaId":"SbIOzYQKakUS6qjN"}
+{"name":"alpha2","createdAt":{"$$date":1607898829819},"updatedAt":{"$$date":1607898829884},"_id":"1jgj2x7HENpdHlUa","betaId":"SbIOzYQKakUS6qjN"}
+{"name":"alpha3","createdAt":{"$$date":1607898829820},"updatedAt":{"$$date":1607898829889},"_id":"ZmEnketrhEi6YH2B","betaId":"aS4D5nX7K44zmqrH"}

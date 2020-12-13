@@ -1,0 +1,3 @@
+{"name":"foo1","createdAt":{"$$date":1607898404838},"updatedAt":{"$$date":1607898404838},"_id":"lz2ZnMOyQbpjTwSn"}
+{"$$deleted":true,"_id":"lz2ZnMOyQbpjTwSn"}
+{"name":"foo1","createdAt":{"$$date":1607898814741},"updatedAt":{"$$date":1607898814741},"_id":"gUXeypqRxCwlWwJT"}

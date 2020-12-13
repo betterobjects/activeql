@@ -29,6 +29,8 @@ export class IdFilterType extends AttributeFilterType {
   } 
 
   getFilterExpression( condition:any, field:string ):any {
+    if( _.has( condition, 'is' ) ) return _.get( condition, 'is' );
+    if( _.has( condition, 'exist' ) ) return _.get( condition, 'exist' ) ? { $e: null } : null;
     return _.merge( {}, ... _.compact( _.map( condition, (operand, operator) =>
       this.getOperation( operator, operand, field ) ) ) );
   }
@@ -38,11 +40,9 @@ export class IdFilterType extends AttributeFilterType {
       _.isArray( operand ) ? _.map( operand, op => field == '_id' ? new ObjectID(op) : _.toString( op ) ) :
       field == '_id' ? new ObjectID( operand ) : _.toString( operand );
     switch( operator ){
-      case 'is': return { $eq : operand };
       case 'isNot': return { $ne : operand };
       case 'isIn': return { $in : operand };
       case 'notIn': return { $nin : operand };
-      case 'exist': return operand === false ? { $eq: null } : { $ne: null };
     }
     console.warn(`IDFilter unknown operator '${operator}' `);
   }
