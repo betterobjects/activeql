@@ -16,5 +16,7 @@ export type TypeAttribute = {
   list?:boolean
   resolve?:(arc:AttributeResolveContext) => any
   virtual?:boolean
+  createInput?:boolean
+  updateInput?:boolean
 }
 

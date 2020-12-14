@@ -136,7 +136,9 @@ export class ConfigEntity extends Entity {
       defaultValue: attrConfig.defaultValue,
       mediaType: attrConfig.mediaType,
       resolve: attrConfig.resolve,
-      virtual: attrConfig.virtual
+      virtual: attrConfig.virtual,
+      createInput: attrConfig.createInput,
+      updateInput: attrConfig.updateInput
     }
   }
 
@@ -150,6 +152,7 @@ export class ConfigEntity extends Entity {
     if( _.toLower(attrConfig.type) === 'key' ){
       attrConfig.type = 'String';
       attrConfig.required = true;
+      attrConfig.updateInput = false;
       if( ! attrConfig.unique ) attrConfig.unique = true;
     }
   }

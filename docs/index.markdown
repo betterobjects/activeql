@@ -8,13 +8,13 @@ permalink: /
 
 # ActiveQL
 
-From business domain definition to full fledged GraphQL API and Admin UI in minutes - some call it _**GraphQL on Steroids**_
+From business domain definition to full fledged GraphQL API and Admin UI in minutes - with convention over configuration and DRY (don't repeat yourself) in mind.
 
-## API First
+## GraphQL and API First
 
-We believe in an API 1st approach - when you express your business functionality as an API. Everything else (from different user interfaces, integration with other systems to infrastructure task etc.) uses this API as a common understanding of your business domain.
+We think [GraphQL](https://graphql.org) is a great way to expose your business domain to any client or 3rd party system. Implementing a GraphQL API is a tedious task though. You need to decide how to structure your schema, how to handle concepts like permissions, searching, sorting, paging, how to implement resolvers that read data from and write data to a database or similar, validate input, relationships etc. And implement it with quite some repetitive code.
 
-We think [GraphQL](https://graphql.org) is a great way to expose your business domain to any client or 3rd party system. Implementing a GraphQL API is a tedious task though. You need to decide how to structure your schema, how to handle concepts like searching, sorting, paging, how to implement resolvers that read data from and write data to a database or similar, validate input, relationships etc. And implement it with quite some repeated code.
+We also believe that this is good way to implement an API 1st approach - when you express your business functionality as API. Everything else (from different user interfaces, integration with other systems to infrastructure task etc.) uses this API as a common understanding of your business domain.
 
 **ActiveQL** supports this development with the generation of a GraphQL schema and resolvers based on the configuration of a business domain (mainly entities and its relations to each other).
 
@@ -22,35 +22,36 @@ We think [GraphQL](https://graphql.org) is a great way to expose your business d
 
 We use the this terms in the following meaning throughout this documenatation.
 
-|   |    |
-| ------------------------- | ------------------------------------------------ |
-| Business Domain           | Description of your real world domain in terms of entities with attributes, operations and relationships. Think of UML class diagrams. |
+| Term | Description |
+| ---- | ----------- |
+| Business Domain           | Description of your real world business domain in terms of entities with attributes, operations and relationships. Think of UML class diagrams. |
 | Entity                    | Any _thing_ in your business domain. Think of UML class or SQL table. |
 | Entity Item               | Any instance of an entity, think of class instance or table row. |
 | Domain Configuration      | Any configuration in JSON, typescript or YAML to describe or configure (a part) of your business domain. A _Domain Configuration_ can consist of _Entity Configurations_, _Enum Configurations_, _Custom Queries_ and _Custom Mutations_. |
-| DomainDefintion           | You can seperate your _Domain Configuration_ (if you like) over many YAML/JSON files or configuration objects. At runtime all configurations are merged into one _Domain Definition_. From this definition a GraphQL schema and all Query and Mutation Resolvers are generated.|
+| DomainDefinition           | You can seperate your _Domain Configuration_ (if you like) over many YAML/JSON files or configuration objects. At runtime all configurations are merged into one _Domain Definition_. From this definition a GraphQL schema and all Query and Mutation Resolvers are generated. |
 | Entity Configuration      |  A configuration in JSON, typescript or YAML to describe an _entity_ of your business domain with its attributes, validations, behaviour, relationships to other entites etc. |
+| Custom Queries & Mutations | **ActiveQL** generates per convention a number of queries and mutations around your entity definitions. You can however add your own types, queries and mutations to the GraphQL schema - these are called _Custom Queries & Mutations_  |
+
 
 
 ## Documentation / Tutorial
 
 You will find extensive documentation here:
 
-|   |    |
-| ----------------------------------------------       | ------------------------------------------------ |
-| [GraphQL Basics](https://graphql.org/learn)           | If you are new GraphQL - we suggest you learn the basisc with this very good resources from the makers of the GraphQL specification. |
+| Topic | Documentation |
+| ----- | ------------- |
+| [GraphQL Basics](https://graphql.org/learn) | If you are new GraphQL - we suggest you learn the basics with this very good resources from the makers of the GraphQL specification. |
 | [Domain Configuration](./domain-configuration)       | Starting point to describe your business domain  |
 | [Entity Configuration](./entity-configuration)       | How to describe entities in your business domain |
 | [Attribute Configuration](./attribute-configuration) | Configuration of the attributes of your entities |
-| [Tutorial](./tutorial)                               | Step-by-step creation of an executable GraphQL API  and Admin UI based on a domain definition |
-| Installation | | 
-| Architecture | |
-
+| [Tutorial](./tutorial)                               | Step-by-step creation of an executable GraphQL API and Admin UI based on a domain definition |
+| Installation | How to run **ActiveQL** |
+| Architecture | Technology foundation |
 
 
 ## Example
 
-We believe - as Alan Kay puts it - "Simple things should be simple, complex things should be possible". Let's see the simplicity and power of a business-domain-configuration-based API creation by looking at this very simple example of a business domain.
+We believe - as Alan Kay puts it - "Simple things should be simple, complex things should be possible". Let's see the simplicity and power of a domain driven API design by looking at this very simple example of a business domain.
 
 Or you can jump directly to a little more in-depth [tutorial](./tutorial.md).
 
@@ -66,30 +67,31 @@ enum:
 entity:
   Car:
     attributes:
+      licence: Key
       brand: CarBrand!
-      mileage: Int
+      mileage: Int!
+      color: String
 ```
 
-### This would generate a full fledged GraphQL API including
+### This simple example configuration would generate a full fledged GraphQL API including
 
-  * the object type definition (Car and Driver)
-  * queries for the type (by id)
-  * queries for a list of types (with filter, sort and paging)
-  * relationships between object types
-  * filter types for every object type
-  * filter types for all Types and Scalars (e.g. filtering by String)
-  * create mutatations for all object types
-  * update mutatations for all object types
-  * delete mutatations for all object types
+  * type object for entity
+  * query for the type (by id)
+  * query for a list of items of types (with filter, sort and paging)
+  * filter types for object type
+  * filter types for all object type fields (e.g. filtering by String)
+  * create mutatation
+  * update mutatation
+  * delete mutatation
   * input type for the create mutatation
   * input type for the update mutatation
   * result type for create and update mutations
-  * enumeration types as defined
+  * enumeration type
   * resolver for the queries and mutations that read/write to a _datastore_ (per default a document based database, e.g. MongoDB)
   * statistics queries to get the number of entries, latest updates etc.
-  * some helper types, query and more
+  * some helper types, queries and more
 
-### More API Features (not included in this example)
+### Some more API Features (not included in this example)
 
   * validation of mutation input (configuration or function)
   * handling of file uploads
@@ -125,8 +127,10 @@ Based on your domain definition you can run a generated Admin UI (Angular SPA) t
 ```graphql
 type Car {
   id: ID!
+  licence: String!
   brand: CarBrand!
-  mileage: Int
+  mileage: Int!
+  color: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -146,21 +150,29 @@ input CarBrandFilter {
 }
 
 input CarCreateInput {
+  licence: String!
   brand: CarBrand!
-  mileage: Int
+  mileage: Int!
+  color: String
 }
 
 input CarFilter {
   id: IDFilter
+  licence: StringFilter
   brand: CarBrandFilter
   mileage: IntFilter
+  color: StringFilter
 }
 
 enum CarSort {
+  licence_ASC
+  licence_DESC
   brand_ASC
   brand_DESC
   mileage_ASC
   mileage_DESC
+  color_ASC
+  color_DESC
   id_ASC
   id_DESC
 }
@@ -169,11 +181,10 @@ input CarUpdateInput {
   id: ID!
   brand: CarBrand
   mileage: Int
+  color: String
 }
 
-scalar Date
 scalar DateTime
-scalar JSON
 
 enum Entity {
   Car
@@ -227,20 +238,14 @@ type Mutation {
 type Query {
   ping: String
   metaData(path: String): [entityMetaData]
-  car(id: ID): Car
+  car(id: ID!): Car
   cars(filter: CarFilter, sort: CarSort, paging: EntityPaging): [Car]
   carsStats(filter: CarFilter): EntityStats
-  domainConfiguration(entity: Entity, enum: Enum): JSON
 }
 
 type SaveCarMutationResult {
   validationViolations: [ValidationViolation]!
   car: Car
-}
-
-type SaveUserMutationResult {
-  validationViolations: [ValidationViolation]!
-  user: User
 }
 
 input StringFilter {
@@ -262,181 +267,37 @@ type ValidationViolation {
 }
 ```
 
-Let's break the generated GraphQL scheme for this simple example down, to show some of the **ActiveQL** principles.
+Let's break this generated GraphQL schema down, to show some of the **ActiveQL** conventions.
 
 ### Type
 
 ```graphql
 type Car {
   id: ID!
-  brand: String!
-  mileage: Int
+  licence: String!
+  brand: CarBrand!
+  mileage: Int!
+  color: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 ```
 
-The `Car` entity becomes a GraphQL type with attributes from the _Entity definition_ becoming fields of this type. As you see, in addition the entity's attributes the type gets a unique `id` field, that is used to identify any item (instance) of an _entity_. This `id` is also used to implement the relationship of entities.
-
-The `id` is assigned by the framework (in fact the actual datastore implementation) when you call the _create_ mutation.
+From the `Car` entity a GraphQL type is generated with attributes from the _Entity definition_ becoming fields of this type. As you see, in addition the entity's attributes the type gets a unique `id` field, that is used to identify any item (instance) of an _entity_. This `id` is also used to implement the relationship of entities. The `id` is assigned by the framework (in fact the actual datastore implementation) when you call the _create_ mutation.
 
 Every entity type has also `createdAt` and `updatedAt` timestamp fields. That are set automatically by the mutation resolvers.
 
-### Queries
+You might notice that the "licence" attribute was configured as type `Key` but the resulting field is of type `String!`. `Key` is in fact an **ActiveQL** shortcut, for a more complex attribute configuration. Actually all attribute configurations of this example are shortcuts - we will cover this in [Attribute Configuration](./domain-configuration/attribute-configuration). The attribute "licence" could have been written explicitly as
 
-```graphql
-type Query {
-  ping: String
-  car(id: ID): Car
-  cars(filter: CarFilter, sort: CarSort, paging: EntityPaging): [Car]
-  carsStats(filter: CarFilter): EntityStats
-}
+```yaml
+licence:
+  type: String
+  required: true
+  unique: true
+  updateInput: false
 ```
 
-Any schema includes a query `ping` that simply sends back the value `pong` and can be used whether a GraphQL API can be accessed without the need to build any specific query or mutation.
-
-#### Type Query
-
-If a client knows the `id` of an entity item it can gets the item via the type query, e.g.
-
-<table width="100%" style="font-size: 0.9em">
-<tr valign="top">
-<td width="50%"> Request </td> <td width="50%"> Response </td>
-</tr>
-<tr valign="top"><td markdown="block">
-
-```graphql
-query {
-  car( id: "a4Rcu5mAEBAqbnzk" ){
-    brand mileage createdAt updatedAt
-  }
-}
-```
-
-</td><td markdown="block">
-
-```json
-{
-  "data": {
-    "car": {
-      "brand": "PORSCHE",
-      "mileage": 8000,
-      "createdAt": "2020-12-14T11:35:47.211Z",
-      "updatedAt": "2020-12-14T11:35:47.211Z"
-    }
-  }
-}
-```
-
-</td></tr>
-</table>
-
-If the `id` does not exist an exception will be thrown.
-
-#### Types Query
-
-A client can request a result set of entity items with filtering, sorting and paging. The following query will return all car entities in no specific order.
-
-<table width="100%" style="font-size: 0.9em">
-<tr valign="top">
-<td width="50%"> Request </td> <td width="50%"> Response </td>
-</tr>
-<tr valign="top"><td markdown="block">
-
-```graphql
-query {
-  cars {
-    id
-    brand
-    mileage
-  }
-}
-```
-
-</td><td markdown="block">
-
-```json
-{
-  "data": {
-    "cars": [
-      {
-        "id": "a4Rcu5mAEBAqbnzk",
-        "brand": "PORSCHE",
-        "mileage": 8000
-      },
-      {
-        "id": "Wnt9lTvjiwHn39uX",
-        "brand": "PORSCHE",
-        "mileage": 12500
-      },
-      {
-        "id": "Tj37c1I6EJscODJa",
-        "brand": "MERCEDES",
-        "mileage": 90500
-      },
-      {
-        "id": "Kjh3AMZmnRDULf21",
-        "brand": "AUDI",
-        "mileage": 49500
-      }
-    ]
-  }
-}
-```
-
-</td></tr>
-</table>
-
-
-A more sophisticated usage of the `cars` _types query_:
-
-<table width="100%" style="font-size: 0.9em">
-<tr valign="top">
-<td width="50%"> Request </td> <td width="50%"> Response </td>
-</tr>
-<tr valign="top"><td markdown="block">
-
-```graphql
-query {
-  cars(
-    filter: { brand: { in: [ "Mercedes", "Porsche"] } }
-    sort: mileage_DESC
-    paging: { page: 0, size: 3 }
-  )
-  { id brand  mileage}
-}
-```
-
-</td><td markdown="block">
-
-```json
-{
-  "data": {
-    "cars": [
-      {
-        "id": "Tj37c1I6EJscODJa",
-        "brand": "MERCEDES",
-        "mileage": 90500
-      },
-      {
-        "id": "Wnt9lTvjiwHn39uX",
-        "brand": "PORSCHE",
-        "mileage": 12500
-      },
-      {
-        "id": "a4Rcu5mAEBAqbnzk",
-        "brand": "PORSCHE",
-        "mileage": 8000
-      }
-    ]
-  }
-}
-```
-
-</td></tr>
-</table>
-
-This query would return the three `cars` of the brand "Mercedes" and "Porsche" with the highest `milage`. See more about filter, sort and paging below or in [Queries and mutation](./queries-and-mutations).
+Meaning it is a mandatory `String` field, that will be validated as unique and can only be set in a _create mutation_ but not in an _update mutation_. Thus making this business attribute immutable and allowing it to unambiguously identify an _entity item_ seperately from the artificual `id`.
 
 ### Mutations
 
@@ -489,25 +350,24 @@ The mutations use _Input Types_ to hold the value of items that should be create
 
 ```graphql
 input CarCreateInput {
-  brand: String!
-  mileage: Int
+  brand: CarBrand!
+  mileage: Int!
+  color: String
 }
 
 input CarUpdateInput {
   id: ID!
-  brand: String
+  brand: CarBrand
   mileage: Int
+  color: String
 }
 ```
 
-As you see there are seperate types used by the create and update mutations. The CreateType does not have an `id` while the UpdateType does. The `id` determines which entity item should be updated. Also note that the `brand` attribute in this case is not a mandatory field in the `CarUpdateInput`, even it is configured as such, and the `CarCreateInput` does have it as mandatory. This is because a client is not forced to pass all attributes in the _update mutation_ but only those it wants to change. But making required attributes mandatory in the GraphQL schema would not allow to leave the brand untouched.
-
+As you see there are seperate types generated for the create and update mutations. The CreateType does not have an `id` while the UpdateType does. The `id` determines which entity item should be updated. Also note that the "color" attribute is configured as required in the _entity configuration_. Therefore it results in a mandatory field in the `Car` type and in the `CarCreateInput` type. But not in the `CarUpdateInput` type - this is because a client is not forced to pass all attributes in the _update mutation_ but only those it wants to change. Making required attributes mandatory in the GraphQL schema for the _update input_ would not allow to leave the others (e.g. "brand" or "mileage") untouched.
 
 ### Mutation Result Types
 
-The _create and update mutations_ have a different return whether the operation could be executed or validation
-errors prevented this. They return a _mutation result type_ that hold either the _validation violations_ or the
-successfully created/updated entity item.
+The _create and update mutations_ return different data, depending on whether the operation could be executed or was prevented by validation errors.
 
 ```graphql
 type SaveCarMutationResult {
@@ -521,23 +381,24 @@ type ValidationViolation {
 }
 ```
 
+If the mutation could be executed it returns the successfully created/updated _entity items_.
+
+If there were validation errors it returns a list _validation violations_ to inform an API client about the failed validations.
+
+Please be aware that invalid GraqphQL requests, e.g. not providing a mandatory field or a value that does not match to a field type, will be handled by the GraphQL layer - resulting in an error. So in fact a default mutation can have three possible results:
 
 
-To get possible validation errors from a `createCar` mutation or the assigned id of the newly created car,
-a client would use something like the following mutation:
-```graphql
-mutation {
-  createCar( car: { brand: "Porsche", mileage: 20000 } ){
-    validationViolations { attribute message }
-  	car { id }
-}
-```
+| Situation | Mutation Request Result |
+| :- | - |
+| GraphQL request valid, all business validations passed, mutation was executed | the created / updated _entity item_ |
+| GraphQL request valid, one or more business validations did not pass | list of `ValidationViolation`s |
+| GraphQL request invalid or error while executing mutation | error array - with stacktrace |
 
-Since we did not include any validation in our simple example we would always get the `id` from this mutation. Any non-validation error would lead to an exception in the GraphQL layer and its handling is not part of the schema.
+
 
 ### Create Mutation
 
-For any entity a _create mutation_ is generated to create new entity items. It uses the _create input type_ for the attribute values and the `ValidationViolation` type to inform a client about possible validation errors.
+For any entity a _create mutation_ is generated to create new entity items. As we've seen, it uses the _create input type_ for the attribute values and the `ValidationViolation` type to inform a client about possible validation errors.
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top">
@@ -647,6 +508,164 @@ mutation {
 
 See how we only provided the "mileage" value and the "brand" stays untouched and also how **ActiveQL** added and updated the `createdAt` and `updatedAt` fields of the entity object type.
 
+
+### Queries
+
+```graphql
+type Query {
+  ping: String
+  car(id: ID): Car
+  cars(filter: CarFilter, sort: CarSort, paging: EntityPaging): [Car]
+  carsStats(filter: CarFilter): EntityStats
+}
+```
+
+Any schema includes a query `ping` that simply sends back the value `pong` and can be used whether a GraphQL API can be accessed without the need to build any specific query or mutation.
+
+#### Type Query
+
+If a client knows the `id` of an entity item it can gets the item via the type query, e.g.
+
+<table width="100%" style="font-size: 0.9em">
+<tr valign="top">
+<td width="50%"> Request </td> <td width="50%"> Response </td>
+</tr>
+<tr valign="top"><td markdown="block">
+
+```graphql
+query {
+  car( id: "a4Rcu5mAEBAqbnzk" ){
+    brand mileage color createdAt updatedAt
+  }
+}
+```
+
+</td><td markdown="block">
+
+```json
+{
+  "data": {
+    "car": {
+      "brand": "PORSCHE",
+      "mileage": 8000,
+      "createdAt": "2020-12-14T11:35:47.211Z",
+      "updatedAt": "2020-12-14T11:35:47.211Z"
+    }
+  }
+}
+```
+
+</td></tr>
+</table>
+
+If the `id` does not exist an exception will be thrown.
+
+#### Types Query
+
+A client can request a result set of entity items with filtering, sorting and paging. The following query will return all car entities in no specific order.
+
+<table width="100%" style="font-size: 0.9em">
+<tr valign="top">
+<td width="50%"> Request </td> <td width="50%"> Response </td>
+</tr>
+<tr valign="top"><td markdown="block">
+
+```graphql
+query {
+  cars {
+    id
+    brand
+    mileage
+  }
+}
+```
+
+</td><td markdown="block">
+
+```json
+{
+  "data": {
+    "cars": [
+      {
+        "id": "a4Rcu5mAEBAqbnzk",
+        "brand": "PORSCHE",
+        "mileage": 8000
+      },
+      {
+        "id": "Wnt9lTvjiwHn39uX",
+        "brand": "PORSCHE",
+        "mileage": 12500
+      },
+      {
+        "id": "Tj37c1I6EJscODJa",
+        "brand": "MERCEDES",
+        "mileage": 90500
+      },
+      {
+        "id": "Kjh3AMZmnRDULf21",
+        "brand": "AUDI",
+        "mileage": 49500
+      }
+    ]
+  }
+}
+```
+
+</td></tr>
+</table>
+
+
+A more sophisticated usage of the `cars` _types query_:
+
+<table width="100%" style="font-size: 0.9em">
+<tr valign="top">
+<td width="50%"> Request </td> <td width="50%"> Response </td>
+</tr>
+<tr valign="top"><td markdown="block">
+
+```graphql
+query {
+  cars(
+    filter: { brand: { in: [ MERCEDES, PORSCHE] } }
+    sort: mileage_DESC
+    paging: { page: 0, size: 3 }
+  )
+  { id brand  mileage}
+}
+```
+
+</td><td markdown="block">
+
+```json
+{
+  "data": {
+    "cars": [
+      {
+        "id": "Tj37c1I6EJscODJa",
+        "brand": "MERCEDES",
+        "mileage": 90500
+      },
+      {
+        "id": "Wnt9lTvjiwHn39uX",
+        "brand": "PORSCHE",
+        "mileage": 12500
+      },
+      {
+        "id": "a4Rcu5mAEBAqbnzk",
+        "brand": "PORSCHE",
+        "mileage": 8000
+      }
+    ]
+  }
+}
+```
+
+</td></tr>
+</table>
+
+This query would return the three `cars` of the brand "Mercedes" and "Porsche" with the highest `milage`. See more about filter, sort and paging below or in [Queries and mutation](./queries-and-mutations).
+
+
 ### Statistics
 
 A client can request some basic statistics about the entity. This can also be used for filtered result sets.
@@ -718,8 +737,8 @@ They could be used to filter/search for entity items like so:
 ```graphql
 query {
   cars( filter: {
-    brand: { contains: "a" },
-    mileage: { gt: 100000 } } ){
+    brand: { isNot: BMW },
+    mileage: { lowerOrEqual: 45000 } } ){
   	id brand mileage
   }
 }
@@ -732,24 +751,19 @@ query {
   "data": {
     "cars": [
       {
-        "id": "5fa94775477b8bba016e81a4",
-        "brand": "Audi",
-        "mileage": 125331
+        "id": "a4Rcu5mAEBAqbnzk",
+        "brand": "PORSCHE",
+        "mileage": 8000
       },
       {
-        "id": "5fa94775477b8bba016e81a1",
-        "brand": "Audi",
-        "mileage": 121349
+        "id": "Wnt9lTvjiwHn39uX",
+        "brand": "PORSCHE",
+        "mileage": 12500
       },
       {
-        "id": "5fa94775477b8bba016e8196",
-        "brand": "Audi",
-        "mileage": 105400
-      },
-      {
-        "id": "5fa94775477b8bba016e8195",
-        "brand": "Toyota",
-        "mileage": 141964
+        "id": "BHE30fMAn2zXTqtN",
+        "brand": "PORSCHE",
+        "mileage": 45000
       }
     ]
   }

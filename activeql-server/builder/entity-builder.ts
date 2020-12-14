@@ -341,6 +341,8 @@ export class EntityBuilder extends TypeBuilder {
   //
   private getFieldConfig(name:string, attribute:TypeAttribute, purpose:AttributePurpose ):AttrFieldConfig|undefined {
     if( _.includes(['createInput', 'updateInput'], purpose) && this.entity.isFileAttribute( attribute ) ) return;
+    if( purpose === 'createInput' && attribute.createInput === false ) return;
+    if( purpose === 'updateInput' && attribute.updateInput === false ) return;
     const shouldAddNonNull = this.shouldAddNonNull( name, attribute, purpose);
     const description = this.getDescriptionForField( attribute, purpose );
     const fieldConfig = { type: this.getGraphQLTypeDecorated(attribute, shouldAddNonNull, purpose ), description };
@@ -415,7 +417,7 @@ export class EntityBuilder extends TypeBuilder {
     this.graphx.type( 'query' ).extendFields( () => {
       return _.set( {}, typeQuery, {
         type: this.graphx.type(this.entity.typeName),
-        args: { id: { type: GraphQLID } },
+        args: { id: { type: GraphQLNonNull(GraphQLID) } },
         resolve: ( root:any, args:any, context:any ) => this.resolver.resolveType( {root, args, context} )
       });
     });
