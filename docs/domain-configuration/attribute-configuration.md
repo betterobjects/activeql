@@ -260,9 +260,6 @@ entity:
 </td></tr>
 </table>
 
-<br>
-
-
 ---
 ## required
 

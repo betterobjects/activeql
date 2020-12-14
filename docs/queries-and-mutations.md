@@ -9,7 +9,7 @@ nav_order: 50
 
 ## Queries
 
-### Filter / Search 
+### Filter
 
 String filter case-sensitive - even if caseSensitive false , flag has only effect on the contains family 
 
