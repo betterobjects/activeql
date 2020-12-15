@@ -138,7 +138,9 @@ export class ConfigEntity extends Entity {
       resolve: attrConfig.resolve,
       virtual: attrConfig.virtual,
       createInput: attrConfig.createInput,
-      updateInput: attrConfig.updateInput
+      updateInput: attrConfig.updateInput,
+      queryBy: attrConfig.queryBy,
+      objectTypeField: attrConfig.objectTypeField
     }
   }
 
@@ -153,6 +155,7 @@ export class ConfigEntity extends Entity {
       attrConfig.type = 'String';
       attrConfig.required = true;
       attrConfig.updateInput = false;
+      attrConfig.queryBy = true;
       if( ! attrConfig.unique ) attrConfig.unique = true;
     }
   }

@@ -21,6 +21,14 @@ const query = gql`
         required
         unique
         mediaType
+        filterType
+        description
+        defaultValue
+        list
+        virtual
+        createInput
+        updateInput
+        objectTypeField
       }
       assocTo {
         path

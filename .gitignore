@@ -6,6 +6,7 @@
 /express/domain-configuration.ts
 /express/misc
 
+/db
 
 /express/uploads/*
 

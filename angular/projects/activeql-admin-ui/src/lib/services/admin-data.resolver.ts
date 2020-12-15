@@ -127,6 +127,7 @@ export class AdminDataResolver implements Resolve<AdminData> {
     const knownFields = _.keys( entityConfig.fields );
     const queryFields = _(uiConfig.fields).
       filter( (field:FieldConfigType) => _.includes( knownFields, field.name ) ).
+      filter( (field:FieldConfigType) => field.objectTypeField !== false ).
       map( (field:FieldConfigType) => this.getFieldInFieldQuery( field ) ).
       value();
     const assocs = _.compact( _.uniq( _.concat(

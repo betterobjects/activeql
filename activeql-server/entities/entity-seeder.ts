@@ -1,6 +1,7 @@
 import * as FakerDE from 'faker/locale/de';
 import * as FakerEN from 'faker/locale/en';
 import _ from 'lodash';
+import bcrypt from 'bcryptjs';
 
 import { AssocToManyType, AssocToType, AssocType, SeedAttributeType, SeedType } from '../core/domain-configuration';
 import { EntityItem } from './entity-item';
@@ -113,7 +114,12 @@ export class EntitySeeder extends EntityModule {
             _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
             _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap ) :
             _.has( value, 'random' ) ? this.getRandom( value, seed, idsMap ) :
+            _.has( value, 'hash' ) ? this.getHash( value ) :
             value;
+  }
+
+  private getHash( value:any ):string {
+    return bcrypt.hashSync( value.hash );
   }
 
   /**

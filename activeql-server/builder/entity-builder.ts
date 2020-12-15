@@ -146,6 +146,7 @@ export class EntityBuilder extends TypeBuilder {
   addQueries():void  {
     this.addTypeQuery();
     this.addTypesQuery();
+    this.addByQueries();
     this.addStatsQuery();
   }
 
@@ -343,6 +344,7 @@ export class EntityBuilder extends TypeBuilder {
     if( _.includes(['createInput', 'updateInput'], purpose) && this.entity.isFileAttribute( attribute ) ) return;
     if( purpose === 'createInput' && attribute.createInput === false ) return;
     if( purpose === 'updateInput' && attribute.updateInput === false ) return;
+    if( purpose === 'type' && attribute.objectTypeField === false ) return;
     const shouldAddNonNull = this.shouldAddNonNull( name, attribute, purpose);
     const description = this.getDescriptionForField( attribute, purpose );
     const fieldConfig = { type: this.getGraphQLTypeDecorated(attribute, shouldAddNonNull, purpose ), description };
@@ -406,9 +408,6 @@ export class EntityBuilder extends TypeBuilder {
     this.graphx.type( name, { values, from: GraphQLTypes.GraphQLEnumType });
   }
 
-  /**
-   *
-   */
   protected addTypeQuery(){
     if( this.entity.isPolymorph ) return;
     if( this.entity.typeQuery === false ) return;
@@ -419,6 +418,30 @@ export class EntityBuilder extends TypeBuilder {
         type: this.graphx.type(this.entity.typeName),
         args: { id: { type: GraphQLNonNull(GraphQLID) } },
         resolve: ( root:any, args:any, context:any ) => this.resolver.resolveType( {root, args, context} )
+      });
+    });
+  }
+
+  protected addByQueries(){
+    if( this.entity.isPolymorph ) return;
+    _.forEach( this.entity.attributes, (attribute, name) => {
+      if( attribute.queryBy ) this.addByQuery( name, attribute );
+    });
+  }
+
+  private addByQuery( name:string, attribute:TypeAttribute ){
+    this.graphx.type( 'query' ).extendFields( () => {
+      const queryName = _.isString( attribute.queryBy ) ? attribute.queryBy :  this.entity.getByQueryName( name, attribute );
+      const byType = _.isString( attribute.graphqlType ) ? this.runtime.type( attribute.graphqlType ) : attribute.graphqlType;
+      const args = _.set( {}, name, { type: GraphQLNonNull( byType ) } );
+      if( attribute.unique !== true ){
+        _.set( args, 'sort', { type: this.graphx.type(this.entity.sorterEnumName) } );
+        _.set( args, 'paging', { type: this.graphx.type( 'EntityPaging' ) } );
+      }
+      const objectType = this.runtime.type(this.entity.typeName);
+      const returnType = attribute.unique === true ? objectType : new GraphQLList( objectType );
+      return _.set( {}, queryName, { type: returnType, args, resolve:
+        ( root:any, args:any, context:any ) => this.resolver.resolveByQuery( {root, args, context}, name, attribute )
       });
     });
   }

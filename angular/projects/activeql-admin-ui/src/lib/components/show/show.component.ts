@@ -9,7 +9,12 @@ import { AssocTableConfigType, FieldConfigType } from '../../lib/admin-config';
 })
 export class ShowComponent extends AdminEntityComponent {
 
-  get fields():FieldConfigType[] { return this.data.entityConfig.show.fields as FieldConfigType[] }
+  get fields():FieldConfigType[] {
+    return _.filter( this.data.entityConfig.show.fields as FieldConfigType[],
+      field => field.objectTypeField !== false  )
+  }
+
+
   get detailTables() { return this.data.entityConfig.show.table }
 
   tableItems( table:AssocTableConfigType ):any[]{

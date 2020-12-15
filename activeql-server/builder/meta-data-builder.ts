@@ -18,9 +18,16 @@ export class MetaDataBuilder extends SchemaBuilder {
         required: { type: GraphQLBoolean },
         validation: { type: this.graphx.type('JSON') },
         unique: { type: GraphQLString },
-        calculated: { type: GraphQLBoolean },
-        filter: {type: GraphQLString },
-        mediaType: {type: GraphQLString }
+        resolve: { type: GraphQLBoolean },
+        filterType: {type: GraphQLString },
+        mediaType: {type: GraphQLString },
+        description: { type: GraphQLString },
+        defaultValue: { type: GraphQLString },
+        list: { type: GraphQLBoolean },
+        virtual: { type: GraphQLBoolean },
+        createInput: { type: GraphQLBoolean },
+        updateInput: { type: GraphQLBoolean },
+        objectTypeField: { type: GraphQLBoolean }
       })
     });
 
@@ -86,10 +93,18 @@ export class MetaDataBuilder extends SchemaBuilder {
 
   protected resolveFields( root:any ):any[]{
     const entity = root as Entity;
-    return _.map( entity.attributes, (attribute, name) => ({
-      name, type: attribute.graphqlType, required: attribute.required, calculated: _.isFunction(attribute.resolve),
-      unique: _.toString(attribute.unique), filter: attribute.filterType, mediaType: attribute.mediaType,
-      validation: attribute.validation }));
+    return _.map( entity.attributes, (attribute, name) => {
+      const fields = _.pick( attribute,
+        [ 'required', 'mediaType', 'validation', 'description', 'list',
+          'virtual', 'createInput', 'updateInput', 'objectTypeField'] );
+      _.set( fields, 'name', name );
+      _.set( fields, 'type', attribute.graphqlType );
+      _.set( fields, 'resolve',  _.isFunction(attribute.resolve) );
+      _.set( fields, 'unique', _.toString(attribute.unique) );
+      _.set( fields, 'filterType', _.toString(attribute.filterType) );
+      _.set( fields, 'defaultValue', _.isFunction(attribute.defaultValue) ? null : attribute.defaultValue );
+      return fields;
+    })
   }
 
   resolveAssocTo( root:any ) {

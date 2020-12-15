@@ -5,7 +5,6 @@ import {
   AfterResolverHook,
   AttributeResolveContext,
   PreResolverHook,
-  PrincipalType,
   ResolverContext,
   ResolverHookContext,
 } from '../core/domain-configuration';
@@ -13,6 +12,7 @@ import { Entity } from './entity';
 import { FileInfo } from './entity-file-save';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
+import { TypeAttribute } from './type-attribute';
 
 export enum CRUD  {
   CREATE = 'create',
@@ -52,6 +52,22 @@ export class EntityResolver extends EntityModule {
       return this.resolve( enits, resolverCtx );
     };
     return this.callWithHooks( impl, resolverCtx, this.hooks?.preTypesQuery, this.hooks?.afterTypesQuery );
+  }
+
+  async resolveByQuery( resolverCtx:ResolverContext, name:string, attribute:TypeAttribute ):Promise<any|any[]>{
+    const impl = async (resolverCtx:ResolverContext) => {
+      await this.permissions.ensureTypesRead( resolverCtx );
+      const filter = _.get( resolverCtx.args, 'filter');
+      _.set( filter, name, _.get( resolverCtx.args, name) );
+      const sort = this.getSort( _.get( resolverCtx.args, 'sort') );
+      const paging = _.get( resolverCtx.args, 'paging');
+      const enits = await this.accessor.findByFilter( filter, sort, paging );
+      return this.resolve( attribute.unique === true ? _.first(enits) : enits, resolverCtx );
+    };
+
+    return attribute.unique === true ?
+      this.callWithHooks( impl, resolverCtx, this.hooks?.preTypeQuery, this.hooks?.afterTypeQuery ) :
+      this.callWithHooks( impl, resolverCtx, this.hooks?.preTypesQuery, this.hooks?.afterTypesQuery );
   }
 
   async saveType( resolverCtx:ResolverContext ):Promise<any> {
@@ -213,7 +229,8 @@ export class EntityResolver extends EntityModule {
     for( const fileInfo of fileInfos ) await this.entity.fileSave.saveFile( id, fileInfo );
   }
 
-  private async resolve( enits:EntityItem|EntityItem[], resolverCtx:ResolverContext, entity = this.entity  ):Promise<any|any[]> {
+  private async resolve( enits:undefined|EntityItem|EntityItem[], resolverCtx:ResolverContext, entity = this.entity  ):Promise<any|any[]> {
+    if( enits === undefined ) return null;
     const items = _.isArray( enits ) ? _.map( enits, enit => enit.item) : [enits.item];
     for( const item of items ) await this.applyAttributeResolver( entity, item, resolverCtx );
     return _.isArray( enits ) ? items : _.first( items );

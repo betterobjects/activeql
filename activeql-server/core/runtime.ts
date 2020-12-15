@@ -59,7 +59,7 @@ export class Runtime {
   private static getDefaultConfig():RuntimeConfig {
     return {
       name: 'ActiveQL',
-      dataStore: ( name?:string ) => NedbDataStore.create({ filePath: './db' }),
+      dataStore: ( name?:string ) => NedbDataStore.create({ filePath: '../db' }),
       validator: ( entity:Entity ) => new ValidateJs( entity ),
       entityResolver: ( entity:Entity ) => new EntityResolver( entity ),
       entityPermissions: ( entity:Entity ) => new DefaultEntityPermissions( entity ),

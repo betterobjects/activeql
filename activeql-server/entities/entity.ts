@@ -102,6 +102,7 @@ export abstract class Entity {
   get deleteMutation() { return this.getDeleteMutation() }
   get statsQuery() { return this.getStatsQuery() }
 
+
   protected abstract getName():string;
   protected getTypeName() { return inflection.camelize( this.name ) }
   protected getSingular() { return `${_.toLower(this.typeName.substring(0,1))}${this.typeName.substring(1)}` }
@@ -143,6 +144,9 @@ export abstract class Entity {
   protected getDeleteMutation():boolean|EntityResolverFn { return true }
   protected getStatsQuery():boolean|EntityResolverFn { return true }
 
+  getByQueryName( attributeName:string, attribute:TypeAttribute ) {
+    return `${attribute.unique === true ? this.singular : this.plural}By${inflection.camelize(attributeName)}`
+  }
 
   /**
    *

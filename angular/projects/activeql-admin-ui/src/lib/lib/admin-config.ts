@@ -77,6 +77,10 @@ export type FieldConfigType = {
   type?:string
   unique?:boolean
   mediaType?:'image'|'video'|'audio'
+  virtual?:boolean
+  createInput?:boolean
+  updateInput?:boolean
+  objectTypeField?:boolean
 }
 
 export type AssocTableConfigType = AdminTableConfig & {
@@ -130,7 +134,7 @@ export class AdminConfig {
   static guessNameValue = (item:any) => {
     const candidate = _.find( nameProperties, candidate => _.has( item, candidate ) );
     if( candidate ) return _.get( item, candidate );
-    if( _.has( item, 'id' ) ) return `#${_.get(item, 'id' ) }`;
+    if( _.has( item, 'id' ) ) return `ID ${_.get(item, 'id' ) }`;
     return _.toString( item );
   }
 
@@ -182,7 +186,8 @@ export class AdminConfig {
   };
 
   private buildField( data:any ):FieldConfigType {
-    return _.pick( data, ['name', 'type', 'required', 'unique', 'scope', 'mediaType']);
+    return _.pick( data,
+      ['name', 'type', 'required', 'unique', 'scope', 'mediaType', 'createInput', 'updateInput', 'objectTypeField' ]);
   }
 
   private setUiConfigDefaults():void {

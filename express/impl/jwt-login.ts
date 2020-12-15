@@ -1,19 +1,15 @@
 import bcrypt from 'bcryptjs';
 import express from 'express';
-import expressJwt from 'express-jwt';
 import { DomainConfiguration, DomainDefinition, Runtime } from 'activeql-server';
 import { sign } from 'jsonwebtoken';
 import _ from 'lodash';
 
-export const addJwtLogin = ( domainDefinition:DomainDefinition, app:any ) => {
-  app.use( expressJwt({ secret: process.env.JWT_SECRET || 'SomeSecret', algorithms: ["HS256"], credentialsRequired: false } ) );
+export const addJwtLogin = ( domainDefinition:DomainDefinition ) => {
   domainDefinition.add( domainConfiguration );
   domainDefinition.contextFn.push( addPrincipalToApolloContext );
 }
 
 const claim = 'https://betterobjects.github.io/activeql';
-
-const hash = (password:string):string => bcrypt.hashSync( password, bcrypt.genSaltSync(10) );
 
 const generateToken = (principal:any) => sign(
   _.set( {}, [claim], {principal} ), process.env.JWT_SECRET || '',
@@ -41,37 +37,14 @@ const domainConfiguration:DomainConfiguration = {
     User: {
       attributes: {
         username: 'Key',
+        roles: '[String!]',
         password: {
           type: 'String!',
-          resolve: () => '***'
-        },
-        roles: '[String!]'
+          objectTypeField: false
+        }
       },
       permissions: {
-        admin: true,
-        manager: () => _.set( {}, 'username', { $ne: 'admin'} )
-      },
-      seeds: {
-        admin: {
-          username: 'admin',
-          password: hash('admin'),
-          roles: ['admin']
-        },
-        manager: {
-          username: 'manager',
-          password: hash('manager'),
-          roles: ['manager', 'user']
-        },
-        user: {
-          username: 'user',
-          password: hash('user'),
-          roles: ['user']
-        },
-        assistant: {
-          username: 'assistant',
-          password: hash('assistant'),
-          roles: ['assistant']
-        }
+        admin: true
       }
     }
   },

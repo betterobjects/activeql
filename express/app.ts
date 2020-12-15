@@ -3,7 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 
-import { activeql } from './activeql-app';
+import { activeqlServer } from './activeql-app';
 
 require('dotenv').config();
 
@@ -12,7 +12,7 @@ require('dotenv').config();
   app.use('*', cors());
   app.use(compression());
 
-  await activeql( app );
+  await activeqlServer( app );
 
   const httpServer = createServer( app );
 

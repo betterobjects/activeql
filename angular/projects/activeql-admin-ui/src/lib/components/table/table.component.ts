@@ -79,6 +79,7 @@ export class TableComponent extends AdminComponent {
   private showField( field:FieldConfigType|string ):boolean {
     if( _.get( field, 'path' ) === this.parent ) return false;
     if( _.has( field, 'parent' ) && _.get( field, 'parent' ) === this.parent) return false;
+    if(  _.get( field, 'objectTypeField' ) === false ) return false;
     return true;
   }
 

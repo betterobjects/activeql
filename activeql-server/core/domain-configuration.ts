@@ -113,8 +113,10 @@ export type AttributeConfig = {
   mediaType?:'image'|'video'|'audio'
   virtual?:boolean
   resolve?:(arc:AttributeResolveContext) => any
+  queryBy?:boolean|string
   createInput?:boolean
   updateInput?:boolean
+  objectTypeField?:boolean
 }
 
 export type AttributeResolveContext = {

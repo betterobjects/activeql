@@ -18,5 +18,7 @@ export type TypeAttribute = {
   virtual?:boolean
   createInput?:boolean
   updateInput?:boolean
+  objectTypeField?:boolean
+  queryBy?:boolean|string
 }
 

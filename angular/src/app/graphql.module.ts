@@ -10,7 +10,7 @@ export type GRAPHGQL_MODULE_CONFIG = { uri:string }
 export function provideApollo(httpLink:HttpLink) {
   const basic = setContext((operation, context) => ({ headers: { Accept: 'charset=utf-8' } }));
   const token = localStorage.getItem('token');
-  const auth = setContext((operation, context) => ( token ? { headers: { Authorization: token } } : {} ));
+  const auth = setContext((operation, context) => ( token ? { headers: { Authorization: `Bearer ${token}` } } : {} ));
   const uri = GraphQLModule.graphQLModuleConfig.uri;
   const link = ApolloLink.from([basic, auth, httpLink.create({ uri })]);
   const cache = new InMemoryCache();

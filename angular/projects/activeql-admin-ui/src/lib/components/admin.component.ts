@@ -26,7 +26,10 @@ export abstract class AdminComponent {
   }
 
   render( field:FieldConfigType, item:any ){
-    if( ! _.isFunction( field.render ) ) field.render = (item) => _.get( item, field.name );
+    if( ! _.isFunction( field.render ) ) field.render = (item) => {
+      const value = _.get( item, field.name );
+      return _.isArray( value ) ? _.map( value, v => _.toString(v)).join(', ') : _.toString(value);
+    }
     return field.render( item );
   }
 
