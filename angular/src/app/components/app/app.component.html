@@ -2,23 +2,28 @@
 
   <mat-toolbar color="primary">
     <mat-toolbar-row>
-      <!--button mat-icon-button>
-        <mat-icon (click)="sidenav.toggle()">menu</mat-icon>
-      </button-->
       <a href="/"><h1>ActiveQL</h1></a>
       <span class="menu-spacer"></span>
       <div>
-        <!--a mat-button [routerLink]="['/admin', 'clients']"> Clients </a>
-        <a mat-button [routerLink]="['/admin', 'organisations']"> Organisations </a-->
-
-        <button mat-button [matMenuTriggerFor]="adminMenu">Admin</button>
-        <mat-menu #adminMenu="matMenu">
+        <ng-container *ngIf="entities.length < 5">
           <a *ngFor="let entity of entities"
-              mat-menu-item
+              mat-button
               [routerLink]="['admin', entity.path]">
             {{ title(entity) }}
           </a>
-        </mat-menu>
+        </ng-container>
+
+        <ng-container *ngIf="entities.length >= 5">
+          <button mat-button [matMenuTriggerFor]="adminMenu">Entities</button>
+          <mat-menu #adminMenu="matMenu">
+            <a *ngFor="let entity of entities"
+                mat-menu-item
+                [routerLink]="['admin', entity.path]">
+              {{ title(entity) }}
+            </a>
+          </mat-menu>
+        </ng-container>
+
       </div>
       <span class="flex-spacer"></span>
       <button *ngIf="user" mat-button>
@@ -44,7 +49,7 @@
     <span id="breadcrumb"></span>
   </mat-toolbar-row>
 
-  <div>
+  <div class="content">
     <router-outlet></router-outlet>
   </div>
 

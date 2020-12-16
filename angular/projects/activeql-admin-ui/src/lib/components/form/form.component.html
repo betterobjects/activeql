@@ -4,8 +4,8 @@
 
       <ng-container [ngSwitch]="field.control">
 
-      <mat-form-field *ngSwitchCase="'select'" class="full-width">
-        <mat-label>{{ label( field ) }}</mat-label>
+        <mat-form-field *ngSwitchCase="'select'" class="full-width">
+          <mat-label>{{ label( field ) }}</mat-label>
           <mat-select
               *ngSwitchCase="'select'"
               [required]="field.required"

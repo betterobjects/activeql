@@ -2,6 +2,7 @@ import { GraphQLBoolean, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQL
 import _ from 'lodash';
 
 import { Entity } from '../entities/entity';
+import { EnumBuilder } from './enum-builder';
 import { SchemaBuilder } from './schema-builder';
 
 export class MetaDataBuilder extends SchemaBuilder {
@@ -56,9 +57,9 @@ export class MetaDataBuilder extends SchemaBuilder {
         createInputTypeName: { type: GraphQLString },
         foreignKey: { type: GraphQLString },
         foreignKeys: { type: GraphQLString },
-        fields: {
+        attributes: {
           type: GraphQLList( fieldMetaData ),
-          resolve: (root:any) => this.resolveFields(root)
+          resolve: (root:any) => this.resolveAttributes(root)
         },
         assocTo: {
           type: GraphQLList( assocMetaData ),
@@ -75,35 +76,42 @@ export class MetaDataBuilder extends SchemaBuilder {
       })
     });
 
+    const metaData:GraphQLObjectType = new GraphQLObjectType({
+      name: 'metaData',
+      fields: () => ({
+        entities: { type: GraphQLList(entityMetaData) }
+      })
+    });
+
     this.graphx.type('query').extendFields( () => {
       return _.set( {}, 'metaData', {
-        type: new GraphQLList( entityMetaData ),
+        type: metaData,
         args: { path: { type: GraphQLString } },
         resolve: (root:any, args:any, context:any) => this.resolve( root, args, context )
       });
     });
   }
 
-  protected resolve( root:any, args:any, context:any ):Entity[] {
+  protected resolve( root:any, args:any, context:any ):{entities?:Entity[], enums?:EnumBuilder[]} {
     const path = _.get( args, 'path' );
     return path ?
-      _.filter( this.runtime.entities, entity => entity.path === path ) :
-      _.values( this.runtime.entities );
+      {entities: _.filter( this.runtime.entities, entity => entity.path === path ) } :
+      {entities: _.values( this.runtime.entities )};
   }
 
-  protected resolveFields( root:any ):any[]{
+  protected resolveAttributes( root:any ):any[]{
     const entity = root as Entity;
     return _.map( entity.attributes, (attribute, name) => {
-      const fields = _.pick( attribute,
+      const resolvedAttr = _.pick( attribute,
         [ 'required', 'mediaType', 'validation', 'description', 'list',
           'virtual', 'createInput', 'updateInput', 'objectTypeField'] );
-      _.set( fields, 'name', name );
-      _.set( fields, 'type', attribute.graphqlType );
-      _.set( fields, 'resolve',  _.isFunction(attribute.resolve) );
-      _.set( fields, 'unique', _.toString(attribute.unique) );
-      _.set( fields, 'filterType', _.toString(attribute.filterType) );
-      _.set( fields, 'defaultValue', _.isFunction(attribute.defaultValue) ? null : attribute.defaultValue );
-      return fields;
+      _.set( resolvedAttr, 'name', name );
+      _.set( resolvedAttr, 'type', attribute.graphqlType );
+      _.set( resolvedAttr, 'resolve',  _.isFunction(attribute.resolve) );
+      _.set( resolvedAttr, 'unique', _.toString(attribute.unique) );
+      _.set( resolvedAttr, 'filterType', _.toString(attribute.filterType) );
+      _.set( resolvedAttr, 'defaultValue', _.isFunction(attribute.defaultValue) ? null : attribute.defaultValue );
+      return resolvedAttr;
     })
   }
 

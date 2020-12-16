@@ -17,6 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class FormComponent extends AdminComponent implements OnInit {
 
+  @Input() action:'create'|'update';
   @Input() data:AdminData;
   @Input() submit:Subject<any>;
   @Output() saveSuccess = new EventEmitter<any>();
@@ -75,6 +76,14 @@ export class FormComponent extends AdminComponent implements OnInit {
     });
   }
 
+  disabled( field:FieldConfigType ):boolean {
+    if( _.has( field, 'path' ) && _.get( field, 'path' ) === _.get( this.data.parent, 'path' ) ) return true;
+    switch( this.action ){
+      case 'create': return field.createInput === false;
+      case 'update': return field.updateInput === false;
+    }
+  }
+
   errorTip(field:FieldConfigType):string {
     const control = this.form.controls[field.name];
     if( ! control ) return undefined;
@@ -101,7 +110,7 @@ export class FormComponent extends AdminComponent implements OnInit {
       this.options[field.name] = _.isFunction( field.values ) ? field.values( this.data.data ) : [];
       const validators = field.required ? [Validators.required] : [];
       const value = field.path ? field.keyValue( this.data.item ) : this.value( field, this.data.item );
-      const disabled = _.has( field, 'path' ) && _.get( field, 'path' ) === _.get( this.data.parent, 'path' );
+      const disabled = this.disabled( field );
       return _.set(definition, field.name, [{value, disabled}, validators]);
     }, {} );
     this.form = this.fb.group(definition);

@@ -9,6 +9,6 @@
 </mat-toolbar-row>
 
 
-<admin-form [data]="data" [submit]="submit" (saveSuccess)="onSuccess($event)"></admin-form>
+<admin-form action="create" [data]="data" [submit]="submit" (saveSuccess)="onSuccess($event)"></admin-form>
 
 <admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>
