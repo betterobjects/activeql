@@ -1,17 +1,7 @@
 import inflection from 'inflection';
 import _ from 'lodash';
 
-import { FilterType } from '../builder/filter-type';
-import {
-  AssocFromType,
-  AssocToManyType,
-  AssocToType,
-  EntityHooksType,
-  EntityPermissionsType,
-  EntityResolverFn,
-  SeedType,
-  ValidationReturnType,
-} from '../core/domain-configuration';
+import { AttributeType, EntityType } from '../core/domain-configuration';
 import { Runtime } from '../core/runtime';
 import { EntityAccessor } from './entity-accessor';
 import { EntityFileSave } from './entity-file-save';
@@ -20,12 +10,8 @@ import { EntityPermissions } from './entity-permissions';
 import { EntityResolver } from './entity-resolver';
 import { EntitySeeder } from './entity-seeder';
 import { EntityValidation, ValidationViolation } from './entity-validation';
-import { TypeAttribute } from './type-attribute';
 
-
-//
-//
-export abstract class Entity {
+export class Entity {
 
   private _runtime!:Runtime;
   get runtime() { return this._runtime }
@@ -44,6 +30,7 @@ export abstract class Entity {
   protected _entityAccessor!:EntityAccessor;
   protected _entityFileSave!:EntityFileSave;
 
+  constructor( private config:EntityType ){}
 
   /**
    *
@@ -59,99 +46,64 @@ export abstract class Entity {
     this._entityAccessor = new EntityAccessor( this );
   }
 
-  get name() { return this.getName() }
-  get typeName(){ return this.getTypeName() }
-  get attributes() { return this.getAttributes() }
-  get assocTo() { return this.getAssocTo() }
-  get assocToInput() { return _.filter( this.getAssocTo(), assocTo => assocTo.input === true ) }
-  get assocToMany() { return this.getAssocToMany() }
-  get assocFrom() { return this.getAssocFrom() }
-  get singular() { return this.getSingular() }
-  get plural() { return this.getPlural() }
-  get foreignKey() { return this.getForeignKey() }
-  get foreignKeys() { return this.getForeignKeys() }
-  get createInputTypeName() { return this.getCreateInputTypeName() }
-  get updateInputTypeName() { return this.getUpdateInputTypeName() }
-  get filterTypeName() { return this.getFilterTypeName() }
-  get sorterEnumName() { return this.getSorterEnumName() }
-  get collection() { return this.getCollection() }
-  get seeds() { return this.getSeeds() }
-  get description() { return this.getDescription() }
-  get entities() { return this.getEntites() }
-  get typeField() { return this.getTypeField() }
-  get typesEnumName() { return this.getTypesEnumName() }
-  get isInterface():boolean { return this.getIsInterface() }
-  get isUnion():boolean { return  ! this.isInterface && ! _.isEmpty( this.entities ) }
+  get name() { return this.config.name }
+  get typeName(){ return this.config.typeName }
+  get attributes() { return this.config.attributes }
+  get assocTo() { return this.config.assocTo }
+  get assocToInput() { return _.filter( this.assocTo, assocTo => assocTo.input === true ) }
+  get assocToMany() { return this.config.assocToMany }
+  get assocFrom() { return this.config.assocFrom }
+  get singular() { return this.config.singular }
+  get plural() { return this.config.plural }
+  get foreignKey() { return this.config.foreignKey }
+  get foreignKeys() { return this.config.foreignKeys }
+  get createInputTypeName() { return this.config.createInputTypeName }
+  get updateInputTypeName() { return this.config.updateInputTypeName }
+  get filterTypeName() { return this.config.filterTypeName }
+  get sorterEnumName() { return this.config.sorterEnumName}
+  get collection() { return this.config.collection }
+  get seeds() { return this.config.seeds }
+  get description() { return this.config.description }
+  get typeField() { return this.config.typeField }
+  get typesEnumName() { return this.config.typesEnumName }
+  get isInterface():boolean { return this.config.interface === true }
+  get isUnion():boolean { return ! _.isEmpty( this.config.union ) }
   get isPolymorph():boolean { return this.isUnion || this.isInterface }
-  get implements():Entity[] { return _.filter( this.getImplements(), entity => entity.isInterface ) }
-  get deleteMutationName():string { return this.getDeleteMutationName() }
-  get createMutationName():string { return this.getCreateMutationName() }
-  get updateMutationName():string { return this.getUpdateMutationName() }
-  get mutationResultName():string { return this.getMutationResultName() }
-  get typesQueryName():string { return this.getTypesQueryName() }
-  get typeQueryName():string { return this.getTypeQueryName() }
-  get statsQueryName():string { return this.getStatsQueryName() }
-  get path() { return this.getPath() }
-  get validateFn() { return this.getValidateFn() }
-  get hooks() { return this.getHooks() }
-  get permissions() { return this.getPermissions() }
-  get typeQuery() { return this.getTypeQuery() }
-  get typesQuery() { return this.getTypesQuery() }
-  get createMutation() { return this.getCreateMutation() }
-  get updateMutation() { return this.getUpdateMutation() }
-  get deleteMutation() { return this.getDeleteMutation() }
-  get statsQuery() { return this.getStatsQuery() }
+  get createMutationName():string { return this.config.createMutationName }
+  get updateMutationName():string { return this.config.updateMutationName }
+  get deleteMutationName():string { return this.config.deleteMutationName }
+  get mutationResultName():string { return this.config.mutationResultName }
+  get typeQueryName():string { return this.config.typeQueryName }
+  get typesQueryName():string { return this.config.typesQueryName }
+  get statsQueryName():string { return this.config.statsQueryName }
+  get validateFn() { return this.config.validation }
+  get hooks() { return this.config.hooks }
+  get permissions() { return this.config.permissions }
+  get typeQuery() { return this.config.typeQuery }
+  get typesQuery() { return this.config.typesQuery }
+  get statsQuery() { return this.config.statsQuery }
+  get createMutation() { return this.config.createMutation }
+  get updateMutation() { return this.config.updateMutation }
+  get deleteMutation() { return this.config.deleteMutation }
 
+  get entities() {
+    if( this.isInterface ) return _.filter( this.runtime.entities, entity => entity.implementsEntityInterface( this ) );
+    return _.compact( _.map( this.config.union, entity => this.runtime.entities[entity] ) );
+  }
 
-  protected abstract getName():string;
-  protected getTypeName() { return inflection.camelize( this.name ) }
-  protected getSingular() { return `${_.toLower(this.typeName.substring(0,1))}${this.typeName.substring(1)}` }
-  protected getPlural() { return inflection.pluralize( this.singular ) }
-  protected getForeignKey() { return `${this.singular}Id` }
-  protected getForeignKeys() { return `${this.singular}Ids` }
-  protected getCreateInputTypeName() { return `${this.typeName}CreateInput` }
-  protected getUpdateInputTypeName() { return `${this.typeName}UpdateInput` }
-  protected getFilterTypeName() { return `${this.typeName}Filter` }
-  protected getSorterEnumName() { return `${this.typeName}Sort` }
-  protected getCollection() { return this.plural }
-  protected getAttributes():{[name:string]:TypeAttribute} { return {} };
-  protected getAssocTo():AssocToType[] { return [] }
-  protected getAssocToMany():AssocToManyType[] { return [] }
-  protected getAssocFrom():AssocFromType[] { return [] }
-  protected getSeeds():{[name:string]:SeedType}|SeedType[] { return [] }
-  protected getDescription():string|undefined { return }
-  protected getEntites():Entity[] { return [] }
-  protected getIsInterface():boolean { return false }
-  protected getImplements():Entity[] { return [] }
-  protected getTypeField():string { return `${this.singular}Type` }
-  protected getTypesEnumName():string { return `${this.typeName}Types` }
-  protected getCreateMutationName():string { return `create${this.typeName}` }
-  protected getUpdateMutationName():string { return `update${this.typeName}` }
-  protected getMutationResultName():string { return `Save${this.typeName}MutationResult` }
-  protected getTypesQueryName():string { return this.plural }
-  protected getTypeQueryName():string { return this.singular }
-  protected getStatsQueryName():string { return `${this.typesQueryName}Stats` }
-  protected getDeleteMutationName():string { return `delete${this.typeName}` }
-  protected getPath() { return inflection.underscore( this.plural ) }
-  protected getValidateFn():((item:any, runtime:Runtime ) => ValidationReturnType) | undefined { return undefined }
-  protected getHooks():EntityHooksType|undefined { return undefined }
-  protected getPermissions():string|EntityPermissionsType|undefined { return undefined }
+  get implements():Entity[] {
+    return _( this.config.implements).
+      map( entity => this.runtime.entities[entity] ).
+      filter( entity => entity.isInterface ).
+      compact().
+      value();
+  }
 
-  protected getTypeQuery():boolean|EntityResolverFn { return true }
-  protected getTypesQuery():boolean|EntityResolverFn { return true }
-  protected getCreateMutation():boolean|EntityResolverFn { return true }
-  protected getUpdateMutation():boolean|EntityResolverFn { return true }
-  protected getDeleteMutation():boolean|EntityResolverFn { return true }
-  protected getStatsQuery():boolean|EntityResolverFn { return true }
-
-  getByQueryName( attributeName:string, attribute:TypeAttribute ) {
+  getByQueryName( attributeName:string, attribute:AttributeType ) {
     return `${attribute.unique === true ? this.singular : this.plural}By${inflection.camelize(attributeName)}`
   }
 
-  /**
-   *
-   */
-  getAttribute(name:string):TypeAttribute|undefined {
+  getAttribute(name:string):AttributeType |undefined {
     const attribute = this.attributes[name];
     if( attribute ) return attribute;
     const implAttributes = _.map( this.implements, impl => impl.getAttribute( name ) );
@@ -176,8 +128,7 @@ export abstract class Entity {
     const attribute = this.getAttribute( name );
     if( ! attribute || attribute.filterType === false ) return undefined;
 
-    return _.isString(attribute.filterType) ?
-      attribute.filterType : FilterType.getFilterName( attribute.graphqlType );
+    return attribute.filterType;
   }
 
   /**
@@ -210,10 +161,8 @@ export abstract class Entity {
   /**
    *
    */
-  isFileAttribute( attribute:TypeAttribute ):boolean {
-    const name = _.isString( attribute.graphqlType ) ?
-      attribute.graphqlType : _.get( attribute.graphqlType, 'name' );
-    return _.toLower(name) === 'file';
+  isFileAttribute( attribute:AttributeType ):boolean {
+    return _.toLower(attribute.type) === 'file';
   }
 
   /**

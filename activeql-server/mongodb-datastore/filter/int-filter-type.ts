@@ -10,18 +10,15 @@ export class IntFilterType extends AttributeFilterType {
   graphqlTypeName() { return GraphQLInt.name }
 
   attributes() { return {
-    is: { graphqlType: GraphQLInt, description: 'equal' },
-    isNot: { graphqlType: GraphQLInt, description: 'not equal' },
-    lowerOrEqual: { graphqlType: GraphQLInt, description: 'lower or equal than' },
-    lower: { graphqlType: GraphQLInt, description: 'lower than' },
-    greaterOrEqual: { graphqlType: GraphQLInt, description: 'greater or equal than' },
-    greater: { graphqlType: GraphQLInt, description: 'greater than' },
-    isIn: { graphqlType: new GraphQLList(GraphQLInt), description: 'is in list of numbers' },
-    notIn: { graphqlType: new GraphQLList(GraphQLInt), description: 'is not in list of numbers' },
-    between: {
-      graphqlType: new GraphQLList(GraphQLInt),
-      description: 'is greater or equal than the first and lower then the last number of a list'
-    },
+    is: { type: 'Int', description: 'equal, if given all other options are ignored' },
+    isNot: { type: 'Int', description: 'not equal' },
+    lowerOrEqual: { type: 'Int', description: 'lower or equal than' },
+    lower: { type: 'Int', description: 'lower than' },
+    greaterOrEqual: { type: 'Int', description: 'greater or equal than' },
+    greater: { type: 'Int', description: 'greater than' },
+    isIn: { type: '[Int]', description: 'is in list of numbers' },
+    notIn: { type: '[Int]', description: 'is not in list of numbers' },
+    between: { type: '[Int]', description: 'is greater or equal than the first and lower then the last number of a list' }
   }}
 
   getFilterExpression( condition:any ):any {

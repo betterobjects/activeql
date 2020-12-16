@@ -2,7 +2,6 @@ import { GraphQLSchema } from 'graphql';
 import _ from 'lodash';
 
 import { FilterType } from '../builder/filter-type';
-import { MetaDataBuilder } from '../builder/meta-data-builder';
 import { SchemaBuilder } from '../builder/schema-builder';
 import { Entity } from '../entities/entity';
 import { EntityFileSave } from '../entities/entity-file-save';
@@ -28,7 +27,6 @@ export type RuntimeConfig = {
   entityFileSave?:(entity:Entity) => EntityFileSave
   entitySeeder?:(entity:Entity) => EntitySeeder
   schemaBuilder?:SchemaBuilder[]
-  metaDataBuilder?:SchemaBuilder
   domainDefinition:DomainDefinition|DomainConfiguration|string|string[]
   uploadRootDir?:string
   stage?:'development'|'production'
@@ -65,7 +63,6 @@ export class Runtime {
       entityPermissions: ( entity:Entity ) => new DefaultEntityPermissions( entity ),
       entityFileSave: ( entity:Entity ) => new EntityFileSave( entity ),
       entitySeeder: ( entity:Entity ) => new EntitySeeder( entity ),
-      metaDataBuilder: new MetaDataBuilder(),
       uploadRootDir: 'uploads ',
       stage: 'development',
       domainDefinition: {}

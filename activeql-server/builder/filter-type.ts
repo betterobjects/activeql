@@ -11,7 +11,7 @@ import { TypeBuilder } from './schema-builder';
  */
 export abstract class FilterType extends TypeBuilder {
 
-  name() { return TypeBuilder.getFilterName( this.graphqlTypeName() ) }
+  name() { return TypeBuilder.getFilterName( this.graphqlTypeName() ) || 'Unkown Filter Type' }
 
   init( runtime:Runtime ):void {
     super.init( runtime );
@@ -20,7 +20,7 @@ export abstract class FilterType extends TypeBuilder {
 
   abstract graphqlTypeName():string;
 
-  abstract async setFilterExpression( expression:any, args:any, field?:string, entity?:Entity ):Promise<void>;
+  abstract setFilterExpression( expression:any, args:any, field?:string, entity?:Entity ):Promise<void>;
 
   static async setFilterExpression( expression:any, entity:Entity, condition:any, field:string ){
     const filterTypeName = entity.getFilterTypeNameForAttribute(field);
@@ -41,7 +41,7 @@ export abstract class FilterType extends TypeBuilder {
   protected getFilterAttributes() {
     const fields = {};
     _.forEach( this.attributes(), (attribute,name) => {
-      _.set( fields, name, { type: attribute.graphqlType, description: attribute.description } );
+      _.set( fields, name, { type: attribute.type, description: attribute.description } );
     });
     return fields;
   }

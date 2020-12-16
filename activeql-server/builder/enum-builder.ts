@@ -35,12 +35,7 @@ export class EnumConfigBuilder extends EnumBuilder {
   }
 
   name() { return this._name }
-
-  enum(){
-    if( _.isArray( this.config) ) this.config = _.reduce( this.config,
-      (config, item) => _.set( config, _.toUpper( item ), item ), {} );
-    return this.config;
-  }
+  enum(){ return this.config }
 
   constructor( protected readonly _name:string, protected config:EnumConfig ){ super() }
 

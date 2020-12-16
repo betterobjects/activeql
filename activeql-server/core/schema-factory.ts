@@ -6,10 +6,11 @@ import { EnumBuilder, EnumConfigBuilder } from '../builder/enum-builder';
 import { MutationBuilder, MutationConfigBuilder } from '../builder/mutation-builder';
 import { QueryBuilder, QueryConfigBuilder } from '../builder/query-builder';
 import { SchemaBuilder } from '../builder/schema-builder';
-import { ConfigEntity } from '../entities/config-entity';
-import { EntityConfig, EnumConfig, MutationConfigFn, QueryConfigFn } from './domain-configuration';
+import { Entity } from '../entities/entity';
 import { ActiveQLSchemaTypes } from './activeql-schema-types';
+import { EntityType, EnumType, MutationConfigFn, QueryConfigFn } from './domain-configuration';
 import { Runtime } from './runtime';
+
 
 export class SchemaFactory {
 
@@ -46,7 +47,6 @@ export class SchemaFactory {
   private builders():SchemaBuilder[] {
     if( this._builders ) return this._builders;
     this._builders = _.compact([
-      this.config.metaDataBuilder,
       ... this.runtime.dataStore.getDataStoreFilterTypes(),
       ... this.getConfigTypeBuilder(),
       ... this.getCustomBuilders()
@@ -58,16 +58,15 @@ export class SchemaFactory {
     const domainDefinition = this.runtime.domainDefinition;
     return _.compact( _.flatten( _.concat(
       _.get(this.config, 'schemaBuilder', [] ),
-      _.map( domainDefinition.entities, entity => new EntityBuilder( entity )),
-      domainDefinition.enums
+      _.map( domainDefinition.entities, entity => new EntityBuilder( entity ))
     )));
   }
 
   private getConfigTypeBuilder():SchemaBuilder[] {
     const domainDefinition = this.runtime.domainDefinition;
     if( ! domainDefinition ) return [];
-    const configuration = domainDefinition.getConfiguration();
-    const builder:SchemaBuilder[] = _.compact( _.map( configuration.entity,
+    const configuration = domainDefinition.getResolvedConfiguration();
+    const builder:SchemaBuilder[] =  _.compact( _.map( configuration.entity,
       (config, name) => this.createEntityBuilder( name, config )) );
     builder.push( ... _.compact( _.map( configuration.enum,
       (config, name) => this.createEnumBuilder( name, config ) ) ) );
@@ -79,16 +78,16 @@ export class SchemaFactory {
     return builder;
   }
 
-  private createEntityBuilder( name:string, config:EntityConfig ):undefined|EntityBuilder {
+  private createEntityBuilder( name:string, config:EntityType ):undefined|EntityBuilder {
     try {
-      const entity = ConfigEntity.create(name, config );
+      const entity = new Entity( config );
       return new EntityBuilder( entity );
     } catch (error) {
       console.log( `Error building entity [${name}]`, error );
     }
   }
 
-  private createEnumBuilder( name:string, config:EnumConfig ):undefined|EnumBuilder{
+  private createEnumBuilder( name:string, config:EnumType ):undefined|EnumBuilder{
     try {
       return EnumConfigBuilder.create( name, config );
     } catch (error) {

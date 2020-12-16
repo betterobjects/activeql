@@ -45,7 +45,7 @@ export class EntitySeeder extends EntityModule {
         this.entity.assocTo,
         _.flatten(_.map( this.entity.implements, impl => impl.assocTo )));
       await Promise.all( _.map( assocTos, async assocTo => {
-        await this.seedAssocTo( assocTo, seed, idsMap, name );
+        if(assocTo) await this.seedAssocTo( assocTo, seed, idsMap, name );
       }));
 
       const assocToManys = _.concat(
@@ -53,7 +53,7 @@ export class EntitySeeder extends EntityModule {
         _.flatten(_.map( this.entity.implements, impl => impl.assocToMany )));
 
       await Promise.all( _.map( assocToManys, async assocToMany => {
-        await this.seedAssocToMany( assocToMany, seed, idsMap, name );
+        if( assocToMany ) await this.seedAssocToMany( assocToMany, seed, idsMap, name );
       }));
     }));
   }

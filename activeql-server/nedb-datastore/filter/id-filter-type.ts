@@ -12,11 +12,11 @@ export class IdFilterType extends AttributeFilterType {
   graphqlTypeName() { return GraphQLID.name }
 
   attributes() { return {
-    is: { graphqlType: GraphQLID, description: 'equal' },
-    isNot: { graphqlType: GraphQLID, description: 'not equal' },
-    isIn: { graphqlType: new GraphQLList(GraphQLID), description: 'ID is in list' },
-    notIn: { graphqlType: new GraphQLList(GraphQLID), description: 'ID is not in list' },
-    exist: { graphqlType: GraphQLBoolean }
+    is: { type: 'ID', description: 'equal' },
+    isNot: { type: 'ID', description: 'not equal' },
+    isIn: { type: '[ID]', description: 'ID is in list' },
+    notIn: { type: '[ID]', description: 'ID is not in list' },
+    exist: { type: 'Boolean' }
   }}
 
   setFilterExpression( expression:any, condition:any, field:string ):any {

@@ -1,12 +1,11 @@
 import _ from 'lodash';
 
 import { Paging, Sort } from '../core/data-store';
-import { AssocType } from '../core/domain-configuration';
+import { AssocType, AttributeType } from '../core/domain-configuration';
 import { EntityDeleter } from './entity-deleter';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 import { ValidationViolation } from './entity-validation';
-import { TypeAttribute } from './type-attribute';
 import { parseActiveQLScalarDate } from '../core/activeql-schema-types'
 
 //
@@ -129,9 +128,8 @@ export class EntityAccessor extends EntityModule {
     _.set( attributes, 'updatedAt', now );
   }
 
-  private sanitizedValue( attribute:TypeAttribute, value:any ){
-    const typeName = _.isString( attribute.graphqlType ) ? attribute.graphqlType : _.get( attribute.graphqlType, 'name ');
-    switch( _.toLower(typeName) ){
+  private sanitizedValue( attribute:AttributeType, value:any ){
+    switch( _.toLower(attribute.type) ){
       case 'string': return _.isString( value ) ? value : _.toString( value );
       case 'int': return _.isInteger( value ) ? value : _.toInteger( value );
       case 'float': return _.isNumber( value ) ? value : _.toNumber( value );

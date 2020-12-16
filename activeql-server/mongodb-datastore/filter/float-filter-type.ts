@@ -10,18 +10,15 @@ export class FloatFilterType extends AttributeFilterType {
   graphqlTypeName() { return GraphQLFloat.name }
 
   attributes() { return {
-    eq: { graphqlType: GraphQLFloat, description: 'equal' },
-    ne: { graphqlType: GraphQLFloat, description: 'not equal' },
-    le: { graphqlType: GraphQLFloat, description: 'lower or equal than' },
-    lt: { graphqlType: GraphQLFloat, description: 'lower than' },
-    ge: { graphqlType: GraphQLFloat, description: 'greater or equal than' },
-    gt: { graphqlType: GraphQLFloat, description: 'greater than' },
-    isIn: { graphqlType: new GraphQLList(GraphQLFloat), description: 'is in list of numbers' },
-    notIn: { graphqlType: new GraphQLList(GraphQLFloat), description: 'is not in list of numbers' },
-    between: {
-      graphqlType: new GraphQLList(GraphQLFloat),
-      description: 'is greater or equal than the first and lower then the last number of a list'
-    },
+    is: { type: 'Float', description: 'equal' },
+    isNot: { type: 'Float', description: 'not equal' },
+    lowerOrEqual: { type: 'Float', description: 'lower or equal than' },
+    lower: { type: 'Float', description: 'lower than' },
+    greaterOrEqual: { type: 'Float', description: 'greater or equal than' },
+    greater: { type: 'Float', description: 'greater than' },
+    isIn: { type: '[Float]', description: 'is in list of numbers' },
+    notIn: { type: '[Float]', description: 'is not in list of numbers' },
+    between: { type: '[Float]', description: 'is greater or equal than the first and lower then the last number of a list' }
   }}
 
   getFilterExpression( condition:any ):any {

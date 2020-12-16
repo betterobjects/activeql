@@ -22,10 +22,10 @@ export class EntityDeleter extends EntityModule {
   async deleteAssocFrom( id:string ) {
     const item = await this.entity.findById( id );
     // first check if any prevents - then delete
-    for( const assocFrom of this.entity.assocFrom ){
+    if( this.entity.assocFrom ) for( const assocFrom of this.entity.assocFrom ){
       if( assocFrom.delete === 'prevent') await this.preventAssocFrom( item, assocFrom );
     }
-    for( const assocFrom of this.entity.assocFrom ){
+    if( this.entity.assocFrom ) for( const assocFrom of this.entity.assocFrom ){
       if( assocFrom.delete === 'cascade') await this.cascadeAssocFrom( item, assocFrom );
     }
   }

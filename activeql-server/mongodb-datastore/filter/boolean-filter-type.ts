@@ -11,9 +11,10 @@ export class BooleanFilterType extends AttributeFilterType {
   graphqlTypeName() { return GraphQLBoolean.name }
 
   attributes() { return {
-    is: { graphqlType: GraphQLBoolean, description: 'is' },
-    isNot: { graphqlType: GraphQLBoolean, description: 'is not' }
+    is: { type: 'Boolean', description: 'is' },
+    isNot: { type: 'Boolean', description: 'is not' }
   }}
+
 
   getFilterExpression( condition:any ){
     const operator = _.toString( _.first( _.keys( condition ) ) );

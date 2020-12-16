@@ -9,7 +9,6 @@ export * from './core/graphx';
 export * from './builder/filter-type';
 
 export * from './entities/entity';
-export * from './entities/config-entity';
 export * from './entities/entity-accessor';
 export * from './entities/entity-deleter';
 export * from './entities/entity-file-save';
@@ -19,7 +18,6 @@ export * from './entities/entity-permissions';
 export * from './entities/entity-resolver';
 export * from './entities/entity-seeder';
 export * from './entities/entity-validation';
-export * from './entities/type-attribute';
 
 export * from './mongodb-datastore/mongodb.data-store';
 export * from './mongodb-datastore/filter/assoc-from-filter-type';

@@ -1,9 +1,8 @@
 import _ from 'lodash';
 
-import { AssocType } from '../core/domain-configuration';
+import { AssocType, AttributeType } from '../core/domain-configuration';
 import { Validator } from '../validation/validator';
 import { Entity } from './entity';
-import { TypeAttribute } from './type-attribute';
 
 //
 //
@@ -71,7 +70,7 @@ export class EntityValidation  {
    */
   private async validateRequiredAssocTos( item:any ):Promise<ValidationViolation[]> {
     const violations:ValidationViolation[] = [];
-    for( const assocTo of this.entity.assocTo ){
+    if(this.entity.assocTo ) for( const assocTo of this.entity.assocTo ){
       if( ! assocTo.required ) continue;
       const violation = await this.validateRequiredAssocTo( assocTo, item );
       if( violation ) violations.push( violation );
@@ -120,7 +119,7 @@ export class EntityValidation  {
   /**
    *
    */
-  private async validateUniqeAttribute( name:string, attribute:TypeAttribute, item:any ):Promise<ValidationViolation|undefined> {
+  private async validateUniqeAttribute( name:string, attribute:AttributeType, item:any ):Promise<ValidationViolation|undefined> {
     const value = _.get( item, name );
     if( _.isUndefined( value ) ) return;
     const attrValues = _.set({}, name, value );

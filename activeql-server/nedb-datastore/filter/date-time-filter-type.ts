@@ -1,5 +1,5 @@
-import { GraphQLList } from 'graphql';
 import _ from 'lodash';
+
 import { AttributeFilterType } from './attribute-filter-type';
 
 /**
@@ -10,30 +10,28 @@ export class DateTimeFilterType extends AttributeFilterType {
   graphqlTypeName() { return 'DateTime' }
 
   attributes() {
-    const dateType = this.graphx.type('DateTime');
     return {
-      eq: { graphqlType: dateType, description: 'equal' },
-      ne: { graphqlType: dateType, description: 'not equal' },
-      beforeOrEqual: { graphqlType: dateType },
-      before: { graphqlType: dateType },
-      afterOrEqual: { graphqlType: dateType },
-      after: { graphqlType: dateType },
-      isIn: { graphqlType: new GraphQLList( dateType ), description: 'is in list of dates' },
-      notIn: { graphqlType: new GraphQLList( dateType ), description: 'is not in list of dates' },
+      is: { type: 'DateTime', description: 'equal' },
+      isNot: { type: 'DateTime', description: 'not equal' },
+      beforeOrEqual: { type: 'DateTime' },
+      before: { type: 'DateTime' },
+      afterOrEqual: { type: 'DateTime' },
+      after: { type: 'DateTime' },
+      isIn: { type: '[DateTime]', description: 'is in list of dates' },
+      notIn: { type: '[DateTime]', description: 'is not in list of dates' },
       between: {
-        graphqlType: new GraphQLList( dateType ),
+        type: '[DateTime]',
         description: 'is before or equal to the first and after the last date of the list'
       }
     };
   }
 
   getFilterExpression(condition:any, field:string ):any {
+    if( _.has( condition, 'is' ) ) return _.get( condition, 'is' );
     const operator = _.toString( _.first( _.keys( condition ) ) );
     const operand = condition[operator];
-    console.log( operand, operand instanceof Date );
     switch( operator ){
-      case 'eq': return { $eq : operand };
-      case 'ne': return { $ne : operand };
+      case 'isNot': return { $ne : operand };
       case 'beforeOrEqual': return { $lte: operand };
       case 'before': return { $lt : operand };
       case 'afterOrEqual': return { $gte : operand };
