@@ -1,4 +1,4 @@
-import { AdminConfigType } from 'activeql-admin-ui';
+// import { AdminConfigType } from 'activeql-admin-ui';
 
-export const adminConfig:AdminConfigType = {
+export const adminConfig:any = {
 }

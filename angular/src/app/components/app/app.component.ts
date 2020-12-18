@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import inflection from 'inflection';
 import { Component, OnInit } from '@angular/core';
-import { AdminService, EntityConfigType } from 'activeql-admin-ui';
+// import { AdminService, EntityConfigType } from 'activeql-admin-ui';
 
 import {Event,
 NavigationCancel,
@@ -21,18 +21,18 @@ export class AppComponent implements OnInit{
 
   loading = false;
   isCollapsed = false;
-  entities:EntityConfigType[]
+  // entities:EntityConfigType[]
 
   get user() { return this.loginService.user }
 
   constructor(
     private router:Router,
-    private adminService:AdminService,
+    // private adminService:AdminService,
     private loginService:LoginService
   ) {}
 
   ngOnInit(){
-    this.entities = this.adminService.getMenuEntities();
+    // this.entities = this.adminService.getMenuEntities();
     this.router.events.subscribe((event:Event) => {
       switch (true) {
         case event instanceof NavigationStart: {
@@ -57,9 +57,9 @@ export class AppComponent implements OnInit{
     this.router.navigate(['/login']);
   }
 
-  title( entity:EntityConfigType ):string {
-    if( _.isFunction( entity.title ) ) return entity.title();
-    if( _.isString( entity.title ) ) return entity.title;
-    return inflection.humanize( entity.path );
-  }
+  // title( entity:EntityConfigType ):string {
+  //   if( _.isFunction( entity.title ) ) return entity.title();
+  //   if( _.isString( entity.title ) ) return entity.title;
+  //   return inflection.humanize( entity.path );
+  // }
 }

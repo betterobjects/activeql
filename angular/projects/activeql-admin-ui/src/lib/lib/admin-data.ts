@@ -1,7 +1,8 @@
-import * as inflection from 'inflection';
-import * as _ from 'lodash';
+import inflection from 'inflection';
+import _ from 'lodash';
+import { EntityViewConfig } from './admin-config.service';
+import { EntityType } from './domain-configuration';
 
-import { EntityConfigType, UiConfigType } from './admin-config';
 
 
 export class AdminData { 
@@ -11,8 +12,8 @@ export class AdminData { 
    */
   constructor(
     public readonly data:any,
-    public readonly entityConfig:EntityConfigType,
-    public readonly uiConfig:UiConfigType,
+    public readonly entityConfig:EntityType,
+    public readonly uiConfig:EntityViewConfig,
     public readonly parent?:AdminData
   ){}
 
