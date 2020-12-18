@@ -51,20 +51,26 @@ export type FieldConfig = {
 export type EntiyViewType = {
   index: {
     fields: FieldList
+    query: QueryFn
   }
   show: {
     fields: FieldList
+    query: QueryFn
     assocFrom?: {
       [entity:string]:any
     }
   }
   create: {
     fields: FieldList
+    query: QueryFn
   }
   edit: {
     fields: FieldList
+    query: QueryFn
   }
 }
+
+export type QueryFn = (filter:any, sort:any, paging:any) => string
 
 export type FieldList = FieldConfig[]
 
@@ -87,6 +93,12 @@ const foo = {
         fields: ['id', 'foo', 'bar']
 
       }
+    }
+  },
+  Organisation: {
+    index: {
+      fields: ['id', 'name', 'some'],
+      query: (filter:any, sort:any, paging:any) => `query{ organisations( filter:{} ) }`
     }
   }
 }
