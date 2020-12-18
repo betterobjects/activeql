@@ -120,7 +120,7 @@ export class EntityResolver extends EntityModule {
     const id = _.toString(resolverCtx.root.id);
     const fieldName = refEntity.isAssocToMany( this.entity ) ? this.entity.foreignKeys : this.entity.foreignKey;
     if( refEntity.isPolymorph ) return this.resolvePolymorphAssocFromTypes( refEntity, fieldName, id, resolverCtx );
-    const refResolverCtx = _.defaults( { args: { filter: { fieldName: id } } }, resolverCtx );
+    const refResolverCtx = _.defaults( { args: { filter: _.set({}, fieldName, id ) } }, resolverCtx );
     return refEntity.resolver.resolveTypes( refResolverCtx );
   }
 
