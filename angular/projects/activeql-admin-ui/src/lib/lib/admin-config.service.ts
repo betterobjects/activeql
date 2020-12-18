@@ -1,4 +1,5 @@
 import inflection from 'inflection';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import _ from 'lodash';
 import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from './domain-configuration';
 
@@ -13,7 +14,7 @@ const firstNameCandidates = _.flattenDeep(
 const lastNameCandidates = _.flattenDeep(
   _.map( lastParts, lastCandidate => _.map( combineParts, combineCandidate => _.map(nameCandidates, nameCandidate =>
     lastCandidate + combineCandidate + nameCandidate )) ) );
-
+const guessCandidates = _.concat(nameCandidates, keyCandidates, firstNameCandidates, lastNameCandidates );
 
 export type Action = 'index'|'show'|'create'|'edit'
 
@@ -24,15 +25,23 @@ export type AdminConfig = {
 }
 
 export type EntityViewConfig = {
+
   path?:string
+  asParent?:AsParentType
   index?: UiConfig
   show?: UiConfig
   create?: UiConfig
   edit?: UiConfig
 }
 
+export type AsParentType = {
+  query?: () => string
+  render?: (item:any) => string
+}
+
 export type UiConfig = {
   fields?: FieldListConfig
+  query?: QueryFn
 }
 
 export type FieldListConfig = (string|FieldConfig)[]
@@ -40,8 +49,8 @@ export type FieldListConfig = (string|FieldConfig)[]
 export type FieldConfig = {
   name: string
   type?:string
-  render?: ( item:any, parent:ParentType ) => string
-  label?: string | (( name:string, item:any ) => string)
+  render?: ( item:any, parent?:ParentType ) => string
+  label?: string | (() => string)
   disabled?:boolean
   required?:boolean
   link?:string|string[]|((item:any, parent:ParentType) => string|string[])
@@ -49,6 +58,9 @@ export type FieldConfig = {
 }
 
 export type EntiyViewType = {
+  entity:EntityType
+  path:string
+  asParent?:AsParentType
   index: {
     fields: FieldList
     query: QueryFn
@@ -70,7 +82,13 @@ export type EntiyViewType = {
   }
 }
 
-export type QueryFn = (filter:any, sort:any, paging:any) => string
+export type QueryFn = (args:QueryFnArgs) => string
+export type QueryFnArgs = {
+  parent?:ParentType
+  filter?:any
+  sort?:any
+  paging?:any
+}
 
 export type FieldList = FieldConfig[]
 
@@ -79,11 +97,12 @@ export type ParentType = {
   id: string
 }
 
-const foo = {
+const foo:AdminConfig = {
   entities: {
     Car: {
+      path: 'autos',
       asParent: {
-        fields: ['id', 'some'],
+        query: () => `query{ foo }`,
         render: (item:any) => _.get( item, 'some')
       },
       index: {
@@ -93,13 +112,13 @@ const foo = {
         fields: ['id', 'foo', 'bar']
 
       }
-    }
+    },
+    Organisation: {
+      index: {
+        fields: ['id', 'name', 'some'],
+        query: () => `query{ organisations( filter:{} ) }`
+      }
   },
-  Organisation: {
-    index: {
-      fields: ['id', 'name', 'some'],
-      query: (filter:any, sort:any, paging:any) => `query{ organisations( filter:{} ) }`
-    }
   }
 }
 
@@ -113,55 +132,135 @@ export class AdminConfigService { 
 
   get adminLinkPrefix() { return this.adminConfig.adminLinkPrefix || '/admin' }
 
+  /** @deprecated */
   getEntityConfig( path:string ){
-    const entity = inflection.camelize( path );
-    return _.get( this.domainConfiguration, ['entity', entity] );
+    console.log( jsonToGraphQLQuery({query: { foo: { bar: true, baz: true }}}) );
+    return _.get( this.domainConfiguration, ['entity', path] );
   }
 
   getEntityView( path:string ):EntiyViewType {
-    const entity = inflection.camelize( path );
-    if( ! _.has( this.entityViewTypes, entity ) ) _.set( this.entityViewTypes, entity, this.resolveEntityConfig( entity ) );
-    return _.get( this.entityViewTypes, entity );
+    if(_.isEmpty( this.entityViewTypes ) ) this.resolveViewTypes();
+    return _.get( this.entityViewTypes, path );
   }
 
-  private resolveEntityConfig( entity:string ):EntiyViewType {
-    return {
-      index: { fields: this.getFieldList( 'index', entity ) },
-      show: { fields: this.getFieldList( 'show', entity ) },
-      create: { fields: this.getFieldList( 'create', entity ) },
-      edit: { fields: this.getFieldList( 'edit', entity ) },
+  private resolveViewTypes(){
+    this.entityViewTypes = {};
+    _.forEach( this.domainConfiguration.entity, (entity, name) => {
+      _.set( entity, 'name', name );
+      const path = this.getPathForEntity( name );
+      _.set( this.entityViewTypes, path, this.resolveEntityConfig( path, entity ) );
+    })
+  }
+
+  private resolveEntityConfig( path:string, entity:EntityType ):EntiyViewType {
+    return { path, entity,
+      index: this.resolveEntityConfigIndex( path, entity ),
+      show: this.resolveEntityConfigShow( entity ),
+      create: this.resolveEntityConfigCreate( entity ),
+      edit: this.resolveEntityConfigEdit( entity )
     }
   }
 
-  private getFieldList( action:Action, entity:string ):FieldList {
-    const config = _.get(this.adminConfig, ['entities', entity, action, 'fields' ] ) || this.getDefaultFieldList( entity );
+  private resolveEntityConfigIndex( path:string, entity:EntityType ){
+    return {
+      fields: this.getFieldList( 'index', entity ),
+      query: ({parent}) => {
+        if( entity.typesQuery === false ) return;
+        const query = { query: {} };
+        if( parent ) this.setParentQuery( parent, query );
+        const fields = this.queryFieldsForAction(path, 'index', entity);
+        _.set( query.query, entity.typesQueryName, fields );
+        return jsonToGraphQLQuery( query );
+      }
+    };
+  }
+
+  private resolveEntityConfigShow( entity:EntityType ){
+    return {
+      fields: this.getFieldList( 'show', entity ),
+      query: this.getTypeQuery( entity )
+    };
+  }
+
+  private resolveEntityConfigCreate( entity:EntityType ){
+    return {
+      fields: this.getFieldList( 'create', entity ),
+      query: this.getTypeQuery( entity )
+    };
+  }
+
+  private resolveEntityConfigEdit( entity:EntityType ){
+    return {
+      fields: this.getFieldList( 'edit', entity ),
+      query: this.getTypeQuery( entity )
+    };
+  }
+
+  private queryFieldsForAction( path:string, action:string, entity:EntityType ){
+    const entityView = this.getEntityView( path )
+    const viewFields = _.map( entityView[action].fields, field => field.name );
+    const attributeFields = this.getAttributesForQuery( entity );
+    const fields = _.concat( _.intersection( viewFields, attributeFields ), 'id' );
+    // add assocTo / assocToMany here
+    return _.reduce( fields, (result, field)=> _.set( result, field, true ), {} );
+  }
+
+  private getTypeQuery( entity:EntityType ){
+    return ({parent}) => {
+      if( entity.typeQuery === false ) return;
+      const query = { query: {} };
+      if( parent ) this.setParentQuery( parent, query );
+      _.set( query, entity.typeQueryName, this.getAttributesForQuery( entity ) );
+      return jsonToGraphQLQuery( query );
+    }
+  }
+
+  private setParentQuery( parent:ParentType, query:any ):void {
+    const path = this.getPathForEntity( parent.entity );
+    const config = this.getEntityView( path );
+    const asParent = config.asParent;
+    const entity = _.get( this.domainConfiguration, ['entity', parent.entity]);
+    if( ! asParent || ! entity || entity.typeQuery === false ) return;
+    const candidates = _.intersection( this.getAttributesForQuery(entity), guessCandidates );
+    const fields = _.concat( 'id', candidates );
+    _.set( query, entity.typeQueryName, _.reduce( fields, (result, field) => _.set( result, field, true ), {} ) );
+  }
+
+  private getAttributesForQuery( entity:EntityType ):string[] {
+    const fields = ['id'];
+    _.forEach( entity.attributes, (attribute, name) => {
+      if( attribute.objectTypeField ) fields.push( name )
+    });
+    return fields;
+  }
+
+  private getFieldList( action:Action, entity:EntityType ):FieldList {
+    const config = _.get(this.adminConfig, ['entities', entity.name, action, 'fields' ] ) || this.getDefaultFieldList( entity );
     return _.compact( _.map( config, fieldConfig =>
       this.resolveField( action, entity, _.isString(fieldConfig) ? { name:fieldConfig } : fieldConfig ) ) );
   }
 
-  private getDefaultFieldList( entity:string ):FieldListConfig {
-    const attributes = _.keys( _.get( this.domainConfiguration, ['entity', entity, 'attributes'] ) );
-    const assocTo = _.map( _.get( this.domainConfiguration, ['entity', entity, 'assocTo'] ), assocTo => assocTo.type );
-    const assocToMany = _.map( _.get( this.domainConfiguration, ['entity', entity, 'assocToMany'] ), assocToMany => assocToMany.type );
+  private getDefaultFieldList( entity:EntityType ):FieldListConfig {
+    const attributes = _.keys( _.get( entity, 'attributes' ) );
+    const assocTo = _.map( _.get( entity, 'assocTo' ), assocTo => assocTo.type );
+    const assocToMany = _.map( _.get( entity, 'assocToMany' ), assocToMany => assocToMany.type );
     return _.uniq( _.concat( attributes, assocTo, assocToMany ) );
   }
 
-  private resolveField( action:Action, entity:string, config:FieldConfig ):FieldConfig {
-    const attribute:AttributeType = _.get( this.domainConfiguration, ['entity', entity, 'attributes', config.name] );
-    if( attribute ) return this.resolveAttributeField( action, entity, attribute, config );
+  private resolveField( action:Action, entity:EntityType, config:FieldConfig ):FieldConfig {
+    const attribute:AttributeType = _.get( entity, ['attributes', config.name] );
+    if( attribute ) return this.resolveAttributeField( action, attribute, config );
 
-    const assocTo:AssocToType = _.find(
-      _.get( this.domainConfiguration, ['entity', entity, 'assocTo'] ), assocTo => assocTo.type === config.name );
-    if( assocTo ) return this.resolveAssocToField( action, entity, assocTo, config );
+    const assocTo:AssocToType = _.find( _.get( entity, 'assocTo' ), assocTo => assocTo.type === config.name );
+    if( assocTo ) return this.resolveAssocToField( action, assocTo, config );
 
-    const assocToMany:AssocToType = _.find(
-      _.get( this.domainConfiguration, ['entity', entity, 'assocToMany'] ), assocToMany => assocToMany.type === config.name );
-    if( assocTo ) return this.resolveAssocToManyField( action, entity, assocToMany, config );
+    const assocToMany:AssocToType = _.find( _.get( entity, 'assocToMany' ), assocToMany => assocToMany.type === config.name );
+    if( assocTo ) return this.resolveAssocToManyField( action, assocToMany, config );
 
     return config;
   }
 
-  private resolveAttributeField( action:Action, entity:string, attribute:AttributeType, config:FieldConfig ):FieldConfig {
+  private resolveAttributeField( action:Action, attribute:AttributeType, config:FieldConfig ):FieldConfig {
     if( action === 'create' && attribute.createInput === false ) return undefined;
     config.type = attribute.type;
     config.list = attribute.list;
@@ -172,14 +271,14 @@ export class AdminConfigService { 
     return config;
   }
 
-  private resolveAssocToField( action:Action, entity:string, assocTo:AssocToType, config:FieldConfig ):FieldConfig {
+  private resolveAssocToField( action:Action, assocTo:AssocToType, config:FieldConfig ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entities', assocTo.type]);
     if( ! assocEntity ) return undefined;
     config.type = 'assocTo';
     config.list = false;
     config.label = config.label || inflection.humanize( config.name );
     config.required = config.required || assocTo.required;
-    config.link = this.defaultAssocLinkFn( entity );
+    config.link = this.defaultAssocLinkFn( assocEntity );
     config.render = config.render || (( item:any, parent:ParentType ) => {
       const value = this.guessName(_.get( item, assocEntity.foreignKey ));
       const link = _.isFunction( config.link ) ? config.link( item, parent ) : config.link;
@@ -188,14 +287,14 @@ export class AdminConfigService { 
     return config;
   }
 
-  private resolveAssocToManyField( action:Action, entity:string, assocToMany:AssocToManyType, config:FieldConfig ):FieldConfig {
+  private resolveAssocToManyField( action:Action, assocToMany:AssocToManyType, config:FieldConfig ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entities', assocToMany.type]);
     if( ! assocEntity ) return undefined;
     config.type = 'assocToMany';
     config.list = true;
     config.label = config.label || inflection.humanize( config.name );
     config.required = config.required || assocToMany.required;
-    config.link = this.defaultAssocLinkFn( entity );
+    config.link = this.defaultAssocLinkFn( assocEntity );
     config.render = config.render || (( item:any, parent:ParentType ) => {
       let values = _.get( item, assocEntity.foreignKeys );
       if( ! _.isArray( values ) ) values = [values];
@@ -206,9 +305,9 @@ export class AdminConfigService { 
     return config;
   }
 
-  private defaultAssocLinkFn( entity:string ){
+  private defaultAssocLinkFn( entity:EntityType ){
     return (item:any, parent:ParentType) => {
-      const link = [this.getPathForEntity( entity ), item.id ];
+      const link = [this.getPathForEntity( entity.name ), item.id ];
       if( parent ) link.unshift( this.getPathForEntity( parent.entity ), parent.id );
       link.unshift( this.adminLinkPrefix );
       return link;
@@ -231,7 +330,8 @@ export class AdminConfigService { 
   }
 
   private getPathForEntity( entity:string ):string {
-    return _.get( this.adminConfig, ['entities', entity, 'path'], inflection.dasherize( entity ) );
+    return _.get( this.adminConfig, ['entities', entity, 'path'],
+      _.toLower(inflection.dasherize( inflection.pluralize(entity) ) ) );
   }
 
   private guessName( value:any ):string {

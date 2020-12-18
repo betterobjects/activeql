@@ -10,15 +10,17 @@
   </div>
 </mat-toolbar-row>
 
-<admin-table
-  [parent]="data.parent?.path"
-  [config]="data.entityConfig.index"
-  [items]="data.items"
-  (selectItem)="onSelect($event)"
-  (actionItem)="onAction($event)">
-</admin-table>
 
 <admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>
 -->
 
 This is index
+
+<admin-table
+  action="index"
+  [parent]="null"
+  [config]="config"
+  [items]="items"
+  (selectItem)="onSelect($event)"
+  (actionItem)="onAction($event)">
+</admin-table>

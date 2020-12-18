@@ -36,12 +36,11 @@ export class AdminDataResolver implements Resolve<AdminData> {
         const parentId = route.params['parentId'];
 
         const parent = await this.getParentData( parentPath, parentId );
-        const entityConfig = this.adminConfig.getEntityConfig(path);
         const entityView = this.adminConfig.getEntityView( path );
-        if( ! entityConfig || ! entityView ) reject( `no such config '${path}'` );
+        if( ! entityView ) reject( `no such config '${path}'` );
 
         const load =
-          route.component === IndexComponent ? this.loadItemsData( entityConfig, entityView, parent ) :
+          route.component === IndexComponent ? this.loadItemsData( entityView, parent ) :
           // route.component === ShowComponent ? this.loadItemData( entityConfig, entityConfig.show, id, parent ) :
           // route.component === EditComponent ? this.loadItemData( entityConfig, entityConfig.form, id, parent ) :
           // route.component === CreateComponent ? this.loadDataForCreate( entityConfig, entityConfig.form, parent ) :
@@ -62,11 +61,13 @@ export class AdminDataResolver implements Resolve<AdminData> {
     // return this.loadItemData( config, config.show, id );
   }
 
-  private async loadItemsData( entityConfig:EntityType, entityView:EntityViewConfig, parent?:AdminData ):Promise<any> {
-    const parentCondition = this.getParentCondition( parent );
-    const expression = `query{ ${entityConfig.typesQuery} ${parentCondition} ${ this.buildFieldQuery( entityConfig, entityView ) } }`;
-    const query = { query: gql(expression), fetchPolicy: 'network-only' };
-    return this.loadData( query );
+  private async loadItemsData( entityView:EntityViewConfig, parent?:AdminData ):Promise<any> {
+    const query = entityView.index.query({});
+    // return this.loadData( query );
+    // const parentCondition = this.getParentCondition( parent );
+    // const expression = `query{ ${entityConfig.typesQuery} ${parentCondition} ${ this.buildFieldQuery( entityConfig, entityView ) } }`;
+    const request = { query: gql(query), fetchPolicy: 'network-only' };
+    return this.loadData( request );
   }
 
   // private async loadDataForCreate(
@@ -128,47 +129,47 @@ export class AdminDataResolver implements Resolve<AdminData> {
     });
   }
 
-  private buildFieldQuery( entityConfig:EntityType, entityView:EntityViewConfig  ):string {
-    const knownFields = _.keys( entityConfig.attributes );
-    const queryFields = _(uiConfig.fields).
-      filter( (field:FieldConfigType) => _.includes( knownFields, field.name ) ).
-      filter( (field:FieldConfigType) => field.objectTypeField !== false ).
-      map( (field:FieldConfigType) => this.getFieldInFieldQuery( field ) ).
-      value();
-    const assocs = _.compact( _.uniq( _.concat(
-      uiConfig.assoc, _.map( uiConfig.fields, (field:FieldConfigType) => field.path ) ) ) );
-    const assocFields = _.map( assocs, assoc =>
-        this.getAssocFields( entityConfig, assoc)).join( ' ');
-    return `{ id ${ _.join( _.concat( queryFields, assocFields ), ' ' ) } }`;
-  }
+  // private buildFieldQuery( entityConfig:EntityType, entityView:EntityViewConfig  ):string {
+  //   const knownFields = _.keys( entityConfig.attributes );
+  //   const queryFields = _(uiConfig.fields).
+  //     filter( (field:FieldConfigType) => _.includes( knownFields, field.name ) ).
+  //     filter( (field:FieldConfigType) => field.objectTypeField !== false ).
+  //     map( (field:FieldConfigType) => this.getFieldInFieldQuery( field ) ).
+  //     value();
+  //   const assocs = _.compact( _.uniq( _.concat(
+  //     uiConfig.assoc, _.map( uiConfig.fields, (field:FieldConfigType) => field.path ) ) ) );
+  //   const assocFields = _.map( assocs, assoc =>
+  //       this.getAssocFields( entityConfig, assoc)).join( ' ');
+  //   return `{ id ${ _.join( _.concat( queryFields, assocFields ), ' ' ) } }`;
+  // }
 
-  protected getFieldInFieldQuery( field:FieldConfigType ):string {
-    return field.type === 'file' ? `${field.name} { filename encoding mimetype }` : field.name;
-  }
+  // protected getFieldInFieldQuery( field:FieldConfigType ):string {
+  //   return field.type === 'file' ? `${field.name} { filename encoding mimetype }` : field.name;
+  // }
 
-  protected getAssocFields( entityConfig:EntityConfigType, assoc:AssocConfigType ):string|undefined {
-    if( _.isString( assoc ) ) assoc = _.set( {}, 'path', assoc );
-    const config = this.adminService.getEntityConfig( assoc.path );
-    if( ! config ) return this.warn( `getAssocFields: no config for path '${assoc.path}' `, undefined);
-    const query = _.get( entityConfig.assocs, [assoc.path, 'query']);
-    if( ! query ) return this.warn( `getAssocFields: no query for path '${assoc.path}' `, undefined);
-    if( ! assoc.fields ) assoc.fields = _.keys( config.fields );
-    const fields = _(assoc.fields).
-      map( field => config.fields[field] ).
-      compact().
-      map( field => this.getFieldInFieldQuery( field ) ).
-      value();
-    return _.concat(
-      query, '{ id ', fields, _.map( assoc.assoc, assoc => this.getAssocFields( config, assoc ) ), '}'
-    ).join( ' ' );
-  }
+  // protected getAssocFields( entityConfig:EntityConfigType, assoc:AssocConfigType ):string|undefined {
+  //   if( _.isString( assoc ) ) assoc = _.set( {}, 'path', assoc );
+  //   const config = this.adminService.getEntityConfig( assoc.path );
+  //   if( ! config ) return this.warn( `getAssocFields: no config for path '${assoc.path}' `, undefined);
+  //   const query = _.get( entityConfig.assocs, [assoc.path, 'query']);
+  //   if( ! query ) return this.warn( `getAssocFields: no query for path '${assoc.path}' `, undefined);
+  //   if( ! assoc.fields ) assoc.fields = _.keys( config.fields );
+  //   const fields = _(assoc.fields).
+  //     map( field => config.fields[field] ).
+  //     compact().
+  //     map( field => this.getFieldInFieldQuery( field ) ).
+  //     value();
+  //   return _.concat(
+  //     query, '{ id ', fields, _.map( assoc.assoc, assoc => this.getAssocFields( config, assoc ) ), '}'
+  //   ).join( ' ' );
+  // }
 
-  protected getParentCondition( parent?:AdminData ):string {
-    if( ! parent ) return '';
-    const config = this.adminService.getEntityConfig( parent.path );
-    if( ! config ) return this.warn(`no such config '${parent.path}'`, '');
-    return `(filter: {${config.foreignKey}: "${parent.id}"})`;
-  }
+  // protected getParentCondition( parent?:AdminData ):string {
+  //   if( ! parent ) return '';
+  //   const config = this.adminService.getEntityConfig( parent.path );
+  //   if( ! config ) return this.warn(`no such config '${parent.path}'`, '');
+  //   return `(filter: {${config.foreignKey}: "${parent.id}"})`;
+  // }
 
   protected warn<T>( message:string, type:T ):T {
     console.warn(message);

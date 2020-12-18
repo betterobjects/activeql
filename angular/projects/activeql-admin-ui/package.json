@@ -6,6 +6,7 @@
     "@angular/core": "^9.1.11"
   },
   "dependencies": {
+    "json-to-graphql-query": "^2.0.0",
     "tslib": "^1.10.0"
   }
 }

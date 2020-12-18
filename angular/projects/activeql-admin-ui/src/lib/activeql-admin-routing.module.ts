@@ -11,7 +11,7 @@ import { AdminDataResolver } from './services/admin-data.resolver';
 const routes:Routes = [
   { path: 'admin', children: [
     // { path: 'home', component: HomeComponent },
-    // { path: 'error', component: ErrorComponent,  },
+    { path: 'error', redirectTo: '/'  },
     { path: ':path', component: IndexComponent, resolve: { data: AdminDataResolver } },
     // { path: ':path', component: IndexComponent , resolve: { data: AdminDataResolver }, runGuardsAndResolvers: 'always' },
     // { path: ':path/new', component: CreateComponent, resolve: { data: AdminDataResolver } },

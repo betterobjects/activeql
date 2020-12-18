@@ -52,7 +52,7 @@ import { AdminRoutingModule as ActiveQLAdminRoutingModule } from './activeql-adm
 import { IndexComponent } from './components/index/index.component';
 // import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
 // import { ShowComponent } from './components/show/show.component';
-// import { TableComponent } from './components/table/table.component';
+import { TableComponent } from './components/table/table.component';
 
 import { AdminConfigService } from './lib/admin-config.service';
 // import { SafePipe } from './pipes/safe.pipe';
@@ -70,7 +70,7 @@ export function initializeApp1(adminService:AdminService) {
 @NgModule({
   declarations: [
     IndexComponent,
-    // TableComponent,
+    TableComponent,
     // ShowComponent,
     // EditComponent,
     // CreateComponent,
