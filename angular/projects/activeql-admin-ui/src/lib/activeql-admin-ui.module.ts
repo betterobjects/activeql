@@ -40,10 +40,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { AdminRoutingModule as ActiveQLAdminRoutingModule } from './activeql-admin-routing.module';
-// import { BreadcrumComponent } from './components/breadcumb.component';
+import { BreadcrumComponent } from './components/breadcumb.component';
+import { DynamicContentComponent } from './components/dynamic-content.component';
 // import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 // import { CreateComponent } from './components/create/create.component';
-// import { DynContentComponent } from './components/dyn-content.component';
+
 // import { EditComponent } from './components/edit/edit.component';
 // import { ErrorComponent } from './components/error.component';
 // import { FileUploadComponent } from './components/file-upload.component';
@@ -71,12 +72,12 @@ export function initializeApp1(adminService:AdminService) {
   declarations: [
     IndexComponent,
     TableComponent,
+    BreadcrumComponent,
+    DynamicContentComponent,
     // ShowComponent,
     // EditComponent,
     // CreateComponent,
     // FileUploadComponent,
-    // DynContentComponent,
-    // BreadcrumComponent,
     // FormComponent,
     // ConfirmDialogComponent,
     // MessageDialogComponent,
@@ -132,8 +133,7 @@ export function initializeApp1(adminService:AdminService) {
     // ShowComponent,
     // EditComponent,
     // CreateComponent,
-    // TableComponent,
-    // DynContentComponent,
+    TableComponent,
     // ErrorComponent
   ],
   providers: [

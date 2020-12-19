@@ -237,7 +237,7 @@ export class EntityBuilder extends TypeBuilder {
   private addAssocToManyReferenceToType( fields:any, ref:AssocType ):any {
     const refEntity = this.runtime.entities[ref.type];
     const refObjectType = this.graphx.type(refEntity.typeName);
-    return _.set( fields, refEntity.plural, {
+    return _.set( fields, refEntity.typesQueryName, {
       type: new GraphQLList( refObjectType),
       resolve: (root:any, args:any, context:any ) =>
         this.resolver.resolveAssocToManyTypes( refEntity, {root, args, context} )
@@ -262,7 +262,7 @@ export class EntityBuilder extends TypeBuilder {
     const refEntity = this.runtime.entities[ref.type];
     const filterType = this.runtime.filterTypes['AssocFromFilter'];
     if( ! filterType ) return fields;
-    _.set( fields, refEntity.plural, { type: this.graphx.type(filterType.name() ) });
+    _.set( fields, refEntity.typesQueryName, { type: this.graphx.type(filterType.name() ) });
     // if( refEntity.isPolymorph ) _.set( fields, refEntity.typeField,
     //   { type: this.graphx.type( refEntity.typesEnumName ) } );
     return fields;
@@ -273,7 +273,7 @@ export class EntityBuilder extends TypeBuilder {
   private addAssocFromReferenceToType(fields:any, ref:AssocType):any {
     const refEntity = this.runtime.entities[ref.type];
     const refObjectType = this.graphx.type(refEntity.typeName)
-    return _.set( fields, refEntity.plural, {
+    return _.set( fields, refEntity.typesQueryName, {
       type: new GraphQLList( refObjectType ),
       resolve: (root:any, args:any, context:any ) =>
         this.resolver.resolveAssocFromTypes( refEntity, {root, args, context} )

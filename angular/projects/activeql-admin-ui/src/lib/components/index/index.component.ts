@@ -33,4 +33,5 @@ export class IndexComponent //extends AdminEntityComponent {
 
   onSelect( event:any ){ console.log( 'onSelect', event ) }
   onAction( event:any ){ console.log( 'onAction', event ) }
+  onNew() { console.log( 'onNew' ) }
 }

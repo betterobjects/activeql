@@ -5,7 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { EntiyViewType, FieldList, Action, FieldConfig  } from '../../lib/admin-config.service';
+import { FieldList, FieldConfig  } from '../../lib/admin-config.service';
 
 @Component({
   selector: 'admin-table',
@@ -17,11 +17,10 @@ export class TableComponent // extends AdminComponent {
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
-  @Input() action:Action
+  @Input() fields:FieldList
   @Input() parent:string|undefined
   @Output() selectItem = new EventEmitter<any>();
   @Output() actionItem = new EventEmitter<{id:any, action:string}>();
-  @Input() config:EntiyViewType;
   @Input() set items( items:any[]){ this.setDataSource( items ) }
 
   dataSource:MatTableDataSource<any> = null;
@@ -33,14 +32,13 @@ export class TableComponent // extends AdminComponent {
     this.dataSource = new MatTableDataSource(items);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    // this.dataSource.sortingDataAccessor = (item, property) => this.value( this.fieldConfig( property ), item );
+    this.dataSource.sortingDataAccessor = (item, property) => this.value( item, property );
     this.prepareSearch();
   }
 
   get columns() { return _.concat( _.map( this.fields, field => field.name ), 'actions' ) }
-  get fields():FieldList { return this.config[this.action].fields }
   get search():boolean { return false /* _.isBoolean( this.config.search ) ? this.config.search : _.size(this.dataSource?.data) > 10 */ }
-  get pageSizeOptions() { return ! _.has( this.config, 'path' )  ? [10, 20, 50] : null }
+  get pageSizeOptions() { return [10, 20, 50] }
 
   get defaultActions() { return /* this.config.defaultActions || */ ['show', 'edit', 'delete'] }
   get actions() { return [] /*_.map(this.config.actions, (action, name) => _.set( action, 'name', name ) ) */ }
@@ -49,6 +47,13 @@ export class TableComponent // extends AdminComponent {
   onSelect = (id:any) => this.selectItem.emit( id );
   onEdit = (id:any) => this.actionItem.emit({ id, action: 'edit'} );
   onDelete = (id:any) => this.actionItem.emit({ id, action: 'delete'} );
+
+  private getFieldConfig( name:string ){ return _.find( this.fields, field => field.name === name ) }
+
+  private value( item:any, fieldName:string ){
+    const field = this.getFieldConfig( fieldName );
+    return field ? field.value( item ) : '';
+  }
 
   private prepareSearch(){
     this.searchTerm = undefined;

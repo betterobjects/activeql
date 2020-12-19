@@ -174,7 +174,7 @@ export class EntitySeeder extends EntityModule {
     if ( ! value ) return;
 
     if( _.isString( value ) ) {
-      value = { ref: [value] }
+      value = { type: assocToMany.type, ref: [value] }
     } else if( _.has( value, 'sample' ) ){
       if( ! _.isNumber( value.size ) && ! _.isNumber(value.random) ) value.size = 1;
       value = await this.resolveSeedValue( value, seed, idsMap );

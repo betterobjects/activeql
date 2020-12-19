@@ -10,17 +10,26 @@
   </div>
 </mat-toolbar-row>
 
-
 <admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>
+
 -->
 
-This is index
+<mat-toolbar-row>
+  <div>
+    <h1> {{ config.listTitle() }} </h1>
+    <!--h2 *ngIf="data.parent"> {{ name( data.parent.item, data.parent.entityConfig ) }} </h2-->
+  </div>
+  <span style="flex: 1 1 auto;"></span>
+  <div mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="onNew()"> New {{ config.itemTitle() }} </button>
+  </div>
+</mat-toolbar-row>
 
 <admin-table
-  action="index"
   [parent]="null"
-  [config]="config"
+  [fields]="config.index.fields"
   [items]="items"
   (selectItem)="onSelect($event)"
   (actionItem)="onAction($event)">
 </admin-table>
+

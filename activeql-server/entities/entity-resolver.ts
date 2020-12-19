@@ -112,6 +112,7 @@ export class EntityResolver extends EntityModule {
   async resolveAssocToManyTypes( refEntity:Entity, resolverCtx:ResolverContext ):Promise<any> {
     if( refEntity.isPolymorph ) return this.resolvePolymorphAssocToMany( refEntity, resolverCtx );
     const ids = _.map( _.get( resolverCtx.root, refEntity.foreignKeys ), id => _.toString(id) );
+    if( _.isNil( ids) || _.isEmpty( ids ) ) return null;
     const refResolverCtx = _.defaults( { args: { filter: { id: ids } } }, resolverCtx );
     return refEntity.resolver.resolveTypes( refResolverCtx );
   }

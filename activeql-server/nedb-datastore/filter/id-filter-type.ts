@@ -36,9 +36,10 @@ export class IdFilterType extends AttributeFilterType {
   }
 
   private getOperation( operator:string, operand:any, field:string ):any {
-    operand = _.isBoolean( operand ) ? operand :
-      _.isArray( operand ) ? _.map( operand, op => field == '_id' ? new ObjectID(op) : _.toString( op ) ) :
-      field == '_id' ? new ObjectID( operand ) : _.toString( operand );
+    operand =
+      _.isBoolean( operand ) ? operand :
+      _.isArray( operand ) ? _.map( operand, op => _.toString( op ) ) :
+      _.toString( operand );
     switch( operator ){
       case 'isNot': return { $ne : operand };
       case 'isIn': return { $in : operand };

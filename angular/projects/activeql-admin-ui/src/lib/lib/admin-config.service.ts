@@ -25,7 +25,9 @@ export type AdminConfig = {
 }
 
 export type EntityViewConfig = {
-
+  listTitle?: string | (() => string)
+  itemTitle?: string | (() => string)
+  itemName?: (item:any) => string
   path?:string
   asParent?:AsParentType
   index?: UiConfig
@@ -50,15 +52,20 @@ export type FieldConfig = {
   name: string
   type?:string
   render?: ( item:any, parent?:ParentType ) => string
+  value?: (item:any ) => any
   label?: string | (() => string)
   disabled?:boolean
   required?:boolean
   link?:string|string[]|((item:any, parent:ParentType) => string|string[])
   list?:boolean
+  query?:()=> string|any
 }
 
 export type EntiyViewType = {
   entity:EntityType
+  listTitle: () => string
+  itemTitle: () => string
+  itemName: (item:any) => string
   path:string
   asParent?:AsParentType
   index: {
@@ -101,6 +108,9 @@ const foo:AdminConfig = {
   entities: {
     Car: {
       path: 'autos',
+      listTitle: () => 'Cars',
+      itemTitle: () => 'Car',
+      itemName: (item:any) => _.get( item, 'licence' ),
       asParent: {
         query: () => `query{ foo }`,
         render: (item:any) => _.get( item, 'some')
@@ -125,7 +135,15 @@ const foo:AdminConfig = {
 
 export class AdminConfigService { 
 
-  adminConfig:AdminConfig = {};
+  adminConfig:AdminConfig = {
+    entities: {
+      Car: {
+        index: {
+          fields: ['id', 'licence', 'brand', 'mileage', 'color', { name: 'Fleet', label: 'CarPark'}, 'Driver']
+        }
+      }
+    }
+  };
   entityViewTypes:{[name:string]:EntiyViewType} = {};
 
   domainConfiguration:DomainConfigurationType = { entity: {}, enum: {} }
@@ -154,11 +172,34 @@ export class AdminConfigService { 
 
   private resolveEntityConfig( path:string, entity:EntityType ):EntiyViewType {
     return { path, entity,
+      listTitle: this.resolveListTitle( path ),
+      itemTitle: this.resolveItemTitle( path ),
+      itemName: this.resolveItemName( path ),
       index: this.resolveEntityConfigIndex( path, entity ),
       show: this.resolveEntityConfigShow( entity ),
       create: this.resolveEntityConfigCreate( entity ),
       edit: this.resolveEntityConfigEdit( entity )
     }
+  }
+
+  private resolveListTitle( entity:string ){
+    const title = _.get(this.adminConfig, ['entities', entity, 'listTitle' ] );
+    if( _.isFunction( title ) ) return title;
+    if( _.isString( title ) ) return () => title;
+    return () => inflection.humanize( inflection.pluralize( entity ) );
+  }
+
+  private resolveItemTitle( entity:string ){
+    const title = _.get(this.adminConfig, ['entities', entity, 'itemTitle' ] );
+    if( _.isFunction( title ) ) return title;
+    if( _.isString( title ) ) return () => title;
+    return () => inflection.humanize( inflection.singularize( entity ) );
+  }
+
+  private resolveItemName( entity:string ){
+    const nameFn = _.get(this.adminConfig, ['entities', entity, 'itemTitle' ] );
+    if( _.isFunction( nameFn ) ) return nameFn;
+    return (item:any) => this.guessName( item );
   }
 
   private resolveEntityConfigIndex( path:string, entity:EntityType ){
@@ -196,13 +237,9 @@ export class AdminConfigService { 
     };
   }
 
-  private queryFieldsForAction( path:string, action:string, entity:EntityType ){
-    const entityView = this.getEntityView( path )
-    const viewFields = _.map( entityView[action].fields, field => field.name );
-    const attributeFields = this.getAttributesForQuery( entity );
-    const fields = _.concat( _.intersection( viewFields, attributeFields ), 'id' );
-    // add assocTo / assocToMany here
-    return _.reduce( fields, (result, field)=> _.set( result, field, true ), {} );
+  private queryFieldsForAction( path:string, action:Action, entity:EntityType ){
+    const entityView = this.getEntityView( path );
+    return _.reduce( entityView[action].fields, (result, field) => _.merge(result, field.query() ), { id: true } );
   }
 
   private getTypeQuery( entity:EntityType ){
@@ -226,9 +263,10 @@ export class AdminConfigService { 
     _.set( query, entity.typeQueryName, _.reduce( fields, (result, field) => _.set( result, field, true ), {} ) );
   }
 
-  private getAttributesForQuery( entity:EntityType ):string[] {
+  private getAttributesForQuery( entity:EntityType, onlyGuessedAttributes = false ):string[] {
     const fields = ['id'];
     _.forEach( entity.attributes, (attribute, name) => {
+      if( onlyGuessedAttributes && ! _.includes( guessCandidates, name ) ) return;
       if( attribute.objectTypeField ) fields.push( name )
     });
     return fields;
@@ -248,6 +286,7 @@ export class AdminConfigService { 
   }
 
   private resolveField( action:Action, entity:EntityType, config:FieldConfig ):FieldConfig {
+    if( config.name === 'id' ) return this.resolveIdField( action, config );
     const attribute:AttributeType = _.get( entity, ['attributes', config.name] );
     if( attribute ) return this.resolveAttributeField( action, attribute, config );
 
@@ -255,10 +294,22 @@ export class AdminConfigService { 
     if( assocTo ) return this.resolveAssocToField( action, assocTo, config );
 
     const assocToMany:AssocToType = _.find( _.get( entity, 'assocToMany' ), assocToMany => assocToMany.type === config.name );
-    if( assocTo ) return this.resolveAssocToManyField( action, assocToMany, config );
+    if( assocToMany ) return this.resolveAssocToManyField( action, assocToMany, config );
 
     return config;
   }
+
+  private resolveIdField( action:Action, config:FieldConfig ):FieldConfig {
+    if( action === 'create' || action === 'edit' ) return undefined;
+    config.type = 'String';
+    config.label = config.label || 'ID'
+    config.disabled = true;
+    config.render = config.render || ((item:any) => _.get(item, 'id' ) );
+    config.value = config.value || ((item:any) => _.get(item, 'id' ) );
+    config.query = () => null;
+    return config;
+  }
+
 
   private resolveAttributeField( action:Action, attribute:AttributeType, config:FieldConfig ):FieldConfig {
     if( action === 'create' && attribute.createInput === false ) return undefined;
@@ -268,11 +319,13 @@ export class AdminConfigService { 
     config.required = config.required || attribute.required
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
     config.render = config.render || this.defaultRender( config.name, config );
+    config.value = config.value || ((item:any) => _.get(item, config.name) );
+    config.query = config.query || (() => _.set( {}, config.name, attribute.objectTypeField ));
     return config;
   }
 
   private resolveAssocToField( action:Action, assocTo:AssocToType, config:FieldConfig ):FieldConfig {
-    const assocEntity:EntityType = _.get( this.domainConfiguration, ['entities', assocTo.type]);
+    const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocTo.type]);
     if( ! assocEntity ) return undefined;
     config.type = 'assocTo';
     config.list = false;
@@ -280,15 +333,19 @@ export class AdminConfigService { 
     config.required = config.required || assocTo.required;
     config.link = this.defaultAssocLinkFn( assocEntity );
     config.render = config.render || (( item:any, parent:ParentType ) => {
-      const value = this.guessName(_.get( item, assocEntity.foreignKey ));
+      const value = this.guessName(_.get( item, assocEntity.typeQueryName ));
       const link = _.isFunction( config.link ) ? config.link( item, parent ) : config.link;
       return this.decorateLink( value, link )
     });
+    config.value = config.value || ((item:any) => this.guessName(_.get( item, assocEntity.typeQueryName )) );
+    config.query = config.query || (() => _.set({}, assocEntity.typeQueryName,
+    _.reduce( _.intersection( guessCandidates, _.keys(assocEntity) ), (result, field) =>
+      _.set( result, field, true), { id: true } ) ) );
     return config;
   }
 
   private resolveAssocToManyField( action:Action, assocToMany:AssocToManyType, config:FieldConfig ):FieldConfig {
-    const assocEntity:EntityType = _.get( this.domainConfiguration, ['entities', assocToMany.type]);
+    const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocToMany.type]);
     if( ! assocEntity ) return undefined;
     config.type = 'assocToMany';
     config.list = true;
@@ -296,12 +353,19 @@ export class AdminConfigService { 
     config.required = config.required || assocToMany.required;
     config.link = this.defaultAssocLinkFn( assocEntity );
     config.render = config.render || (( item:any, parent:ParentType ) => {
-      let values = _.get( item, assocEntity.foreignKeys );
+      let values = _.get( item, assocEntity.typesQueryName );
       if( ! _.isArray( values ) ) values = [values];
       const link = _.isFunction( config.link ) ? config.link( item, parent ) : config.link;
       values = _.map( values, value => this.decorateLink( this.guessName( value ), link ) );
       return _.join( values, ', ' );
     });
+    config.value = config.value || ((item:any) => {
+      let values = _.get( item, assocEntity.typesQueryName );
+      if( ! _.isArray( values ) ) values = [values];
+      values = _.map( values, value => this.guessName( value ) );
+      return _.join( values, ', ' );
+    });
+    config.query = config.query || (() => _.set({}, assocEntity.typesQueryName, { id: true, firstname: true, lastname: true } ));
     return config;
   }
 
@@ -334,15 +398,16 @@ export class AdminConfigService { 
       _.toLower(inflection.dasherize( inflection.pluralize(entity) ) ) );
   }
 
-  private guessName( value:any ):string {
-    if( ! value ) return '[no value]';
-    const firstname = _.find( firstNameCandidates, candidate => _.has( value, candidate ));
-    const lastname = _.find( lastNameCandidates, candidate => _.has( value, candidate ));
-    if( firstname && lastname ) return `${value[firstname]} ${value[lastname]}`;
-    if( firstname ) return value[firstname];
-    if( lastname ) return value[lastname];
-    const name = _.find( _.concat( nameCandidates, keyCandidates), candidate => _.has( value, candidate ));
-    return name ? value[name] : _.toString( value );
+  private guessName( item:any ):string {
+    if( ! item ) return '[null]';
+    const firstname = _.find( firstNameCandidates, candidate => _.has( item, candidate ));
+    const lastname = _.find( lastNameCandidates, candidate => _.has( item, candidate ));
+    if( firstname && lastname ) return `${item[firstname]} ${item[lastname]}`;
+    if( firstname ) return item[firstname];
+    if( lastname ) return item[lastname];
+    const name = _.find( _.concat( nameCandidates, keyCandidates), candidate => _.has( item, candidate ));
+    if( name ) return item[name];
+    return _.get( item, 'id', _.toString( item )) ;
   }
 }
 

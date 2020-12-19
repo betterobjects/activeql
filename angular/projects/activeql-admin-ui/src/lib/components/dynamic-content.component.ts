@@ -1,5 +1,5 @@
-import {AfterViewInit, ApplicationRef, Component, ComponentFactoryResolver, Injector, OnDestroy, ViewChild, Input} from '@angular/core';
-import {CdkPortal, DomPortalOutlet } from '@angular/cdk/portal';
+import { CdkPortal, DomPortalOutlet } from "@angular/cdk/portal";
+import { ApplicationRef, Component, ComponentFactoryResolver, Injector, Input, ViewChild } from "@angular/core";
 
 @Component({
   selector: 'admin-dyn-content',
@@ -9,7 +9,7 @@ import {CdkPortal, DomPortalOutlet } from '@angular/cdk/portal';
     </ng-container>
   `,
 })
-export class DynContentComponent implements AfterViewInit, OnDestroy {
+export class DynamicContentComponent {
 
   @Input() selector:string;
   @ViewChild(CdkPortal) portal:CdkPortal;
@@ -36,4 +36,5 @@ export class DynContentComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy():void {
     if( this.outlet ) this.outlet.detach();
   }
+
 }
