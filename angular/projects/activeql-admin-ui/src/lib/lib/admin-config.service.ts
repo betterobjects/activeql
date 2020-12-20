@@ -1,5 +1,4 @@
 import inflection from 'inflection';
-import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import _ from 'lodash';
 import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from './domain-configuration';
 
@@ -31,7 +30,7 @@ export type EntityViewConfig = {
   path?:string
   asParent?:AsParentType
   index?: UiConfig
-  show?: UiConfig
+  show?: UiShowConfig
   create?: UiConfig
   edit?: UiConfig
 }
@@ -44,6 +43,12 @@ export type AsParentType = {
 export type UiConfig = {
   fields?: FieldListConfig
   query?: QueryFn
+}
+
+export type UiAssocFromConfig = UiConfig & { entity:string }
+
+export type UiShowConfig = UiConfig & {
+  assocFrom?: (string|UiAssocFromConfig)[]
 }
 
 export type FieldListConfig = (string|FieldConfig)[]
@@ -61,7 +66,7 @@ export type FieldConfig = {
   query?:()=> string|any
 }
 
-export type EntiyViewType = {
+export type EntityViewType = {
   entity:EntityType
   listTitle: () => string
   itemTitle: () => string
@@ -75,9 +80,7 @@ export type EntiyViewType = {
   show: {
     fields: FieldList
     query: QueryFn
-    assocFrom?: {
-      [entity:string]:any
-    }
+    assocFrom?: UiAssocFromConfig[]
   }
   create: {
     fields: FieldList
@@ -89,7 +92,7 @@ export type EntiyViewType = {
   }
 }
 
-export type QueryFn = (args:QueryFnArgs) => string
+export type QueryFn = (args:QueryFnArgs) => string|object
 export type QueryFnArgs = {
   parent?:ParentType
   filter?:any
@@ -120,7 +123,8 @@ const foo:AdminConfig = {
         fields: ['id','licence','color'],
       },
       show: {
-        fields: ['id', 'foo', 'bar']
+        fields: ['id', 'foo', 'bar'],
+        assocFrom: ['Driver', { entity: 'Foo', query: null , fields: null }]
 
       }
     },
@@ -146,7 +150,7 @@ export class AdminConfigService { 
       }
     }
   };
-  entityViewTypes:{[name:string]:EntiyViewType} = {};
+  entityViewTypes:{[name:string]:EntityViewType} = {};
 
   domainConfiguration:DomainConfigurationType = { entity: {}, enum: {} }
 
@@ -154,11 +158,10 @@ export class AdminConfigService { 
 
   /** @deprecated */
   getEntityConfig( path:string ){
-    console.log( jsonToGraphQLQuery({query: { foo: { bar: true, baz: true }}}) );
     return _.get( this.domainConfiguration, ['entity', path] );
   }
 
-  getEntityView( path:string ):EntiyViewType {
+  getEntityView( path:string ):EntityViewType {
     if(_.isEmpty( this.entityViewTypes ) ) this.resolveViewTypes();
     return _.get( this.entityViewTypes, path );
   }
@@ -168,11 +171,11 @@ export class AdminConfigService { 
     _.forEach( this.domainConfiguration.entity, (entity, name) => {
       _.set( entity, 'name', name );
       const path = this.getPathForEntity( name );
-      _.set( this.entityViewTypes, path, this.resolveEntityConfig( path, entity ) );
+      _.set( this.entityViewTypes, path, this.resolveViewType( path, entity ) );
     })
   }
 
-  private resolveEntityConfig( path:string, entity:EntityType ):EntiyViewType {
+  private resolveViewType( path:string, entity:EntityType ):EntityViewType {
     return { path, entity,
       listTitle: this.resolveListTitle( path ),
       itemTitle: this.resolveItemTitle( path ),
@@ -206,14 +209,14 @@ export class AdminConfigService { 
 
   private resolveEntityConfigIndex( path:string, entity:EntityType ){
     return {
-      fields: this.getFieldList( 'index', entity ),
+      fields: this.getFieldList( 'index', entity  ),
       query: ({parent}) => {
         if( entity.typesQuery === false ) return;
         const query = { query: {} };
         if( parent ) this.setParentQuery( parent, query );
-        const fields = this.queryFieldsForAction(path, 'index', entity);
-        _.set( query.query, entity.typesQueryName, fields );
-        return jsonToGraphQLQuery( query );
+        const fieldList = this.getEntityView( path )['index'].fields;
+        const fields = this.fieldListToQueryFields( fieldList );
+        return _.set( query, ['query', entity.typesQueryName], fields );
       }
     };
   }
@@ -221,7 +224,8 @@ export class AdminConfigService { 
   private resolveEntityConfigShow( path:string, entity:EntityType ){
     return {
       fields: this.getFieldList( 'show', entity ),
-      query: this.typeQuery( 'show', path, entity )
+      query: this.showQuery( path, entity ),
+      assocFrom: this.resolveShowAssocFrom( path, entity )
     };
   }
 
@@ -239,21 +243,40 @@ export class AdminConfigService { 
     };
   }
 
+  private getFieldList( action:Action, entity:EntityType ){
+    const fields = _.get(this.adminConfig, ['entities', entity.name, action, 'fields' ] );
+    return this.resolveFieldList( action, entity, fields );
+  }
+
+  private showQuery( path:string, entity:EntityType ){
+    return ({id, parent}) => {
+      if( entity.typeQuery === false ) return;
+      const showConfig = this.getEntityView( path ).show;
+      const query = { query: {} };
+      if( parent ) this.setParentQuery( parent, query );
+      const fieldList = showConfig.fields;
+      const fields = this.fieldListToQueryFields( fieldList );
+      _.set( fields, '__args', {id} );
+      _.set( query, ['query', entity.typeQueryName], fields );
+      _.forEach( showConfig.assocFrom, assocFrom => _.merge( query.query[entity.typeQueryName], assocFrom.query ) );
+      return query;
+    }
+  }
+
   private typeQuery( action:Action, path:string, entity:EntityType ){
     return ({id, parent}) => {
       if( entity.typeQuery === false ) return;
       const query = { query: {} };
       if( parent ) this.setParentQuery( parent, query );
-      const fields = this.queryFieldsForAction( path, action, entity );
+      const fieldList = this.getEntityView( path )[action].fields;
+      const fields = this.fieldListToQueryFields( fieldList );
       _.set( fields, '__args', {id} );
-      _.set( query.query, entity.typeQueryName, fields );
-      return jsonToGraphQLQuery( query );
+      return _.set( query, ['query', entity.typeQueryName], fields );
     }
   }
 
-  private queryFieldsForAction( path:string, action:Action, entity:EntityType ){
-    const entityView = this.getEntityView( path );
-    return _.reduce( entityView[action].fields, (result, field) => _.merge(result, field.query() ), { id: true } );
+  private fieldListToQueryFields( fieldList:FieldList ) {
+    return _.reduce( fieldList, (result, field) => _.merge(result, field.query() ), { id: true } );
   }
 
   private setParentQuery( parent:ParentType, query:any ):void {
@@ -262,13 +285,14 @@ export class AdminConfigService { 
     const asParent = config.asParent;
     const entity = _.get( this.domainConfiguration, ['entity', parent.entity]);
     if( ! asParent || ! entity || entity.typeQuery === false ) return;
-    const fields = this.queryFieldsForAction( null, 'show', entity );
+    const fieldList = [];
+      const fields = this.fieldListToQueryFields( fieldList );
     _.set( query, entity.typeQueryName, fields );
   }
 
-  private getFieldList( action:Action, entity:EntityType ):FieldList {
-    const config = _.get(this.adminConfig, ['entities', entity.name, action, 'fields' ] ) || this.getDefaultFieldList( entity );
-    return _.compact( _.map( config, fieldConfig =>
+  private resolveFieldList( action:Action, entity:EntityType, fieldList?:FieldListConfig ):FieldList {
+    if( ! fieldList ) fieldList = this.getDefaultFieldList( entity );
+    return _.compact( _.map( fieldList, fieldConfig =>
       this.resolveField( action, entity, _.isString(fieldConfig) ? { name:fieldConfig } : fieldConfig ) ) );
   }
 
@@ -370,6 +394,27 @@ export class AdminConfigService { 
     });
     config.query = config.query || (() => _.set({}, assocEntity.typesQueryName, { id: true, firstname: true, lastname: true } ));
     return config;
+  }
+
+  private resolveShowAssocFrom( path:string, entity:EntityType ){
+    const assocFromEntity = _.map( entity.assocFrom, assocFrom => assocFrom.type );
+    const config = _.get( this.adminConfig, ['entites', entity.name, 'show', 'assocFrom' ], assocFromEntity );
+
+    const result = _.compact( _.map( config, assocFrom => {
+      if( _.isString( assocFrom ) ) assocFrom = { entity: assocFrom };
+      if( ! _.includes( assocFromEntity, assocFrom.entity ) ) return;
+      const assocEntity = _.get( this.domainConfiguration, ['entity', assocFrom.entity ] );
+      assocFrom.fields = this.resolveFieldList( 'index', assocEntity, assocFrom.fields );
+      assocFrom.query = assocFrom.query || this.defaultAssocFromQuery( assocEntity, assocFrom.fields );
+      return assocFrom;
+    }));
+    return result;
+  }
+
+  private defaultAssocFromQuery( entity:EntityType, fieldList:FieldList ){
+    if( entity.typesQuery === false ) return;
+    const fields = this.fieldListToQueryFields( fieldList );
+    return _.set( {}, entity.typesQueryName, fields );
   }
 
   itemLink( entity:EntityType, item:any, parent?:ParentType ){

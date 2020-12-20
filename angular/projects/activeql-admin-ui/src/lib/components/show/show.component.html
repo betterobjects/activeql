@@ -26,6 +26,17 @@
   </table>
 </div>
 
+<hr>
+
+<div *ngFor="let assocFrom of config.show.assocFrom">
+  <admin-table
+    [parent]="null"
+    [fields]="assocFrom.fields"
+    [items]="item['cars']"
+    >
+  </admin-table>
+</div>
+
 <!--div *ngFor="let table of data.entityConfig.show.table" class="childTable">
   <mat-toolbar-row>
     <a [routerLink]="['/admin', this.data.path, this.data.id, table.path]">

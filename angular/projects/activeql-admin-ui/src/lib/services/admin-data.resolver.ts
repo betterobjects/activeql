@@ -3,16 +3,16 @@ import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@a
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
 import _ from 'lodash';
+import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
 import { IndexComponent } from '../components/index/index.component';
 import { ShowComponent } from '../components/show/show.component';
-import { AdminConfigService, EntityViewConfig } from '../lib/admin-config.service';
+import { AdminConfigService, EntityViewType } from '../lib/admin-config.service';
 // import { CreateComponent } from '../components/create/create.component';
 // import { EditComponent } from '../components/edit/edit.component';
 // import { ShowComponent } from '../components/show/show.component';
 // import { AssocConfigType, EntityConfigType, FieldConfigType, UiConfigType } from '../lib/admin-config';
 import { AdminData } from '../lib/admin-data';
-import { EntityType } from '../lib/domain-configuration';
 import { AdminService } from './admin.service';
 
 
@@ -62,14 +62,16 @@ export class AdminDataResolver implements Resolve<AdminData> {
     // return this.loadItemData( config, config.show, id );
   }
 
-  private async loadItemsData( entityView:EntityViewConfig, parent?:AdminData ):Promise<any> {
-    const query = entityView.index.query({});
+  private async loadItemsData( entityView:EntityViewType, parent?:AdminData ):Promise<any> {
+    let query = entityView.index.query({});
+    if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
     const request = { query: gql(query), fetchPolicy: 'network-only' };
     return this.loadData( request );
   }
 
-  private async loadItemData( entityView:EntityViewConfig, id:string, parent?:AdminData ):Promise<any> {
-    const query = entityView.show.query({ id });
+  private async loadItemData( entityView:EntityViewType, id:string, parent?:AdminData ):Promise<any> {
+    let query = entityView.show.query({ id });
+    if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
     const request = { query: gql(query), fetchPolicy: 'network-only' };
     return this.loadData( request );
   }
