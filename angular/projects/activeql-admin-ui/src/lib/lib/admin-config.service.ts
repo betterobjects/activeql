@@ -37,7 +37,7 @@ export type EntityViewConfig = {
 }
 
 export type AsParentType = {
-  query?: () => string
+  query?: QueryFn
   render?: (item:any) => string
 }
 
@@ -53,10 +53,10 @@ export type FieldConfig = {
   type?:string
   render?: ( item:any, parent?:ParentType ) => string
   value?: (item:any ) => any
+  sortValue?: (item:any) => string|number
   label?: string | (() => string)
   disabled?:boolean
   required?:boolean
-  link?:string|string[]|((item:any, parent:ParentType) => string|string[])
   list?:boolean
   query?:()=> string|any
 }
@@ -95,6 +95,7 @@ export type QueryFnArgs = {
   filter?:any
   sort?:any
   paging?:any
+  id?:string
 }
 
 export type FieldList = FieldConfig[]
@@ -138,6 +139,7 @@ export class AdminConfigService { 
   adminConfig:AdminConfig = {
     entities: {
       Car: {
+        itemName: (item:any) => _.get( item, 'licence' ),
         index: {
           fields: ['id', 'licence', 'brand', 'mileage', 'color', { name: 'Fleet', label: 'CarPark'}, 'Driver']
         }
@@ -174,11 +176,11 @@ export class AdminConfigService { 
     return { path, entity,
       listTitle: this.resolveListTitle( path ),
       itemTitle: this.resolveItemTitle( path ),
-      itemName: this.resolveItemName( path ),
+      itemName: this.resolveItemName( entity.name ),
       index: this.resolveEntityConfigIndex( path, entity ),
-      show: this.resolveEntityConfigShow( entity ),
-      create: this.resolveEntityConfigCreate( entity ),
-      edit: this.resolveEntityConfigEdit( entity )
+      show: this.resolveEntityConfigShow( path, entity ),
+      create: this.resolveEntityConfigCreate( path, entity ),
+      edit: this.resolveEntityConfigEdit( path, entity )
     }
   }
 
@@ -197,7 +199,7 @@ export class AdminConfigService { 
   }
 
   private resolveItemName( entity:string ){
-    const nameFn = _.get(this.adminConfig, ['entities', entity, 'itemTitle' ] );
+    const nameFn = _.get(this.adminConfig, ['entities', entity, 'itemName' ] );
     if( _.isFunction( nameFn ) ) return nameFn;
     return (item:any) => this.guessName( item );
   }
@@ -216,40 +218,42 @@ export class AdminConfigService { 
     };
   }
 
-  private resolveEntityConfigShow( entity:EntityType ){
+  private resolveEntityConfigShow( path:string, entity:EntityType ){
     return {
       fields: this.getFieldList( 'show', entity ),
-      query: this.getTypeQuery( entity )
+      query: this.typeQuery( 'show', path, entity )
     };
   }
 
-  private resolveEntityConfigCreate( entity:EntityType ){
+  private resolveEntityConfigCreate( path:string, entity:EntityType ){
     return {
       fields: this.getFieldList( 'create', entity ),
-      query: this.getTypeQuery( entity )
+      query: this.typeQuery( 'create', path, entity )
     };
   }
 
-  private resolveEntityConfigEdit( entity:EntityType ){
+  private resolveEntityConfigEdit( path:string, entity:EntityType ){
     return {
       fields: this.getFieldList( 'edit', entity ),
-      query: this.getTypeQuery( entity )
+      query: this.typeQuery( 'edit', path, entity )
     };
+  }
+
+  private typeQuery( action:Action, path:string, entity:EntityType ){
+    return ({id, parent}) => {
+      if( entity.typeQuery === false ) return;
+      const query = { query: {} };
+      if( parent ) this.setParentQuery( parent, query );
+      const fields = this.queryFieldsForAction( path, action, entity );
+      _.set( fields, '__args', {id} );
+      _.set( query.query, entity.typeQueryName, fields );
+      return jsonToGraphQLQuery( query );
+    }
   }
 
   private queryFieldsForAction( path:string, action:Action, entity:EntityType ){
     const entityView = this.getEntityView( path );
     return _.reduce( entityView[action].fields, (result, field) => _.merge(result, field.query() ), { id: true } );
-  }
-
-  private getTypeQuery( entity:EntityType ){
-    return ({parent}) => {
-      if( entity.typeQuery === false ) return;
-      const query = { query: {} };
-      if( parent ) this.setParentQuery( parent, query );
-      _.set( query, entity.typeQueryName, this.getAttributesForQuery( entity ) );
-      return jsonToGraphQLQuery( query );
-    }
   }
 
   private setParentQuery( parent:ParentType, query:any ):void {
@@ -258,18 +262,8 @@ export class AdminConfigService { 
     const asParent = config.asParent;
     const entity = _.get( this.domainConfiguration, ['entity', parent.entity]);
     if( ! asParent || ! entity || entity.typeQuery === false ) return;
-    const candidates = _.intersection( this.getAttributesForQuery(entity), guessCandidates );
-    const fields = _.concat( 'id', candidates );
-    _.set( query, entity.typeQueryName, _.reduce( fields, (result, field) => _.set( result, field, true ), {} ) );
-  }
-
-  private getAttributesForQuery( entity:EntityType, onlyGuessedAttributes = false ):string[] {
-    const fields = ['id'];
-    _.forEach( entity.attributes, (attribute, name) => {
-      if( onlyGuessedAttributes && ! _.includes( guessCandidates, name ) ) return;
-      if( attribute.objectTypeField ) fields.push( name )
-    });
-    return fields;
+    const fields = this.queryFieldsForAction( null, 'show', entity );
+    _.set( query, entity.typeQueryName, fields );
   }
 
   private getFieldList( action:Action, entity:EntityType ):FieldList {
@@ -318,8 +312,12 @@ export class AdminConfigService { 
     config.label = config.label || inflection.humanize( config.name )
     config.required = config.required || attribute.required
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
-    config.render = config.render || this.defaultRender( config.name, config );
+    config.render = config.render || (( item:any, parent:ParentType ) => {
+      const value = config.value( item );
+      return _.isArray( value ) ? value.join(', ') : value;
+    });
     config.value = config.value || ((item:any) => _.get(item, config.name) );
+    config.sortValue = config.sortValue || config.value;
     config.query = config.query || (() => _.set( {}, config.name, attribute.objectTypeField ));
     return config;
   }
@@ -331,13 +329,14 @@ export class AdminConfigService { 
     config.list = false;
     config.label = config.label || inflection.humanize( config.name );
     config.required = config.required || assocTo.required;
-    config.link = this.defaultAssocLinkFn( assocEntity );
+    config.value = config.value || ((item:any) => _.get( item, [assocEntity.typeQueryName, 'id'] ) );
     config.render = config.render || (( item:any, parent:ParentType ) => {
-      const value = this.guessName(_.get( item, assocEntity.typeQueryName ));
-      const link = _.isFunction( config.link ) ? config.link( item, parent ) : config.link;
-      return this.decorateLink( value, link )
+      const value = _.get( item, assocEntity.typeQueryName );
+      const name = this.guessName( value );
+      const link = this.itemLink( assocEntity, value );
+      return this.decorateLink( name, link )
     });
-    config.value = config.value || ((item:any) => this.guessName(_.get( item, assocEntity.typeQueryName )) );
+    config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
     config.query = config.query || (() => _.set({}, assocEntity.typeQueryName,
     _.reduce( _.intersection( guessCandidates, _.keys(assocEntity) ), (result, field) =>
       _.set( result, field, true), { id: true } ) ) );
@@ -351,15 +350,19 @@ export class AdminConfigService { 
     config.list = true;
     config.label = config.label || inflection.humanize( config.name );
     config.required = config.required || assocToMany.required;
-    config.link = this.defaultAssocLinkFn( assocEntity );
     config.render = config.render || (( item:any, parent:ParentType ) => {
       let values = _.get( item, assocEntity.typesQueryName );
       if( ! _.isArray( values ) ) values = [values];
-      const link = _.isFunction( config.link ) ? config.link( item, parent ) : config.link;
-      values = _.map( values, value => this.decorateLink( this.guessName( value ), link ) );
+      values = _.map( values, value =>
+        this.decorateLink( this.guessName( value ), this.itemLink( assocEntity, value ) ));
       return _.join( values, ', ' );
     });
     config.value = config.value || ((item:any) => {
+      let values = _.get( item, assocEntity.typesQueryName );
+      if( ! _.isArray( values ) ) values = [values];
+      return _.map( values, value => value.id );
+    });
+    config.sortValue = config.sortValue || ((item:any) => {
       let values = _.get( item, assocEntity.typesQueryName );
       if( ! _.isArray( values ) ) values = [values];
       values = _.map( values, value => this.guessName( value ) );
@@ -369,28 +372,26 @@ export class AdminConfigService { 
     return config;
   }
 
-  private defaultAssocLinkFn( entity:EntityType ){
-    return (item:any, parent:ParentType) => {
-      const link = [this.getPathForEntity( entity.name ), item.id ];
-      if( parent ) link.unshift( this.getPathForEntity( parent.entity ), parent.id );
-      link.unshift( this.adminLinkPrefix );
-      return link;
-    };
+  itemLink( entity:EntityType, item:any, parent?:ParentType ){
+    const link = [this.getPathForEntity( entity.name ), 'show', item.id ];
+    if( parent ) link.unshift( this.getPathForEntity( parent.entity ), 'show', parent.id );
+    link.unshift( this.adminLinkPrefix );
+    return link;
   }
 
-  private defaultRender( name:string, config:FieldConfig ){
-    return ( item:any, parent:ParentType ) => {
-      const link = _.isFunction( config.link ) ? config.link( item, parent ) : config.link;
-      let values = _.get( item, name );
-      if( ! _.isArray( values ) ) values = [values];
-      if( link ) values = _.map( values, value => this.decorateLink( value, link ) );
-      return values.join(', ');
-    };
+  itemsLink( entity:EntityType, parent?:ParentType ){
+    const link = [this.getPathForEntity( entity.name ) ];
+    if( parent ) link.unshift( this.getPathForEntity( parent.entity ), 'show', parent.id );
+    link.unshift( this.adminLinkPrefix );
+    return link;
   }
+
 
   private decorateLink( value:string, link?:string|string[]){
     if( ! link ) return value;
-    return _.isArray( link ) ? `<a routerLink="${link}">${value}</a>` : `<a href="${link}">${value}</a>`;
+    if( ! _.isArray( link ) ) link = [link];
+    link = _.join( link, '/' );
+    return `<a href="${link}">${value}</a>`;
   }
 
   private getPathForEntity( entity:string ):string {

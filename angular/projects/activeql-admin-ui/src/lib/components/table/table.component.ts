@@ -6,14 +6,14 @@ import _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { FieldList, FieldConfig  } from '../../lib/admin-config.service';
+import { AdminComponent } from '../admin.component';
 
 @Component({
   selector: 'admin-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss']
 })
-export class TableComponent // extends AdminComponent {
-{
+export class TableComponent extends AdminComponent {
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
@@ -77,6 +77,4 @@ export class TableComponent // extends AdminComponent {
     this.doSearch();
   }
 
-  render( field:FieldConfig, item:any ){ return field.render( item ) }
-  label( field:FieldConfig ){ return _.isString( field.label ) ? field.label : field.label() }
 }

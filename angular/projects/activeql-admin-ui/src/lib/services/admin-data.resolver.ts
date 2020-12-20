@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 import _ from 'lodash';
 
 import { IndexComponent } from '../components/index/index.component';
+import { ShowComponent } from '../components/show/show.component';
 import { AdminConfigService, EntityViewConfig } from '../lib/admin-config.service';
 // import { CreateComponent } from '../components/create/create.component';
 // import { EditComponent } from '../components/edit/edit.component';
@@ -41,7 +42,7 @@ export class AdminDataResolver implements Resolve<AdminData> {
 
         const load =
           route.component === IndexComponent ? this.loadItemsData( entityView, parent ) :
-          // route.component === ShowComponent ? this.loadItemData( entityConfig, entityConfig.show, id, parent ) :
+          route.component === ShowComponent ? this.loadItemData( entityView, id, parent ) :
           // route.component === EditComponent ? this.loadItemData( entityConfig, entityConfig.form, id, parent ) :
           // route.component === CreateComponent ? this.loadDataForCreate( entityConfig, entityConfig.form, parent ) :
           undefined;
@@ -63,12 +64,30 @@ export class AdminDataResolver implements Resolve<AdminData> {
 
   private async loadItemsData( entityView:EntityViewConfig, parent?:AdminData ):Promise<any> {
     const query = entityView.index.query({});
-    // return this.loadData( query );
-    // const parentCondition = this.getParentCondition( parent );
-    // const expression = `query{ ${entityConfig.typesQuery} ${parentCondition} ${ this.buildFieldQuery( entityConfig, entityView ) } }`;
     const request = { query: gql(query), fetchPolicy: 'network-only' };
     return this.loadData( request );
   }
+
+  private async loadItemData( entityView:EntityViewConfig, id:string, parent?:AdminData ):Promise<any> {
+    const query = entityView.show.query({ id });
+    const request = { query: gql(query), fetchPolicy: 'network-only' };
+    return this.loadData( request );
+  }
+
+  // private async loadItemData(
+  //     entityConfig:EntityConfigType,
+  //     uiConfig:UiConfigType,
+  //     id:string,
+  //     parent?:AdminData ):Promise<any> {
+  //   const expressions = [this.getItemLoadExpression( entityConfig, uiConfig )];
+  //   expressions.push( ...
+  //     _.compact( _.map( uiConfig.data, data => this.getDataLoadExpression( data, uiConfig ) ) ) );
+  //   const expression = `query EntityQuery($id: ID!){ ${ _.join(expressions, '\n') } }`;
+  //   const query = { query: gql(expression), variables: {id}, fetchPolicy: 'network-only' };
+  //   const data = await this.loadData( query );
+  //   return new AdminData( data, entityConfig, uiConfig, parent );
+  // }
+
 
   // private async loadDataForCreate(
   //     entityConfig:EntityConfigType,
@@ -88,19 +107,7 @@ export class AdminDataResolver implements Resolve<AdminData> {
   //   return this.loadData( query );
   // }
 
-  // private async loadItemData(
-  //     entityConfig:EntityConfigType,
-  //     uiConfig:UiConfigType,
-  //     id:string,
-  //     parent?:AdminData ):Promise<any> {
-  //   const expressions = [this.getItemLoadExpression( entityConfig, uiConfig )];
-  //   expressions.push( ...
-  //     _.compact( _.map( uiConfig.data, data => this.getDataLoadExpression( data, uiConfig ) ) ) );
-  //   const expression = `query EntityQuery($id: ID!){ ${ _.join(expressions, '\n') } }`;
-  //   const query = { query: gql(expression), variables: {id}, fetchPolicy: 'network-only' };
-  //   const data = await this.loadData( query );
-  //   return new AdminData( data, entityConfig, uiConfig, parent );
-  // }
+
 
   // private getItemLoadExpression( entityConfig:EntityConfigType, uiConfig:UiConfigType ) {
   //   const fields = this.buildFieldQuery( entityConfig, uiConfig );

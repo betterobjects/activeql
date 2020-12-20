@@ -52,11 +52,11 @@ import { DynamicContentComponent } from './components/dynamic-content.component'
 // import { HomeComponent } from './components/home/home.component';
 import { IndexComponent } from './components/index/index.component';
 // import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
-// import { ShowComponent } from './components/show/show.component';
+import { ShowComponent } from './components/show/show.component';
 import { TableComponent } from './components/table/table.component';
 
 import { AdminConfigService } from './lib/admin-config.service';
-// import { SafePipe } from './pipes/safe.pipe';
+import { SafePipe } from './pipes/safe.pipe';
 // import { AdminDataResolver } from './services/admin-data.resolver';
 import { AdminService } from './services/admin.service';
 
@@ -74,7 +74,7 @@ export function initializeApp1(adminService:AdminService) {
     TableComponent,
     BreadcrumComponent,
     DynamicContentComponent,
-    // ShowComponent,
+    ShowComponent,
     // EditComponent,
     // CreateComponent,
     // FileUploadComponent,
@@ -83,7 +83,7 @@ export function initializeApp1(adminService:AdminService) {
     // MessageDialogComponent,
     // ErrorComponent,
     // HomeComponent,
-    // SafePipe
+    SafePipe
   ],
   imports: [
     ActiveQLAdminRoutingModule,
@@ -130,7 +130,7 @@ export function initializeApp1(adminService:AdminService) {
   exports: [
     IndexComponent,
     // HomeComponent,
-    // ShowComponent,
+    ShowComponent,
     // EditComponent,
     // CreateComponent,
     TableComponent,

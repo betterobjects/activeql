@@ -10,7 +10,7 @@ export * from './lib/components/index/index.component';
 // export * from './lib/components/create/create.component';
 // export * from './lib/components/edit/edit.component';
 // export * from './lib/components/form/form.component';
-// export * from './lib/components/show/show.component';
+export * from './lib/components/show/show.component';
 // export * from './lib/components/message-dialog/message-dialog.component';
 // export * from './lib/components/table/table.component';
 // export * from './lib/components/dyn-content.component';

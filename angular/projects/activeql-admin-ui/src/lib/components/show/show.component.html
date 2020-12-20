@@ -1,5 +1,9 @@
+
 <mat-toolbar-row>
-  <h2> {{ title('show') }} </h2>
+  <div>
+    <h1> {{ config.itemTitle() }} <em>{{ config.itemName( item ) }}</em> </h1>
+    <!--h2 *ngIf="data.parent"> {{ name( data.parent.item, data.parent.entityConfig ) }} </h2-->
+  </div>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onList()"> All </button>
@@ -9,22 +13,20 @@
     <button mat-flat-button (click)="onDelete()"> Delete </button>
   </div>
 </mat-toolbar-row>
-<mat-toolbar-row>
-  <h3> {{ name() }} </h3>
-</mat-toolbar-row>
+
 
 <div class="mat-elevation-z4">
   <table class="showTable">
     <tbody>
       <tr class="mat-row cdk-row" *ngFor="let field of fields">
         <th align="right"> {{ label( field ) }} </th>
-        <td (click)="onAttributeClick($event)" [innerHTML]="render( field ) | safe: 'html'"></td>
+        <td (click)="onAttributeClick($event)" [innerHTML]="render( field, item ) | safe: 'html'"></td>
       </tr>
     </tbody>
   </table>
 </div>
 
-<div *ngFor="let table of data.entityConfig.show.table" class="childTable">
+<!--div *ngFor="let table of data.entityConfig.show.table" class="childTable">
   <mat-toolbar-row>
     <a [routerLink]="['/admin', this.data.path, this.data.id, table.path]">
       <h3>{{ title( 'detailTable', table )}}</h3>
@@ -48,4 +50,4 @@
 
 </div>
 
-<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>
+<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb-->
