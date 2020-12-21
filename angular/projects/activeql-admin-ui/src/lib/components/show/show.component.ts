@@ -1,6 +1,7 @@
 import { ReturnStatement } from '@angular/compiler';
 import { Component } from '@angular/core';
 import _ from 'lodash';
+import { FieldConfig, FieldListConfig, UiAssocFromConfig } from '../../lib/admin-config.service';
 import { AdminActionComponent } from '../admin-action.component';
 
 @Component({
@@ -9,8 +10,30 @@ import { AdminActionComponent } from '../admin-action.component';
 })
 export class ShowComponent extends AdminActionComponent  {
 
-  get fields() { return this.config.show.fields }
+  get fields() {
+    return this.parent ?
+      _.filter(this.config.show.fields, field => field.name !== this.parent.viewType.name ) :
+      this.config.show.fields
+  }
 
+  assocFromFields( assocFrom:UiAssocFromConfig ){
+    return _.filter( assocFrom.fields, (field:FieldConfig) => field.name !== this.config.name );
+  }
+
+  assocFromItems( assocFrom:UiAssocFromConfig ){
+    const entity = _.get( this.adminConfigService.domainConfiguration, ['entity', assocFrom.entity] );
+    return _.get( this.item, entity.typesQueryName );
+  }
+
+  assocFromTitle( assocFrom:UiAssocFromConfig ){
+    const config = this.adminConfigService.getEntityViewByName( assocFrom.entity );
+    return config.listTitle();
+  }
+
+  assocFromLink( assocFrom:UiAssocFromConfig ){
+    const config = this.adminConfigService.getEntityViewByName( assocFrom.entity );
+    return ['/admin', this.config.path, this.item.id, config.path ];
+  }
 
   // get fields():FieldConfigType[] {
   //   return _.filter( this.data.entityConfig.show.fields as FieldConfigType[],

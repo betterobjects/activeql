@@ -16,8 +16,8 @@
 
 <mat-toolbar-row>
   <div>
+    <h2> {{ parent.viewType.itemTitle() }} <em>{{ parent.viewType.asParent.render( parentItem ) }}</em> </h2>
     <h1> {{ config.listTitle() }} </h1>
-    <!--h2 *ngIf="data.parent"> {{ name( data.parent.item, data.parent.entityConfig ) }} </h2-->
   </div>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
@@ -27,7 +27,7 @@
 
 <admin-table
   [parent]="null"
-  [fields]="config.index.fields"
+  [fields]="indexFields()"
   [items]="items"
   (selectItem)="onSelect($event)"
   (actionItem)="onAction($event)">

@@ -7,7 +7,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
 import { IndexComponent } from '../components/index/index.component';
 import { ShowComponent } from '../components/show/show.component';
-import { AdminConfigService, EntityViewType } from '../lib/admin-config.service';
+import { AdminConfigService, EntityViewType, ParentType } from '../lib/admin-config.service';
 // import { CreateComponent } from '../components/create/create.component';
 // import { EditComponent } from '../components/edit/edit.component';
 // import { ShowComponent } from '../components/show/show.component';
@@ -33,10 +33,8 @@ export class AdminDataResolver implements Resolve<AdminData> {
         const path = route.params['path'];
         if( ! path ) resolve( null ); // dont know why but its called when it shouldnt
         const id = route.params['id'];
-        const parentPath = route.params['parent'];
-        const parentId = route.params['parentId'];
 
-        const parent = await this.getParentData( parentPath, parentId );
+        const parent = this.getParent( route.params );
         const entityView = this.adminConfig.getEntityView( path );
         if( ! entityView ) reject( `no such config '${path}'` );
 
@@ -54,23 +52,23 @@ export class AdminDataResolver implements Resolve<AdminData> {
     });
   }
 
-  private async getParentData( path:string, id:string ):Promise<AdminData> {
-    return null;
-    // if( ! path ) return undefined;
-    // const config = this.adminService.getEntityConfig(path);
-    // if( ! config ) return this.warn( `no such config '${path}'`, undefined );
-    // return this.loadItemData( config, config.show, id );
-  }
+  private getParent( params:any ):ParentType {
+    const path = params['parent'];
+    const id = params['parentId'];
+    if( _.isNil( path ) || _.isNil( id) )  return undefined;
+    const viewType = this.adminConfig.getEntityView( path );
+    return { viewType, id }
+}
 
-  private async loadItemsData( entityView:EntityViewType, parent?:AdminData ):Promise<any> {
-    let query = entityView.index.query({});
+  private async loadItemsData( entityView:EntityViewType, parent?:ParentType ):Promise<any> {
+    let query = entityView.index.query({ parent });
     if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
     const request = { query: gql(query), fetchPolicy: 'network-only' };
     return this.loadData( request );
   }
 
-  private async loadItemData( entityView:EntityViewType, id:string, parent?:AdminData ):Promise<any> {
-    let query = entityView.show.query({ id });
+  private async loadItemData( entityView:EntityViewType, id:string, parent?:ParentType ):Promise<any> {
+    let query = entityView.show.query({ id, parent });
     if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
     const request = { query: gql(query), fetchPolicy: 'network-only' };
     return this.loadData( request );

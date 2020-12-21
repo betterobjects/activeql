@@ -1,8 +1,8 @@
 
 <mat-toolbar-row>
   <div>
+    <h2> {{ parent.viewType.itemTitle() }} <em>{{ parent.viewType.asParent.render( parentItem ) }}</em> </h2>
     <h1> {{ config.itemTitle() }} <em>{{ config.itemName( item ) }}</em> </h1>
-    <!--h2 *ngIf="data.parent"> {{ name( data.parent.item, data.parent.entityConfig ) }} </h2-->
   </div>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
@@ -26,29 +26,29 @@
   </table>
 </div>
 
-<hr>
+<div class="assocFrom" *ngFor="let assocFrom of config.show.assocFrom">
 
-<div *ngFor="let assocFrom of config.show.assocFrom">
+  <mat-toolbar-row>
+    <a [routerLink]="assocFromLink( assocFrom )">
+      <h3>{{ assocFromTitle( assocFrom ) }}</h3>
+    </a>
+    <span style="flex: 1 1 auto;"></span>
+    <div mat-dialog-actions align="end">
+      <button mat-icon-button color="accent" (click)="onNew()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar-row>
+
   <admin-table
     [parent]="null"
-    [fields]="assocFrom.fields"
-    [items]="item['cars']"
+    [fields]="assocFromFields( assocFrom )"
+    [items]="assocFromItems( assocFrom )"
     >
   </admin-table>
 </div>
 
 <!--div *ngFor="let table of data.entityConfig.show.table" class="childTable">
-  <mat-toolbar-row>
-    <a [routerLink]="['/admin', this.data.path, this.data.id, table.path]">
-      <h3>{{ title( 'detailTable', table )}}</h3>
-    </a>
-    <span style="flex: 1 1 auto;"></span>
-    <div mat-dialog-actions align="end">
-      <button mat-icon-button color="accent" (click)="onChildNew(table)">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
-  </mat-toolbar-row>
 
 
   <admin-table

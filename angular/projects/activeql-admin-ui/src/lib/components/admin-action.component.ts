@@ -1,17 +1,20 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import _ from 'lodash';
-import { ActivatedRoute, Router } from "@angular/router";
-import { AdminConfigService, EntityViewType } from "../lib/admin-config.service";
+
+import { AdminConfigService, EntityViewType, ParentType } from '../lib/admin-config.service';
 import { AdminComponent } from './admin.component';
-import { config } from 'rxjs';
 
 export class AdminActionComponent extends AdminComponent {
 
   data:any;
   config:EntityViewType;
-  parentConfig:EntityViewType;
+  parent:ParentType;
+  id:string;
 
+  get path() { return this.config.path }
   get items() { return _.get( this.data, [this.config.entity.typesQueryName]) }
   get item() { return _.get( this.data, [this.config.entity.typeQueryName]) }
+  get parentItem() { return _.get( this.data, [this.parent.viewType.entity.typeQueryName ]) }
 
   constructor(
     protected route:ActivatedRoute,
@@ -20,8 +23,12 @@ export class AdminActionComponent extends AdminComponent {
 
   ngOnInit() {
     this.route.params.subscribe( (params:any) => {
-      const path = params.path;
-      this.config = this.adminConfigService.getEntityView( path );
+      const parentPath = params['parent'];
+      const parentId = params['parentId'];
+      if( parentPath && parentId ) this.parent = {
+        viewType: this.adminConfigService.getEntityView( parentPath ), id: parentId };
+      this.config = this.adminConfigService.getEntityView( params.path );
+      this.id = params['id'];
       this.route.data.subscribe( async (data:any) => this.data = data.data);
     });
   }

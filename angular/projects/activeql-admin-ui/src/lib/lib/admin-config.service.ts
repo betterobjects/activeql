@@ -45,7 +45,9 @@ export type UiConfig = {
   query?: QueryFn
 }
 
-export type UiAssocFromConfig = UiConfig & { entity:string }
+export type UiAssocFromConfig = UiConfig & {
+  entity:string
+}
 
 export type UiShowConfig = UiConfig & {
   assocFrom?: (string|UiAssocFromConfig)[]
@@ -67,12 +69,13 @@ export type FieldConfig = {
 }
 
 export type EntityViewType = {
+  path:string
+  name: string
   entity:EntityType
   listTitle: () => string
   itemTitle: () => string
   itemName: (item:any) => string
-  path:string
-  asParent?:AsParentType
+  asParent:AsParentType
   index: {
     fields: FieldList
     query: QueryFn
@@ -104,7 +107,7 @@ export type QueryFnArgs = {
 export type FieldList = FieldConfig[]
 
 export type ParentType = {
-  entity: string
+  viewType: EntityViewType
   id: string
 }
 
@@ -166,6 +169,11 @@ export class AdminConfigService { 
     return _.get( this.entityViewTypes, path );
   }
 
+  getEntityViewByName( name:string ):EntityViewType {
+    if(_.isEmpty( this.entityViewTypes ) ) this.resolveViewTypes();
+    return _.find( this.entityViewTypes, entityViewType => entityViewType.name === name );
+  }
+
   private resolveViewTypes(){
     this.entityViewTypes = {};
     _.forEach( this.domainConfiguration.entity, (entity, name) => {
@@ -176,14 +184,15 @@ export class AdminConfigService { 
   }
 
   private resolveViewType( path:string, entity:EntityType ):EntityViewType {
-    return { path, entity,
+    return { name: entity.name, path, entity,
       listTitle: this.resolveListTitle( path ),
       itemTitle: this.resolveItemTitle( path ),
       itemName: this.resolveItemName( entity.name ),
       index: this.resolveEntityConfigIndex( path, entity ),
       show: this.resolveEntityConfigShow( path, entity ),
       create: this.resolveEntityConfigCreate( path, entity ),
-      edit: this.resolveEntityConfigEdit( path, entity )
+      edit: this.resolveEntityConfigEdit( path, entity ),
+      asParent: this.resolveAsParent( path, entity )
     }
   }
 
@@ -209,41 +218,55 @@ export class AdminConfigService { 
 
   private resolveEntityConfigIndex( path:string, entity:EntityType ){
     return {
-      fields: this.getFieldList( 'index', entity  ),
+      fields: this.getFieldListForAction( 'index', entity  ),
       query: ({parent}) => {
         if( entity.typesQuery === false ) return;
         const query = { query: {} };
-        if( parent ) this.setParentQuery( parent, query );
         const fieldList = this.getEntityView( path )['index'].fields;
         const fields = this.fieldListToQueryFields( fieldList );
-        return _.set( query, ['query', entity.typesQueryName], fields );
+        _.set( query, ['query', entity.typesQueryName], fields );
+        if( parent ) this.setParentQuery( parent, query, entity );
+        return query;
       }
+    };
+  }
+
+  private resolveAsParent( path:string, entity:EntityType ):AsParentType{
+    return {
+      query: ({id}) => {
+        if( entity.typeQuery === false ) return;
+        const query = { query: {} };
+        const fields = this.getGuessQueryFields( entity );
+        _.set( fields, '__args', {id} );
+        return _.set( query, ['query', entity.typeQueryName], fields );
+      },
+      render: (item:any) => this.guessName( item )
     };
   }
 
   private resolveEntityConfigShow( path:string, entity:EntityType ){
     return {
-      fields: this.getFieldList( 'show', entity ),
+      fields: this.getFieldListForAction( 'show', entity ),
       query: this.showQuery( path, entity ),
-      assocFrom: this.resolveShowAssocFrom( path, entity )
+      assocFrom: this.resolveShowAssocFrom( entity )
     };
   }
 
   private resolveEntityConfigCreate( path:string, entity:EntityType ){
     return {
-      fields: this.getFieldList( 'create', entity ),
+      fields: this.getFieldListForAction( 'create', entity ),
       query: this.typeQuery( 'create', path, entity )
     };
   }
 
   private resolveEntityConfigEdit( path:string, entity:EntityType ){
     return {
-      fields: this.getFieldList( 'edit', entity ),
+      fields: this.getFieldListForAction( 'edit', entity ),
       query: this.typeQuery( 'edit', path, entity )
     };
   }
 
-  private getFieldList( action:Action, entity:EntityType ){
+  private getFieldListForAction( action:Action, entity:EntityType ){
     const fields = _.get(this.adminConfig, ['entities', entity.name, action, 'fields' ] );
     return this.resolveFieldList( action, entity, fields );
   }
@@ -279,15 +302,14 @@ export class AdminConfigService { 
     return _.reduce( fieldList, (result, field) => _.merge(result, field.query() ), { id: true } );
   }
 
-  private setParentQuery( parent:ParentType, query:any ):void {
-    const path = this.getPathForEntity( parent.entity );
+  private setParentQuery( parent:ParentType, query:any, entity?:EntityType ):void {
+    const path = this.getPathForEntity( parent.viewType.path );
     const config = this.getEntityView( path );
     const asParent = config.asParent;
-    const entity = _.get( this.domainConfiguration, ['entity', parent.entity]);
-    if( ! asParent || ! entity || entity.typeQuery === false ) return;
-    const fieldList = [];
-      const fields = this.fieldListToQueryFields( fieldList );
-    _.set( query, entity.typeQueryName, fields );
+    if( ! asParent ) return;
+    const foreignKey = parent.viewType.entity.foreignKey; // or foreignKeys
+    if( entity ) _.set( query, ['query', entity.typesQueryName, '__args', 'filter', foreignKey, 'is'], parent.id );
+    _.merge( query, asParent.query({ id: parent.id } ) );
   }
 
   private resolveFieldList( action:Action, entity:EntityType, fieldList?:FieldListConfig ):FieldList {
@@ -361,9 +383,7 @@ export class AdminConfigService { 
       return this.decorateLink( name, link )
     });
     config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
-    config.query = config.query || (() => _.set({}, assocEntity.typeQueryName,
-    _.reduce( _.intersection( guessCandidates, _.keys(assocEntity) ), (result, field) =>
-      _.set( result, field, true), { id: true } ) ) );
+    config.query = config.query || (() => _.set( {}, assocEntity.typeQueryName, this.getGuessQueryFields( assocEntity ) ) );
     return config;
   }
 
@@ -392,11 +412,11 @@ export class AdminConfigService { 
       values = _.map( values, value => this.guessName( value ) );
       return _.join( values, ', ' );
     });
-    config.query = config.query || (() => _.set({}, assocEntity.typesQueryName, { id: true, firstname: true, lastname: true } ));
+    config.query = config.query || (() => _.set( {}, assocEntity.typesQueryName, this.getGuessQueryFields( assocEntity ) ) );
     return config;
   }
 
-  private resolveShowAssocFrom( path:string, entity:EntityType ){
+  private resolveShowAssocFrom( entity:EntityType ){
     const assocFromEntity = _.map( entity.assocFrom, assocFrom => assocFrom.type );
     const config = _.get( this.adminConfig, ['entites', entity.name, 'show', 'assocFrom' ], assocFromEntity );
 
@@ -417,16 +437,17 @@ export class AdminConfigService { 
     return _.set( {}, entity.typesQueryName, fields );
   }
 
-  itemLink( entity:EntityType, item:any, parent?:ParentType ){
-    const link = [this.getPathForEntity( entity.name ), 'show', item.id ];
-    if( parent ) link.unshift( this.getPathForEntity( parent.entity ), 'show', parent.id );
+  itemLink( entity:EntityType, itemOrId:any|string, parent?:ParentType ){
+    const id = _.isString( itemOrId ) ? itemOrId : _.get( itemOrId, 'id');
+    const link = [this.getPathForEntity( entity.name ), 'show', id ];
+    if( parent ) link.unshift( parent.viewType.path, parent.id );
     link.unshift( this.adminLinkPrefix );
     return link;
   }
 
   itemsLink( entity:EntityType, parent?:ParentType ){
     const link = [this.getPathForEntity( entity.name ) ];
-    if( parent ) link.unshift( this.getPathForEntity( parent.entity ), 'show', parent.id );
+    if( parent ) link.unshift( parent.viewType.path, parent.id );
     link.unshift( this.adminLinkPrefix );
     return link;
   }
@@ -455,6 +476,14 @@ export class AdminConfigService { 
     if( name ) return item[name];
     return _.get( item, 'id', _.toString( item )) ;
   }
+
+  private getGuessQueryFields( entity:EntityType ){
+    return _.reduce( _.intersection( guessCandidates, _.keys(entity.attributes) ), (result, field) =>
+      _.set( result, field, true), { id: true } );
+  }
+
+
+
 }
 
 
