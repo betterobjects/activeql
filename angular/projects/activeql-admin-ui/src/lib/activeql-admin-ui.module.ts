@@ -43,12 +43,12 @@ import { AdminRoutingModule as ActiveQLAdminRoutingModule } from './activeql-adm
 import { BreadcrumComponent } from './components/breadcumb.component';
 import { DynamicContentComponent } from './components/dynamic-content.component';
 // import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
-// import { CreateComponent } from './components/create/create.component';
+import { CreateComponent } from './components/create/create.component';
 
 // import { EditComponent } from './components/edit/edit.component';
 // import { ErrorComponent } from './components/error.component';
 // import { FileUploadComponent } from './components/file-upload.component';
-// import { FormComponent } from './components/form/form.component';
+import { FormComponent } from './components/form/form.component';
 // import { HomeComponent } from './components/home/home.component';
 import { IndexComponent } from './components/index/index.component';
 // import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
@@ -75,10 +75,10 @@ export function initializeApp1(adminService:AdminConfigService) {
     BreadcrumComponent,
     DynamicContentComponent,
     ShowComponent,
+    CreateComponent,
     // EditComponent,
-    // CreateComponent,
     // FileUploadComponent,
-    // FormComponent,
+    FormComponent,
     // ConfirmDialogComponent,
     // MessageDialogComponent,
     // ErrorComponent,
@@ -132,7 +132,7 @@ export function initializeApp1(adminService:AdminConfigService) {
     // HomeComponent,
     ShowComponent,
     // EditComponent,
-    // CreateComponent,
+    CreateComponent,
     TableComponent,
     // ErrorComponent
   ],

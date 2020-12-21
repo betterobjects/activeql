@@ -31,14 +31,16 @@ export type EntityViewConfig = {
   itemTitle?: string | (() => string)
   itemName?: (item:any) => string
   path?:string
-  asParent?:AsParentType
+  asParent?:AsReferenceType
+  asLookup?:AsReferenceType
   index?: UiConfig
   show?: UiShowConfig
   create?: UiConfig
   edit?: UiConfig
 }
 
-export type AsParentType = {
+
+export type AsReferenceType = {
   query?: QueryFn
   render?: (item:any) => string
 }
@@ -69,6 +71,7 @@ export type FieldConfig = {
   required?:boolean
   list?:boolean
   query?:()=> string|any
+  control?:string
 }
 
 export type EntityViewType = {
@@ -78,7 +81,8 @@ export type EntityViewType = {
   listTitle: () => string
   itemTitle: () => string
   itemName: (item:any) => string
-  asParent:AsParentType
+  asParent:AsReferenceType
+  asLookup:AsReferenceType
   index: {
     fields: FieldList
     query: QueryFn
@@ -113,6 +117,12 @@ export type ParentType = {
   viewType: EntityViewType
   id: string
 }
+
+export type ViolationType = {
+  attribute:string
+  message:string
+}
+
 
 const foo:AdminConfig = {
   entities: {
@@ -206,7 +216,8 @@ export class AdminConfigService { 
       show: this.resolveEntityConfigShow( path, entity ),
       create: this.resolveEntityConfigCreate( path, entity ),
       edit: this.resolveEntityConfigEdit( path, entity ),
-      asParent: this.resolveAsParent( path, entity )
+      asParent: this.resolveAsParent( path, entity ),
+      asLookup: this.resolveAsLookup( path, entity )
     }
   }
 
@@ -245,7 +256,7 @@ export class AdminConfigService { 
     };
   }
 
-  private resolveAsParent( path:string, entity:EntityType ):AsParentType{
+  private resolveAsParent( path:string, entity:EntityType ):AsReferenceType{
     return {
       query: ({id}) => {
         if( entity.typeQuery === false ) return;
@@ -253,6 +264,18 @@ export class AdminConfigService { 
         const fields = this.getGuessQueryFields( entity );
         _.set( fields, '__args', {id} );
         return _.set( query, ['query', entity.typeQueryName], fields );
+      },
+      render: (item:any) => this.guessName( item )
+    };
+  }
+
+  private resolveAsLookup( path:string, entity:EntityType ):AsReferenceType{
+    return {
+      query: () => {
+        if( entity.typesQuery === false ) return;
+        const query = {};
+        const fields = this.getGuessQueryFields( entity );
+        return _.set( query, [entity.typesQueryName], fields );
       },
       render: (item:any) => this.guessName( item )
     };
@@ -269,7 +292,7 @@ export class AdminConfigService { 
   private resolveEntityConfigCreate( path:string, entity:EntityType ){
     return {
       fields: this.getFieldListForAction( 'create', entity ),
-      query: this.typeQuery( 'create', path, entity )
+      query: this.createQuery( entity )
     };
   }
 
@@ -296,6 +319,22 @@ export class AdminConfigService { 
       _.set( fields, '__args', {id} );
       _.set( query, ['query', entity.typeQueryName], fields );
       _.forEach( showConfig.assocFrom, assocFrom => _.merge( query.query[entity.typeQueryName], assocFrom.query ) );
+      return query;
+    }
+  }
+
+  private createQuery( entity:EntityType ){
+    return () => {
+      if( entity.createMutation === false ) return;
+      const query = { query: {} };
+      _.forEach( entity.assocTo, assocTo => {
+        const config = this.getEntityViewByName( assocTo.type );
+        _.merge( query.query, config.asLookup.query({}) );
+      });
+      _.forEach( entity.assocToMany, assocToMany => {
+        const config = this.getEntityViewByName( assocToMany.type );
+        _.merge( query.query, config.asLookup.query({}) );
+      });
       return query;
     }
   }
@@ -401,6 +440,7 @@ export class AdminConfigService { 
     });
     config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
     config.query = config.query || (() => _.set( {}, assocEntity.typeQueryName, this.getGuessQueryFields( assocEntity ) ) );
+    config.control = 'select';
     return config;
   }
 
@@ -420,6 +460,7 @@ export class AdminConfigService { 
     });
     config.value = config.value || ((item:any) => {
       let values = _.get( item, assocEntity.typesQueryName );
+      if( _.isNil( values) ) return undefined;
       if( ! _.isArray( values ) ) values = [values];
       return _.map( values, value => value.id );
     });
@@ -430,6 +471,7 @@ export class AdminConfigService { 
       return _.join( values, ', ' );
     });
     config.query = config.query || (() => _.set( {}, assocEntity.typesQueryName, this.getGuessQueryFields( assocEntity ) ) );
+    config.control = 'multiple';
     return config;
   }
 
@@ -614,10 +656,6 @@ export class AdminConfigService { 
 //   violations:ViolationType[]
 // }
 
-// export type ViolationType = {
-//   attribute:string
-//   message:string
-// }
 
 
 // // @dynamic

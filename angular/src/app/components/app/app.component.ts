@@ -22,7 +22,7 @@ export class AppComponent implements OnInit{
 
   loading = false;
   isCollapsed = false;
-  entities:EntityViewType[];
+  entities:EntityViewType[] = [];
 
   get user() { return this.loginService.user }
 

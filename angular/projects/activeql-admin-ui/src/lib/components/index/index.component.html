@@ -16,7 +16,12 @@
 
 <mat-toolbar-row>
   <div>
-    <h2 *ngIf="parent"> {{ parent.viewType.itemTitle() }} <em>{{ parent.viewType.asParent.render( parentItem ) }}</em> </h2>
+    <h2 *ngIf="parent">
+      <a [routerLink]="viewTypeLink( parent.viewType, parent.id )">
+        {{ parent.viewType.itemTitle() }}
+        <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
+      </a>
+    </h2>
     <h1> {{ config.listTitle() }} </h1>
   </div>
   <span style="flex: 1 1 auto;"></span>

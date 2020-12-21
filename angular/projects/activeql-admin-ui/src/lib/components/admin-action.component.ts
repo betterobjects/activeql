@@ -34,11 +34,11 @@ export class AdminActionComponent extends AdminComponent {
   }
 
   goto( viewType:EntityViewType, id?:string, parent?:ParentType ){
-    const link = this.getViewTypeLink( viewType, id, parent );
+    const link = this.viewTypeLink( viewType, id, parent );
     this.router.navigate( link );
   }
 
-  getViewTypeLink( viewType:EntityViewType, id?:string, parent?:ParentType ){
+  viewTypeLink( viewType:EntityViewType, id?:string, parent?:ParentType ){
     const link = [viewType.path ];
     if( id ) link.push( 'show', id)
     if( parent ) link.unshift( parent.viewType.path, parent.id );
@@ -47,7 +47,7 @@ export class AdminActionComponent extends AdminComponent {
   }
 
   onList() { this.router.navigate( this.adminConfigService.itemsLink( this.config.entity )) }
-  onNew() { console.log( 'onNew' ) }
+  onNew() { this.router.navigate( _.concat( this.adminConfigService.itemsLink( this.config.entity ), 'new' ) ) }
   onEdit() { console.log( 'onEdit' ) }
   onDelete() { console.log( 'onDelete' ) }
 

@@ -8,6 +8,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { IndexComponent } from '../components/index/index.component';
 import { ShowComponent } from '../components/show/show.component';
 import { AdminConfigService, EntityViewType, ParentType } from '../services/admin-config.service';
+import { CreateComponent } from '../components/create/create.component';
 // import { CreateComponent } from '../components/create/create.component';
 // import { EditComponent } from '../components/edit/edit.component';
 // import { ShowComponent } from '../components/show/show.component';
@@ -38,8 +39,8 @@ export class AdminDataResolver implements Resolve<any> {
         const load =
           route.component === IndexComponent ? this.loadItemsData( entityView, parent ) :
           route.component === ShowComponent ? this.loadItemData( entityView, id, parent ) :
+          route.component === CreateComponent ? this.loadDataForCreate( entityView, parent ) :
           // route.component === EditComponent ? this.loadItemData( entityConfig, entityConfig.form, id, parent ) :
-          // route.component === CreateComponent ? this.loadDataForCreate( entityConfig, entityConfig.form, parent ) :
           undefined;
         const adminData = await load;
         resolve( adminData );
@@ -66,6 +67,13 @@ export class AdminDataResolver implements Resolve<any> {
 
   private async loadItemData( entityView:EntityViewType, id:string, parent?:ParentType ):Promise<any> {
     let query = entityView.show.query({ id, parent });
+    if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
+    const request = { query: gql(query), fetchPolicy: 'network-only' };
+    return this.loadData( request );
+  }
+
+  private async loadDataForCreate( entityView:EntityViewType,parent?:ParentType ):Promise<any> {
+    let query = entityView.create.query({ parent });
     if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
     const request = { query: gql(query), fetchPolicy: 'network-only' };
     return this.loadData( request );

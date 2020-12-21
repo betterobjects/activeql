@@ -35,12 +35,12 @@
           </mat-error>
         </mat-form-field>
 
-        <admin-file-upload
+        <!--admin-file-upload
             *ngSwitchCase="'File'"
             [field]="field"
             [item]="data.item"
             (onLoad)="this.onFileLoad($event)">
-        </admin-file-upload>
+        </admin-file-upload-->
 
         <mat-form-field *ngSwitchDefault >
           <mat-label>{{ label( field ) }}</mat-label>
