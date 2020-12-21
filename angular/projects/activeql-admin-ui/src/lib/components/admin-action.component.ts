@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import _ from 'lodash';
 
-import { AdminConfigService, EntityViewType, ParentType } from '../lib/admin-config.service';
+import { AdminConfigService, EntityViewType, ParentType } from '../services/admin-config.service';
 import { AdminComponent } from './admin.component';
 
 export class AdminActionComponent extends AdminComponent {
@@ -31,6 +31,19 @@ export class AdminActionComponent extends AdminComponent {
       this.id = params['id'];
       this.route.data.subscribe( async (data:any) => this.data = data.data);
     });
+  }
+
+  goto( viewType:EntityViewType, id?:string, parent?:ParentType ){
+    const link = this.getViewTypeLink( viewType, id, parent );
+    this.router.navigate( link );
+  }
+
+  getViewTypeLink( viewType:EntityViewType, id?:string, parent?:ParentType ){
+    const link = [viewType.path ];
+    if( id ) link.push( 'show', id)
+    if( parent ) link.unshift( parent.viewType.path, parent.id );
+    link.unshift( this.adminConfigService.adminLinkPrefix );
+    return link;
   }
 
   onList() { this.router.navigate( this.adminConfigService.itemsLink( this.config.entity )) }

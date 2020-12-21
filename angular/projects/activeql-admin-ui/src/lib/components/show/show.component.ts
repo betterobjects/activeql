@@ -1,7 +1,7 @@
 import { ReturnStatement } from '@angular/compiler';
 import { Component } from '@angular/core';
 import _ from 'lodash';
-import { FieldConfig, FieldListConfig, UiAssocFromConfig } from '../../lib/admin-config.service';
+import { FieldConfig, FieldListConfig, UiAssocFromConfig } from '../../services/admin-config.service';
 import { AdminActionComponent } from '../admin-action.component';
 
 @Component({
@@ -14,6 +14,15 @@ export class ShowComponent extends AdminActionComponent  {
     return this.parent ?
       _.filter(this.config.show.fields, field => field.name !== this.parent.viewType.name ) :
       this.config.show.fields
+  }
+
+  onSelect( assocFrom:UiAssocFromConfig ){
+    const viewType = this.adminConfigService.getEntityViewByName( assocFrom.entity );
+    return (id:string) => this.goto( viewType, id, { viewType: this.config, id: this.id} );
+  }
+
+  onAction( assocFrom:UiAssocFromConfig ){
+    return ({id,action}) => console.log( assocFrom.entity, action, id );
   }
 
   assocFromFields( assocFrom:UiAssocFromConfig ){

@@ -1,7 +1,7 @@
 
 <mat-toolbar-row>
   <div>
-    <h2> {{ parent.viewType.itemTitle() }} <em>{{ parent.viewType.asParent.render( parentItem ) }}</em> </h2>
+    <h2 *ngIf="parent"> {{ parent.viewType.itemTitle() }} <em>{{ parent.viewType.asParent.render( parentItem ) }}</em> </h2>
     <h1> {{ config.itemTitle() }} <em>{{ config.itemName( item ) }}</em> </h1>
   </div>
   <span style="flex: 1 1 auto;"></span>
@@ -41,10 +41,11 @@
   </mat-toolbar-row>
 
   <admin-table
-    [parent]="null"
     [fields]="assocFromFields( assocFrom )"
     [items]="assocFromItems( assocFrom )"
-    >
+    (selectItem)="onSelect(assocFrom)($event)"
+    (actionItem)="onSelect(assocFrom)($event)">
+
   </admin-table>
 </div>
 

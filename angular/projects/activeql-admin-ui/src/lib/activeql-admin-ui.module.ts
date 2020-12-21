@@ -55,15 +55,15 @@ import { IndexComponent } from './components/index/index.component';
 import { ShowComponent } from './components/show/show.component';
 import { TableComponent } from './components/table/table.component';
 
-import { AdminConfigService } from './lib/admin-config.service';
+import { AdminConfigService } from './services/admin-config.service';
 import { SafePipe } from './pipes/safe.pipe';
 // import { AdminDataResolver } from './services/admin-data.resolver';
-import { AdminService } from './services/admin.service';
+
 
 registerLocaleData(en);
 
 // @dynamic
-export function initializeApp1(adminService:AdminService) {
+export function initializeApp1(adminService:AdminConfigService) {
   return () => adminService.init( async ():Promise<any> => ActiveQLAdminUIModule.adminConfig );
 }
 
@@ -137,10 +137,9 @@ export function initializeApp1(adminService:AdminService) {
     // ErrorComponent
   ],
   providers: [
-    AdminService,
     AdminConfigService,
     // AdminDataResolver,
-    { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminService], multi: true },
+    { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminConfigService], multi: true },
   ]
 })
 export class ActiveQLAdminUIModule {

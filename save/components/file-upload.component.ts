@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { Component, EventEmitter, Output, Input, ViewChild, ElementRef } from '@angular/core';
-import { FieldConfigType } from '../lib/admin-config';
+import { FieldConfigType } from '../services/admin-config';
 import { AdminComponent } from './admin.component';
 
 @Component({

@@ -14,6 +14,5 @@ export * from './lib/components/show/show.component';
 // export * from './lib/components/message-dialog/message-dialog.component';
 // export * from './lib/components/table/table.component';
 // export * from './lib/components/dyn-content.component';
-export * from './lib/services/admin.service';
-
+export * from './lib/services/admin-config.service';
 

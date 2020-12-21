@@ -1,4 +1,4 @@
-import { FieldConfig } from "../lib/admin-config.service"
+import { FieldConfig } from "../services/admin-config.service"
 import _ from 'lodash';
 
 export class AdminComponent {

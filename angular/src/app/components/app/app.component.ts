@@ -11,6 +11,7 @@ NavigationStart,
 Router
 } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service';
+import { AdminConfigService, EntityViewType } from 'activeql-admin-ui';
 
 @Component({
   selector: 'app-root',
@@ -21,18 +22,18 @@ export class AppComponent implements OnInit{
 
   loading = false;
   isCollapsed = false;
-  // entities:EntityConfigType[]
+  entities:EntityViewType[];
 
   get user() { return this.loginService.user }
 
   constructor(
     private router:Router,
-    // private adminService:AdminService,
+    private adminConfig:AdminConfigService,
     private loginService:LoginService
   ) {}
 
   ngOnInit(){
-    // this.entities = this.adminService.getMenuEntities();
+    this.adminConfig.onReady.addListener( 'resolved', () => this.entities = _.values( this.adminConfig.entityViewTypes  ) );
     this.router.events.subscribe((event:Event) => {
       switch (true) {
         case event instanceof NavigationStart: {

@@ -1,6 +1,9 @@
+import { Injectable } from '@angular/core';
+import { EventEmitter } from 'events';
 import inflection from 'inflection';
 import _ from 'lodash';
-import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from './domain-configuration';
+import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from '../lib/domain-configuration';
+import { MetaDataService } from './meta-data.service';
 
 const nameCandidates = ['name', 'Name', 'NAME'];
 const keyCandidates = ['key', 'Key', 'KEY', 'id', 'Id', 'ID'];
@@ -141,6 +144,7 @@ const foo:AdminConfig = {
 }
 
 
+@Injectable({providedIn: 'root'})
 export class AdminConfigService { 
 
   adminConfig:AdminConfig = {
@@ -153,11 +157,20 @@ export class AdminConfigService { 
       }
     }
   };
+
+
   entityViewTypes:{[name:string]:EntityViewType} = {};
-
   domainConfiguration:DomainConfigurationType = { entity: {}, enum: {} }
-
+  onReady = new EventEmitter();
   get adminLinkPrefix() { return this.adminConfig.adminLinkPrefix || '/admin' }
+
+  constructor( private metaDataService:MetaDataService ){}
+
+  async init( adminConfig:() => Promise<any> ):Promise<any> {
+    const metaData = await this.metaDataService.getMetaData();
+    this.domainConfiguration = metaData;
+  }
+
 
   /** @deprecated */
   getEntityConfig( path:string ){
@@ -181,6 +194,7 @@ export class AdminConfigService { 
       const path = this.getPathForEntity( name );
       _.set( this.entityViewTypes, path, this.resolveViewType( path, entity ) );
     })
+    this.onReady.emit('resolved');
   }
 
   private resolveViewType( path:string, entity:EntityType ):EntityViewType {
@@ -307,9 +321,12 @@ export class AdminConfigService { 
     const config = this.getEntityView( path );
     const asParent = config.asParent;
     if( ! asParent ) return;
-    const foreignKey = parent.viewType.entity.foreignKey; // or foreignKeys
-    if( entity ) _.set( query, ['query', entity.typesQueryName, '__args', 'filter', foreignKey, 'is'], parent.id );
     _.merge( query, asParent.query({ id: parent.id } ) );
+    if( ! entity ) return query;
+    const isAsscoToOne = _.find( entity.assocTo, assocTo => assocTo.type === parent.viewType.entity.name );
+    const foreignKey = isAsscoToOne ? parent.viewType.entity.foreignKey : parent.viewType.entity.foreignKeys;
+    const filterCond = isAsscoToOne ? 'is' : 'isIn';
+    return _.set( query, ['query', entity.typesQueryName, '__args', 'filter', foreignKey, filterCond], parent.id );
   }
 
   private resolveFieldList( action:Action, entity:EntityType, fieldList?:FieldListConfig ):FieldList {

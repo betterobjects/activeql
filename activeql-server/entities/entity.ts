@@ -121,6 +121,10 @@ export class Entity {
       _.get( this.runtime.entity(assocTo.type), 'foreignKey' ) === name );
     if( assocTo ) return 'IDFilter';
 
+    const assocToMany = _.find( this.assocToMany, assocToMany =>
+      _.get( this.runtime.entity(assocToMany.type), 'foreignKeys' ) === name );
+    if( assocToMany ) return 'IDFilter';
+
     const assocFrom = _.find( this.assocFrom, assocFrom =>
       _.get( this.runtime.entity(assocFrom.type), 'plural' ) === name );
     if( assocFrom ) return 'AssocFromFilter';

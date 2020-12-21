@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as _ from 'lodash';
 
 import { Subject } from 'rxjs';
-import { FieldConfigType, ViolationType } from '../../lib/admin-config';
+import { FieldConfigType, ViolationType } from '../../services/admin-config';
 import { AdminData } from '../../lib/admin-data';
 import { AdminService } from '../../services/admin.service';
 

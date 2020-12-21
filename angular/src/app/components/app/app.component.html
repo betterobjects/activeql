@@ -4,12 +4,12 @@
     <mat-toolbar-row>
       <a href="/"><h1>ActiveQL</h1></a>
       <span class="menu-spacer"></span>
-      <!--div>
+      <div>
         <ng-container *ngIf="entities.length < 5">
           <a *ngFor="let entity of entities"
               mat-button
               [routerLink]="['admin', entity.path]">
-            {{ title(entity) }}
+            {{ entity.listTitle() }}
           </a>
         </ng-container>
 
@@ -19,12 +19,12 @@
             <a *ngFor="let entity of entities"
                 mat-menu-item
                 [routerLink]="['admin', entity.path]">
-              {{ title(entity) }}
+              {{ entity.listTitle() }}
             </a>
           </mat-menu>
         </ng-container>
 
-      </div-->
+      </div>
       <span class="flex-spacer"></span>
       <button *ngIf="user" mat-button>
         <mat-icon>person</mat-icon>

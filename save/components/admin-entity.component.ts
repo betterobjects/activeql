@@ -2,7 +2,7 @@ import { OnInit, HostListener } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
-import { ActionEventType, TitlePurposeType, EntityConfigType, FieldConfigType } from '../lib/admin-config';
+import { ActionEventType, TitlePurposeType, EntityConfigType, FieldConfigType } from '../services/admin-config';
 import { AdminData } from '../lib/admin-data';
 import { AdminService } from '../services/admin.service';
 

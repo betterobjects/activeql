@@ -6,7 +6,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AdminService } from 'activeql-admin-ui';
+import { AdminConfigService } from 'activeql-admin-ui';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AboutComponent } from './components/about/about.component';
@@ -108,7 +108,7 @@ registerLocaleData(en);
     MatTabsModule
   ],
   providers: [
-    AdminService
+    AdminConfigService
   ],
   bootstrap: [AppComponent]
 })

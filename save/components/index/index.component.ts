@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { AdminConfigService } from '../../lib/admin-config.service';
+import { AdminConfigService } from '../../services/admin-config.service';
 
 @Component({
   templateUrl: './index.component.html',

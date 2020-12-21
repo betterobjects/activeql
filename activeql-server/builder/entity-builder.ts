@@ -179,6 +179,9 @@ export class EntityBuilder extends TypeBuilder {
       () => _.reduce( assocToMany, (fields, ref) => this.addAssocToManyForeignKeysToInput( fields, ref ), {} ));
     this.graphx.type(this.entity.filterTypeName).extendFields( // re-use input for filter intentionally
       () => _.reduce( assocToMany, (fields, ref) => this.addAssocToManyForeignKeysToInput( fields, ref ), {} ));
+    this.graphx.type(this.entity.filterTypeName).extendFields(
+      () => _.reduce( assocToMany, (fields, ref) => this.addAssocToManyToFilter( fields, ref ), {} ));
+
     }
 
   //
@@ -202,6 +205,14 @@ export class EntityBuilder extends TypeBuilder {
     return fields;
   }
 
+  private addAssocToManyToFilter( fields:any, ref:AssocType ):any {
+    const refEntity = this.runtime.entities[ref.type];
+    const filterType = this.runtime.filterTypes['IDFilter'];
+    _.set( fields, refEntity.foreignKeys, { type: filterType ? this.graphx.type(filterType.name()) : GraphQLID });
+    if( refEntity.isPolymorph ) _.set( fields, refEntity.typeField,
+      { type: this.graphx.type( refEntity.typesEnumName ) } );
+    return fields;
+  }
 
   //
   //

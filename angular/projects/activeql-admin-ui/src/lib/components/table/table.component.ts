@@ -5,7 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { FieldList, FieldConfig  } from '../../lib/admin-config.service';
+import { FieldList, FieldConfig  } from '../../services/admin-config.service';
 import { AdminComponent } from '../admin.component';
 
 @Component({
@@ -18,7 +18,6 @@ export class TableComponent extends AdminComponent {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   @Input() fields:FieldList
-  @Input() parent:string|undefined
   @Output() selectItem = new EventEmitter<any>();
   @Output() actionItem = new EventEmitter<{id:any, action:string}>();
   @Input() set items( items:any[]){ this.setDataSource( items ) }
@@ -32,7 +31,7 @@ export class TableComponent extends AdminComponent {
     this.dataSource = new MatTableDataSource(items);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.dataSource.sortingDataAccessor = (item, property) => this.value( item, property );
+    this.dataSource.sortingDataAccessor = (item, property) => this.sortValue( item, property );
     this.prepareSearch();
   }
 
@@ -50,9 +49,9 @@ export class TableComponent extends AdminComponent {
 
   private getFieldConfig( name:string ){ return _.find( this.fields, field => field.name === name ) }
 
-  private value( item:any, fieldName:string ){
+  private sortValue( item:any, fieldName:string ){
     const field = this.getFieldConfig( fieldName );
-    return field ? field.value( item ) : '';
+    return field ? field.sortValue( item ) : '';
   }
 
   private prepareSearch(){

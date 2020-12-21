@@ -7,27 +7,24 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
 import { IndexComponent } from '../components/index/index.component';
 import { ShowComponent } from '../components/show/show.component';
-import { AdminConfigService, EntityViewType, ParentType } from '../lib/admin-config.service';
+import { AdminConfigService, EntityViewType, ParentType } from '../services/admin-config.service';
 // import { CreateComponent } from '../components/create/create.component';
 // import { EditComponent } from '../components/edit/edit.component';
 // import { ShowComponent } from '../components/show/show.component';
-// import { AssocConfigType, EntityConfigType, FieldConfigType, UiConfigType } from '../lib/admin-config';
-import { AdminData } from '../lib/admin-data';
-import { AdminService } from './admin.service';
+// import { AssocConfigType, EntityConfigType, FieldConfigType, UiConfigType } from '../services/admin-config';
 
 
 
 @Injectable({ providedIn: 'root' })
-export class AdminDataResolver implements Resolve<AdminData> {
+export class AdminDataResolver implements Resolve<any> {
 
   constructor(
-    private adminService:AdminService,
     private adminConfig:AdminConfigService,
     protected apollo:Apollo,
     private router:Router
     ) {}
 
-  resolve(route:ActivatedRouteSnapshot, state:RouterStateSnapshot):Promise<AdminData> {
+  resolve(route:ActivatedRouteSnapshot, state:RouterStateSnapshot):Promise<any> {
     return new Promise( async (resolve, reject) => {
       try {
         const path = route.params['path'];
