@@ -19,7 +19,7 @@ export class TableComponent extends AdminComponent {
 
   @Input() fields:FieldList
   @Output() selectItem = new EventEmitter<any>();
-  @Output() actionItem = new EventEmitter<{id:any, action:string}>();
+  @Output() actionItem = new EventEmitter<{item:any, action:string}>();
   @Input() set items( items:any[]){ this.setDataSource( items ) }
 
   dataSource:MatTableDataSource<any> = null;
@@ -44,8 +44,8 @@ export class TableComponent extends AdminComponent {
 
   onSearch = ($event:any) => this.searchEntered.next($event);
   onSelect = (id:any) => this.selectItem.emit( id );
-  onEdit = (id:any) => this.actionItem.emit({ id, action: 'edit'} );
-  onDelete = (id:any) => this.actionItem.emit({ id, action: 'delete'} );
+  onEdit = (item:any) => this.actionItem.emit({ item, action: 'edit'} );
+  onDelete = (item:any) => this.actionItem.emit({ item, action: 'delete'} );
 
   private getFieldConfig( name:string ){ return _.find( this.fields, field => field.name === name ) }
 

@@ -21,6 +21,7 @@ export class IndexComponent extends AdminActionComponent {
   }
 
   onAction( event:any ){
-    if( event.action === 'edit' ) return this.onEdit( this.viewType, event.id );
+    if( event.action === 'edit' ) return this.onEdit( this.viewType, event.item.id );
+    if( event.action === 'delete' ) return this.onDelete( this.viewType, event.item );
   }
 }

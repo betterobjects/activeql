@@ -75,7 +75,7 @@ export class AdminActionComponent extends AdminComponent {
   }
 
   private async doDelete( viewType:EntityViewType, id:string ){
-    const violations = await this.adminDataService.delete( id, this.viewType.entity );
+    const violations = await this.adminDataService.delete( id, viewType.entity );
     if( _.size( violations ) === 0 ) return this.onDeleteSuccess( viewType );
     const message = _.join(violations, '\n');
     const dialogData = new ConfirmDialogModel('Could not delete', message);
