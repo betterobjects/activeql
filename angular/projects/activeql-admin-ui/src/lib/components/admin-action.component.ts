@@ -1,3 +1,4 @@
+import { HostListener } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -88,4 +89,11 @@ export class AdminActionComponent extends AdminComponent {
     setTimeout( ()=> this.onList(), 500 );
   }
 
+  @HostListener('click', ['$event'])
+  public onClick(event:any) {
+    if (event.target.tagName === 'A' && _.includes(event.target.classList, 'router-link')) {
+      this.router.navigate([event.target.getAttribute('href')]);
+      event.preventDefault();
+    }
+  }
 }

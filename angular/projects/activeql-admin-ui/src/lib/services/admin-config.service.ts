@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EventEmitter } from 'events';
 import inflection from 'inflection';
 import _ from 'lodash';
-import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from '../lib/domain-configuration';
+import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from './domain-configuration';
 import { MetaDataService } from './meta-data.service';
 
 const nameCandidates = ['name', 'Name', 'NAME'];
@@ -539,7 +539,7 @@ export class AdminConfigService { 
     if( ! link ) return value;
     if( ! _.isArray( link ) ) link = [link];
     link = _.join( link, '/' );
-    return `<a href="${link}">${value}</a>`;
+    return `<a class="router-link" href="${link}">${value}</a>`;
   }
 
   private getPathForEntity( entity:string ):string {
