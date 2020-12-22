@@ -72,6 +72,7 @@ export type FieldConfig = {
   list?:boolean
   query?:()=> string|any
   control?:string
+  options?:(data:any) => FormOptionType[]
 }
 
 export type EntityViewType = {
@@ -123,35 +124,17 @@ export type ViolationType = {
   message:string
 }
 
-
-const foo:AdminConfig = {
-  entities: {
-    Car: {
-      path: 'autos',
-      listTitle: () => 'Cars',
-      itemTitle: () => 'Car',
-      itemName: (item:any) => _.get( item, 'licence' ),
-      asParent: {
-        query: () => `query{ foo }`,
-        render: (item:any) => _.get( item, 'some')
-      },
-      index: {
-        fields: ['id','licence','color'],
-      },
-      show: {
-        fields: ['id', 'foo', 'bar'],
-        assocFrom: ['Driver', { entity: 'Foo', query: null , fields: null }]
-
-      }
-    },
-    Organisation: {
-      index: {
-        fields: ['id', 'name', 'some'],
-        query: () => `query{ organisations( filter:{} ) }`
-      }
-  },
-  }
+export type FormOptionType = {
+  value:string
+  label:string
 }
+
+export type SaveResult = {
+  id?: null
+  violations?: ViolationType[]
+}
+
+
 
 
 @Injectable({providedIn: 'root'})
@@ -179,8 +162,8 @@ export class AdminConfigService { 
   async init( adminConfig:() => Promise<any> ):Promise<any> {
     const metaData = await this.metaDataService.getMetaData();
     this.domainConfiguration = metaData;
+    this.resolveViewTypes();
   }
-
 
   /** @deprecated */
   getEntityConfig( path:string ){
@@ -204,7 +187,6 @@ export class AdminConfigService { 
       const path = this.getPathForEntity( name );
       _.set( this.entityViewTypes, path, this.resolveViewType( path, entity ) );
     })
-    this.onReady.emit('resolved');
   }
 
   private resolveViewType( path:string, entity:EntityType ):EntityViewType {
@@ -299,7 +281,7 @@ export class AdminConfigService { 
   private resolveEntityConfigEdit( path:string, entity:EntityType ){
     return {
       fields: this.getFieldListForAction( 'edit', entity ),
-      query: this.typeQuery( 'edit', path, entity )
+      query: this.editQuery( path, entity )
     };
   }
 
@@ -324,9 +306,10 @@ export class AdminConfigService { 
   }
 
   private createQuery( entity:EntityType ){
-    return () => {
+    return ({parent}) => {
       if( entity.createMutation === false ) return;
       const query = { query: {} };
+      if( parent ) this.setParentQuery( parent, query );
       _.forEach( entity.assocTo, assocTo => {
         const config = this.getEntityViewByName( assocTo.type );
         _.merge( query.query, config.asLookup.query({}) );
@@ -339,17 +322,28 @@ export class AdminConfigService { 
     }
   }
 
-  private typeQuery( action:Action, path:string, entity:EntityType ){
-    return ({id, parent}) => {
-      if( entity.typeQuery === false ) return;
+  private editQuery( path:string, entity:EntityType ){
+    return ({parent, id}) => {
+      if( entity.updateMutation === false ) return;
+      const editConfig = this.getEntityView( path ).edit;
       const query = { query: {} };
       if( parent ) this.setParentQuery( parent, query );
-      const fieldList = this.getEntityView( path )[action].fields;
+      const fieldList = editConfig.fields;
       const fields = this.fieldListToQueryFields( fieldList );
       _.set( fields, '__args', {id} );
-      return _.set( query, ['query', entity.typeQueryName], fields );
+      _.set( query, ['query', entity.typeQueryName], fields );
+      _.forEach( entity.assocTo, assocTo => {
+        const config = this.getEntityViewByName( assocTo.type );
+        _.merge( query.query, config.asLookup.query({}) );
+      });
+      _.forEach( entity.assocToMany, assocToMany => {
+        const config = this.getEntityViewByName( assocToMany.type );
+        _.merge( query.query, config.asLookup.query({}) );
+      });
+      return query;
     }
   }
+
 
   private fieldListToQueryFields( fieldList:FieldList ) {
     return _.reduce( fieldList, (result, field) => _.merge(result, field.query() ), { id: true } );
@@ -409,20 +403,39 @@ export class AdminConfigService { 
 
   private resolveAttributeField( action:Action, attribute:AttributeType, config:FieldConfig ):FieldConfig {
     if( action === 'create' && attribute.createInput === false ) return undefined;
-    config.type = attribute.type;
+    config.type = this.isEnum( attribute.type ) ? 'enum' : attribute.type;
     config.list = attribute.list;
     config.label = config.label || inflection.humanize( config.name )
     config.required = config.required || attribute.required
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
     config.render = config.render || (( item:any, parent:ParentType ) => {
-      const value = config.value( item );
+      let value = config.value( item );
+      if( config.type === 'enum' ) value = _.get( this.domainConfiguration, ['enum', attribute.type, value], value );
       return _.isArray( value ) ? value.join(', ') : value;
     });
     config.value = config.value || ((item:any) => _.get(item, config.name) );
     config.sortValue = config.sortValue || config.value;
     config.query = config.query || (() => _.set( {}, config.name, attribute.objectTypeField ));
+    if( config.type === 'enum' && ! config.options ) config.options = this.defaultEnumOptionsFn( attribute.type );
+    this.setAttributeControl( config, attribute );
     return config;
   }
+
+  private isEnum = ( type:string ) => _(this.domainConfiguration.enum).keys().includes( type )
+
+  private setAttributeControl( field:FieldConfig, attribute:AttributeType ):string|undefined {
+    if( field.control ) return;
+    if( field.options ) return field.control = attribute.list ? 'multiple' : 'select';
+    if( _.includes(['Int', 'Float' ], attribute.type ) ) return field.control = 'number';
+  }
+
+  private defaultEnumOptionsFn = (enumName:string) => () => {
+    const enumValues = _.get(this.domainConfiguration, ['enum', enumName] );
+    const options = [];
+    _.forEach( enumValues, (label, value) => options.push( { label, value } ) );
+    return options;
+  }
+
 
   private resolveAssocToField( action:Action, assocTo:AssocToType, config:FieldConfig ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocTo.type]);
@@ -441,6 +454,7 @@ export class AdminConfigService { 
     config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
     config.query = config.query || (() => _.set( {}, assocEntity.typeQueryName, this.getGuessQueryFields( assocEntity ) ) );
     config.control = 'select';
+    config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
     return config;
   }
 
@@ -471,8 +485,17 @@ export class AdminConfigService { 
       return _.join( values, ', ' );
     });
     config.query = config.query || (() => _.set( {}, assocEntity.typesQueryName, this.getGuessQueryFields( assocEntity ) ) );
+    config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
     config.control = 'multiple';
     return config;
+  }
+
+  private defaultAssocOptionsMethod( assocEntity:EntityType ){
+    return (data:any) => {
+      const assocView = this.getEntityViewByName( assocEntity.name );
+      const values = _.get( data, assocEntity.typesQueryName );
+      return _.map( values, value => ({ value: value.id, label: assocView.asLookup.render( value ) } ) );
+    };
   }
 
   private resolveShowAssocFrom( entity:EntityType ){

@@ -17,16 +17,16 @@
 <mat-toolbar-row>
   <div>
     <h2 *ngIf="parent">
-      <a [routerLink]="viewTypeLink( parent.viewType, parent.id )">
+      <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
         {{ parent.viewType.itemTitle() }}
         <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
       </a>
     </h2>
-    <h1> {{ config.listTitle() }} </h1>
+    <h1> {{ viewType.listTitle() }} </h1>
   </div>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
-    <button mat-flat-button color="primary" (click)="onNew()"> New {{ config.itemTitle() }} </button>
+    <button mat-flat-button color="primary" (click)="onNew()"> New {{ viewType.itemTitle() }} </button>
   </div>
 </mat-toolbar-row>
 

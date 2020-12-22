@@ -11,14 +11,16 @@ export class IndexComponent extends AdminActionComponent {
 
   indexFields() {
     return this.parent ?
-      _.filter( this.config.index.fields, field => field.name !== this.parent.viewType.name ) :
-      this.config.index.fields;
+      _.filter( this.viewType.index.fields, field => field.name !== this.parent.viewType.name ) :
+      this.viewType.index.fields;
   }
 
   onSelect( event:string ){
-    const link = this.adminConfigService.itemLink( this.config.entity, event, this.parent )
+    const link = this.adminConfigService.itemLink( this.viewType.entity, event, this.parent )
     this.router.navigate( link );
   }
 
-  onAction( event:any ){ console.log( 'onAction', event ) }
+  onAction( event:any ){
+    if( event.action === 'edit' ) return this.onEdit( this.viewType, event.id );
+  }
 }

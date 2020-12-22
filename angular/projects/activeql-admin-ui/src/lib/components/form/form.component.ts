@@ -1,11 +1,12 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminConfigService, EntityViewType, Action, ViolationType } from '../../services/admin-config.service';
-import _ from 'lodash';
-import { AdminComponent } from '../admin.component';
-
-import { Subject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import _ from 'lodash';
+import { Subject } from 'rxjs';
+
+import { Action, EntityViewType, ParentType, ViolationType } from '../../services/admin-config.service';
+import { AdminDataService } from '../../services/admin-data.service';
+import { AdminComponent } from '../admin.component';
 
 @Component({
   selector: 'admin-form',
@@ -15,22 +16,24 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class FormComponent extends AdminComponent implements OnInit {
 
   @Input() action:Action;
-  @Input() config:EntityViewType
+  @Input() viewType:EntityViewType
+  @Input() parent:ParentType
   @Input() data:any;
   @Input() submit:Subject<any>;
   @Output() saveSuccess = new EventEmitter<any>();
 
-  get fields() { return this.config[this.action].fields }
-  get item() { return _.get( this.data, this.config.entity.typeQueryName, {} ) };
+  get fields() { return this.viewType[this.action].fields }
+  get item() { return _.get( this.data, this.viewType.entity.typeQueryName, {} ) };
   violations:ViolationType[]
   form!:FormGroup
   options = {}
   files:_.Dictionary<File> = {}
 
   constructor(
-    private fb:FormBuilder,
-    protected snackBar:MatSnackBar,
-    private adminConfig:AdminConfigService ) { super() }
+    protected fb:FormBuilder,
+    protected adminDataService:AdminDataService,
+    protected snackBar:MatSnackBar
+  ){ super() }
 
   ngOnInit(){
     this.buildForm();
@@ -54,15 +57,12 @@ export class FormComponent extends AdminComponent implements OnInit {
 
   protected async save(){
     try {
-      const saveResult = { id: null, violations: [] } //await this.adminService.save( this.data.id, this.form.value, this.files, this.data.entityConfig );
-      _.isUndefined( saveResult.id ) ?
-        this.onSaveViolations( saveResult.violations ) :
-        this.saveSuccess.emit( saveResult.id );
+      const saveResult = await this.adminDataService.save( this.item.id, this.form.value, this.files, this.viewType.entity );
+      _.isString( saveResult.id ) ? this.saveSuccess.emit( saveResult.id ): this.onSaveViolations( saveResult.violations );
     } catch (error) {
       this.snackBar.open('Error', error, {
         duration: 3000, horizontalPosition: 'center', verticalPosition: 'top'
       });
-
     }
   }
 
@@ -96,11 +96,11 @@ export class FormComponent extends AdminComponent implements OnInit {
   }
 
   protected buildForm(){
-    const definition = _.reduce( this.config[this.action].fields, (definition, field) => {
-      if( field.type === 'assocTo' ) this.options[field.name] = [];
+    const definition = _.reduce( this.viewType[this.action].fields, (definition, field) => {
+      if( _.isFunction( field.options ) ) this.options[field.name] = field.options( this.data );
       const validators = field.required ? [Validators.required] : [];
       const value = field.value( this.item );
-      const disabled = field.disabled;
+      const disabled = field.disabled || this.parent?.viewType.name === field.name;
       return _.set(definition, field.name, [{value, disabled}, validators]);
     }, {} );
     this.form = this.fb.group(definition);

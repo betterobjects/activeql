@@ -12,21 +12,25 @@ export class ShowComponent extends AdminActionComponent  {
 
   get fields() {
     return this.parent ?
-      _.filter(this.config.show.fields, field => field.name !== this.parent.viewType.name ) :
-      this.config.show.fields
+      _.filter(this.viewType.show.fields, field =>
+        ! (field.type === 'assocTo' && field.name === this.parent.viewType.name ) ) :
+      this.viewType.show.fields
   }
 
   onSelect( assocFrom:UiAssocFromConfig ){
     const viewType = this.adminConfigService.getEntityViewByName( assocFrom.entity );
-    return (id:string) => this.goto( viewType, id, { viewType: this.config, id: this.id} );
+    return (id:string) => this.onShow( viewType, id, { viewType: this.viewType, id: this.id} );
   }
 
   onAction( assocFrom:UiAssocFromConfig ){
-    return ({id,action}) => console.log( assocFrom.entity, action, id );
+    return ({id,action}) => {
+      const viewType = this.adminConfigService.getEntityViewByName( assocFrom.entity );
+      if( action === 'edit') return this.onEdit( viewType, id, { viewType: this.viewType, id: this.id } );
+    }
   }
 
   assocFromFields( assocFrom:UiAssocFromConfig ){
-    return _.filter( assocFrom.fields, (field:FieldConfig) => field.name !== this.config.name );
+    return _.filter( assocFrom.fields, (field:FieldConfig) => field.name !== this.viewType.name );
   }
 
   assocFromItems( assocFrom:UiAssocFromConfig ){
@@ -41,21 +45,9 @@ export class ShowComponent extends AdminActionComponent  {
 
   assocFromLink( assocFrom:UiAssocFromConfig ){
     const config = this.adminConfigService.getEntityViewByName( assocFrom.entity );
-    return ['/admin', this.config.path, this.item.id, config.path ];
+    return ['/admin', this.viewType.path, this.item.id, config.path ];
   }
 
-  // get fields():FieldConfigType[] {
-  //   return _.filter( this.data.entityConfig.show.fields as FieldConfigType[],
-  //     field => field.objectTypeField !== false  )
-  // }
-
-
-  // get detailTables() { return this.data.entityConfig.show.table }
-
-  // tableItems( table:AssocTableConfigType ):any[]{
-  //   const query = _.get( this.data.entityConfig.assocs, [table.path, 'query']);
-  //   return _.get( this.data.item, query );
-  // }
 
   // onChildNew( table:AssocTableConfigType ){
   //   this.router.navigate( ['/admin', this.data.path, this.data.id, table.path, 'new' ] );

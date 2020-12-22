@@ -1,26 +1,29 @@
 <mat-toolbar-row>
-  <h2 *ngIf="parent">
-    <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
-      {{ parent.viewType.itemTitle() }}
-      <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
-    </a>
-  </h2>
-  <h1> New {{ viewType.itemTitle()  }} </h1>
+  <div>
+    <h2 *ngIf="parent">
+      <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
+        {{ parent.viewType.itemTitle() }}
+        <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
+      </a>
+    </h2>
+    <h1> Edit {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
+  </div>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onSave()"> Save </button>
     &nbsp;
-    <button mat-flat-button (click)="onList()"> Cancel </button>
+    <button mat-flat-button (click)="onShow()"> Cancel </button>
   </div>
 </mat-toolbar-row>
 
 <admin-form
-  action="create"
+  action="edit"
   [viewType]="viewType"
   [parent]="parent"
   [data]="data"
   [submit]="submit"
   (saveSuccess)="onSuccess($event)">
 </admin-form>
+
 
 <!--admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb-->

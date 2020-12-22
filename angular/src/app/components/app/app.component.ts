@@ -33,7 +33,7 @@ export class AppComponent implements OnInit{
   ) {}
 
   ngOnInit(){
-    this.adminConfig.onReady.addListener( 'resolved', () => this.entities = _.values( this.adminConfig.entityViewTypes  ) );
+    this.entities = _.values( this.adminConfig.entityViewTypes  );
     this.router.events.subscribe((event:Event) => {
       switch (true) {
         case event instanceof NavigationStart: {

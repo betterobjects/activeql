@@ -13,10 +13,10 @@ export class CreateComponent extends AdminActionComponent {
 
   onSave = () => this.submit.next();
   onSuccess = ( id:string ) => {
-    // this.snackBar.open('Alright', `This ${this.title() } was successfully created!`, {
-    //   duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
-    // });
-    // setTimeout( ()=> this.gotoShow( this.data.path, id, this.data.parent ), 200 );
+    this.snackBar.open('Alright', `This ${this.viewType.itemTitle() } was successfully created!`, {
+      duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
+    });
+    setTimeout( ()=> this.onShow( this.viewType, id ), 200 );
   }
 
 }

@@ -2,12 +2,12 @@
 <mat-toolbar-row>
   <div>
     <h2 *ngIf="parent">
-      <a [routerLink]="viewTypeLink( parent.viewType, parent.id )">
+      <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
         {{ parent.viewType.itemTitle() }}
         <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
       </a>
     </h2>
-    <h1> {{ config.itemTitle() }} <em>{{ config.itemName( item ) }}</em> </h1>
+    <h1> {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
   </div>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
@@ -31,7 +31,7 @@
   </table>
 </div>
 
-<div class="assocFrom" *ngFor="let assocFrom of config.show.assocFrom">
+<div class="assocFrom" *ngFor="let assocFrom of viewType.show.assocFrom">
 
   <mat-toolbar-row>
     <a [routerLink]="assocFromLink( assocFrom )">
@@ -49,7 +49,7 @@
     [fields]="assocFromFields( assocFrom )"
     [items]="assocFromItems( assocFrom )"
     (selectItem)="onSelect(assocFrom)($event)"
-    (actionItem)="onSelect(assocFrom)($event)">
+    (actionItem)="onAction(assocFrom)($event)">
 
   </admin-table>
 </div>

@@ -41,30 +41,27 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { AdminRoutingModule as ActiveQLAdminRoutingModule } from './activeql-admin-routing.module';
 import { BreadcrumComponent } from './components/breadcumb.component';
-import { DynamicContentComponent } from './components/dynamic-content.component';
-// import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { CreateComponent } from './components/create/create.component';
-
-// import { EditComponent } from './components/edit/edit.component';
-// import { ErrorComponent } from './components/error.component';
-// import { FileUploadComponent } from './components/file-upload.component';
+import { DynamicContentComponent } from './components/dynamic-content.component';
+import { EditComponent } from './components/edit/edit.component';
 import { FormComponent } from './components/form/form.component';
-// import { HomeComponent } from './components/home/home.component';
 import { IndexComponent } from './components/index/index.component';
-// import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
+import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
 import { ShowComponent } from './components/show/show.component';
 import { TableComponent } from './components/table/table.component';
-
-import { AdminConfigService } from './services/admin-config.service';
 import { SafePipe } from './pipes/safe.pipe';
-// import { AdminDataResolver } from './services/admin-data.resolver';
+import { AdminConfigService } from './services/admin-config.service';
 
+// import { ErrorComponent } from './components/error.component';
+// import { FileUploadComponent } from './components/file-upload.component';
+// import { HomeComponent } from './components/home/home.component';
 
 registerLocaleData(en);
 
 // @dynamic
-export function initializeApp1(adminService:AdminConfigService) {
-  return () => adminService.init( async ():Promise<any> => ActiveQLAdminUIModule.adminConfig );
+export function initializeApp1(adminConfigService:AdminConfigService) {
+  return () => adminConfigService.init( async ():Promise<any> => ActiveQLAdminUIModule.adminConfig );
 }
 
 // @dynamic
@@ -76,14 +73,14 @@ export function initializeApp1(adminService:AdminConfigService) {
     DynamicContentComponent,
     ShowComponent,
     CreateComponent,
-    // EditComponent,
-    // FileUploadComponent,
+    EditComponent,
     FormComponent,
-    // ConfirmDialogComponent,
-    // MessageDialogComponent,
+    ConfirmDialogComponent,
+    MessageDialogComponent,
+    SafePipe,
+    // FileUploadComponent,
     // ErrorComponent,
     // HomeComponent,
-    SafePipe
   ],
   imports: [
     ActiveQLAdminRoutingModule,
@@ -129,16 +126,15 @@ export function initializeApp1(adminService:AdminConfigService) {
   ],
   exports: [
     IndexComponent,
-    // HomeComponent,
     ShowComponent,
-    // EditComponent,
+    EditComponent,
     CreateComponent,
     TableComponent,
+    // HomeComponent,
     // ErrorComponent
   ],
   providers: [
     AdminConfigService,
-    // AdminDataResolver,
     { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminConfigService], multi: true },
   ]
 })
