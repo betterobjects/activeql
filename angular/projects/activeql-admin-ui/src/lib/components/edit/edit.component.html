@@ -1,13 +1,5 @@
 <mat-toolbar-row>
-  <div>
-    <h2 *ngIf="parent">
-      <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
-        {{ parent.viewType.itemTitle() }}
-        <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
-      </a>
-    </h2>
-    <h1> Edit {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
-  </div>
+  <h1> Edit {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onSave()"> Save </button>
@@ -25,5 +17,4 @@
   (saveSuccess)="onSuccess($event)">
 </admin-form>
 
-
-<!--admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb-->
+<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

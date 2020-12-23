@@ -11,7 +11,10 @@ export class CreateComponent extends AdminActionComponent {
 
   submit = new Subject<any>();
 
+  action() { return 'create' }
+
   onSave = () => this.submit.next();
+
   onSuccess = ( id:string ) => {
     this.snackBar.open('Alright', `This ${this.viewType.itemTitle() } was successfully created!`, {
       duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',

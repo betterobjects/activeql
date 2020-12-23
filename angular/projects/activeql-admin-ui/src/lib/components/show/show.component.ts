@@ -10,6 +10,8 @@ import { AdminActionComponent } from '../admin-action.component';
 })
 export class ShowComponent extends AdminActionComponent  {
 
+  action() { return 'show' }
+
   get fields() {
     return this.parent ?
       _.filter(this.viewType.show.fields, field =>

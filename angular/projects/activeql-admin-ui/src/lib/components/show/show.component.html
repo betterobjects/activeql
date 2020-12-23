@@ -1,11 +1,3 @@
-<mat-toolbar-row  *ngIf="parent">
-  <h2>
-    <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
-      {{ parent.viewType.itemTitle() }}
-      <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
-    </a>
-  </h2>
-</mat-toolbar-row>
 <mat-toolbar-row>
   <h1> {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
   <span style="flex: 1 1 auto;"></span>
@@ -53,17 +45,4 @@
   </admin-table>
 </div>
 
-<!--div *ngFor="let table of data.entityConfig.show.table" class="childTable">
-
-
-  <admin-table
-    [parent]="{path:data.path, id:data.id}"
-    [config]="table"
-    [items]="tableItems(table)"
-    (selectItem)="onChildSelect( $event, table.path )"
-    (actionItem)="onChildAction($event, table.path )">
-  </admin-table>
-
-</div>
-
-<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb-->
+<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

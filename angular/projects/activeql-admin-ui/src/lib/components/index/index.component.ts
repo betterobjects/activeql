@@ -9,6 +9,8 @@ import { AdminActionComponent } from '../admin-action.component';
 })
 export class IndexComponent extends AdminActionComponent {
 
+  action() { return 'index' }
+
   indexFields() {
     return this.parent ?
       _.filter( this.viewType.index.fields, field => field.name !== this.parent.viewType.name ) :

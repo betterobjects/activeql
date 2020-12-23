@@ -21,7 +21,6 @@ import { AdminConfigService, EntityViewType } from 'activeql-admin-ui';
 export class AppComponent implements OnInit{
 
   loading = false;
-  isCollapsed = false;
   entities:EntityViewType[] = [];
 
   get user() { return this.loginService.user }
@@ -33,34 +32,34 @@ export class AppComponent implements OnInit{
   ) {}
 
   ngOnInit(){
-    this.entities = _.values( this.adminConfig.entityViewTypes  );
+    this.setEntities();
+    this.loginService.loginStatus.subscribe(()=> this.setEntities());
     this.router.events.subscribe((event:Event) => {
       switch (true) {
         case event instanceof NavigationStart: {
           this.loading = true;
           break;
         }
-
         case event instanceof NavigationEnd:
         case event instanceof NavigationCancel:
         case event instanceof NavigationError: {
           this.loading = false;
           break;
         }
-        default: {
-          break;
-        }
       }
     });
+  }
+
+  logout() {
+    if( confirm('Are you sure, you want to log-out?') ) this.loginService.logout();
   }
 
   login(){
     this.router.navigate(['/login']);
   }
 
-  // title( entity:EntityConfigType ):string {
-  //   if( _.isFunction( entity.title ) ) return entity.title();
-  //   if( _.isString( entity.title ) ) return entity.title;
-  //   return inflection.humanize( entity.path );
-  // }
+  private setEntities(){
+    this.entities = _.values( this.adminConfig.entityViewTypes  );
+    if( ! this.user ) this.entities = _.filter( this.entities, entity => _.isNil( entity.entity.permissions ) );
+  }
 }

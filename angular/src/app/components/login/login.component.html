@@ -21,6 +21,11 @@
       </mat-card-content>
       <button mat-stroked-button (click)="login( username, password )" color="primary" class="btn-block">Log in</button>
     </form>
+
+    <mat-card-content style="color: red;" *ngIf="error">
+      <strong>Error: </strong>{{ error | json }}
+    </mat-card-content>
+
   </mat-card>
 
 </div>

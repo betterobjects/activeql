@@ -1,19 +1,5 @@
-<!--
-
-<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>
-
--->
-
 <mat-toolbar-row>
-  <div>
-    <h2 *ngIf="parent">
-      <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
-        {{ parent.viewType.itemTitle() }}
-        <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
-      </a>
-    </h2>
-    <h1> {{ viewType.listTitle() }} </h1>
-  </div>
+  <h1> {{ viewType.listTitle() }} </h1>
 </mat-toolbar-row>
 <mat-toolbar-row>
   <span style="flex: 1 1 auto;"></span>
@@ -28,3 +14,5 @@
   (selectItem)="onSelect($event)"
   (actionItem)="onAction($event)">
 </admin-table>
+
+<admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

@@ -10,12 +10,13 @@ import { AdminComponent } from './admin.component';
 import { ConfirmDialogComponent, ConfirmDialogModel } from './confirm-dialog/confirm-dialog.component';
 import { MessageDialogComponent } from './message-dialog/message-dialog.component';
 
-export class AdminActionComponent extends AdminComponent {
+export abstract class AdminActionComponent extends AdminComponent {
 
   data:any;
   viewType:EntityViewType;
   parent:ParentType;
   id:string;
+  breadcrumbs:any[] = [];
 
   get path() { return this.viewType.path }
   get items() { return _.get( this.data, [this.viewType.entity.typesQueryName]) }
@@ -30,6 +31,9 @@ export class AdminActionComponent extends AdminComponent {
     private adminDataService:AdminDataService,
     protected adminConfigService:AdminConfigService ){ super() }
 
+
+  abstract action():string;
+
   ngOnInit() {
     this.route.params.subscribe( (params:any) => {
       const parentPath = params['parent'];
@@ -39,6 +43,7 @@ export class AdminActionComponent extends AdminComponent {
       this.viewType = this.adminConfigService.getEntityView( params.path );
       this.id = params['id'];
       this.route.data.subscribe( async (data:any) => this.data = data.data);
+      this.buildBreadcrumbs();
     });
   }
 
@@ -96,4 +101,34 @@ export class AdminActionComponent extends AdminComponent {
       event.preventDefault();
     }
   }
+
+  protected buildBreadcrumbs(){
+
+    if( this.parent ) this.breadcrumbs.push({
+      text: this.parent.viewType.listTitle(), link: this.viewTypeLink( this.parent.viewType, null )
+    },{
+      text: this.parent.viewType.itemName( this.parentItem ),
+      link: this.viewTypeLink( this.parent.viewType, this.parent.id, undefined, 'show' ),
+      class: 'name'
+    });
+
+    this.breadcrumbs.push({
+      text: this.viewType.listTitle(), link: this.viewTypeLink( this.viewType, null, this.parent )
+    });
+
+    if( this.id ) this.breadcrumbs.push({
+      text: this.viewType.itemName( this.item ),
+      link: this.action() === 'show' ? null : this.viewTypeLink( this.viewType, this.id, this.parent, 'show' ),
+      class: 'name'
+    });
+
+    if( this.action() === 'create' ) this.breadcrumbs.push({
+      text: 'New', link: null
+    });
+
+    if( this.action() === 'edit' ) this.breadcrumbs.push({
+      text: 'Edit', link: null
+    });
+  }
+
 }

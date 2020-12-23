@@ -10,7 +10,10 @@ export class EditComponent extends AdminActionComponent {
 
   submit = new Subject<any>();
 
+  action() { return 'edit' }
+
   onSave = () => this.submit.next();
+
   onSuccess = (event:any) => {
     this.snackBar.open('Alright', `${this.viewType.itemTitle() } ${this.viewType.itemName(this.item) } was successfully updated!`, {
       duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
