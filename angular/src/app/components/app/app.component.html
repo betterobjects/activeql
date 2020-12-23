@@ -1,57 +1,58 @@
 <div>
-
   <mat-toolbar color="primary">
-    <mat-toolbar-row>
+    <div fxShow="true" fxHide.gt-sm="true">
+      <button mat-icon-button (click)="sidenav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+
+    <a mat-button class="companyName" routerLink="/">
       <a href="/"><h1>ActiveQL</h1></a>
-      <span class="menu-spacer"></span>
-      <div>
-        <ng-container *ngIf="entities.length < 5">
-          <a *ngFor="let entity of entities"
-              mat-button
-              [routerLink]="['admin', entity.path]">
-            {{ entity.listTitle() }}
-          </a>
-        </ng-container>
-
-        <ng-container *ngIf="entities.length >= 5">
-          <button mat-button [matMenuTriggerFor]="adminMenu">Entities</button>
-          <mat-menu #adminMenu="matMenu">
-            <a *ngFor="let entity of entities"
-                mat-menu-item
-                [routerLink]="['admin', entity.path]">
-              {{ entity.listTitle() }}
-            </a>
-          </mat-menu>
-        </ng-container>
-
-      </div>
-      <span class="flex-spacer"></span>
-      <button *ngIf="user" mat-button>
-        <mat-icon>person</mat-icon>
-        {{ user }}
-      </button>
-      <button *ngIf="!user" mat-button (click)="login()">
-        <mat-icon>login</mat-icon>
-        Login
-      </button>
-    </mat-toolbar-row>
-  </mat-toolbar>
-
-  <mat-toolbar-row class="breadcrumb">
-    <a [routerLink]="['/']">
-      <mat-icon
-          fontSet="material-icons-outlined"
-          aria-hidden="false"
-          aria-label="Home">
-        home_outline
-      </mat-icon>
     </a>
-    <span id="breadcrumb"></span>
-  </mat-toolbar-row>
+    <span class="example-spacer"></span>
+    <div fxShow="true" fxHide.lt-md="true">
+      <a *ngFor="let entity of entities"
+          mat-button
+          routerLinkActive="mat-accent"
+          [routerLink]="['admin', entity.path]">
+        {{ entity.listTitle() }}
+      </a>
+    </div>
+    <span class="flex-spacer"></span>
+    <button *ngIf="user" mat-button>
+      <mat-icon>person</mat-icon>
+      {{ user }}
+    </button>
+    <button *ngIf="!user" mat-button (click)="login()">
+      <mat-icon>login</mat-icon>
+      Login
+    </button>
+  </mat-toolbar>
+  <mat-sidenav-container fxFlexFill class="example-container">
 
-  <div class="content">
-    <router-outlet></router-outlet>
-  </div>
+    <mat-sidenav color="primary" #sidenav fxLayout="column" mode="over"  opened="false" fxHide.gt-sm="true">
+      <div fxLayout="column">
+        <a *ngFor="let entity of entities"
+            mat-button
+            routerLinkActive="mat-accent"
+            [routerLink]="['admin', entity.path]">
+          {{ entity.listTitle() }}
+        </a>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content fxFlexFill>
+      <span id="breadcrumb"></span>
+
+      <div class="content">
+        <router-outlet></router-outlet>
+      </div>
+
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
+
+
+
 
 <div class="loading" [ngClass]="{'on': loading}">
   <div class="center">

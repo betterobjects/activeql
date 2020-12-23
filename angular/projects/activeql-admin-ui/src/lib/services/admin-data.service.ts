@@ -4,7 +4,7 @@ import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import _ from 'lodash';
 
-import { EntityType } from '../lib/domain-configuration';
+import { EntityType } from './domain-configuration';
 import { AdminConfigService, SaveResult } from '../services/admin-config.service';
 
 @Injectable({ providedIn: 'root' })

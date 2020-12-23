@@ -1,14 +1,13 @@
-
+<mat-toolbar-row  *ngIf="parent">
+  <h2>
+    <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
+      {{ parent.viewType.itemTitle() }}
+      <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
+    </a>
+  </h2>
+</mat-toolbar-row>
 <mat-toolbar-row>
-  <div>
-    <h2 *ngIf="parent">
-      <a [routerLink]="viewTypeLink( parent.viewType, parent.id, null, 'show' )">
-        {{ parent.viewType.itemTitle() }}
-        <em>{{ parent.viewType.asParent.render( parentItem ) }}</em>
-      </a>
-    </h2>
-    <h1> {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
-  </div>
+  <h1> {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onList()"> All </button>

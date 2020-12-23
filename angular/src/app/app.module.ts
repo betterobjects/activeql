@@ -52,6 +52,7 @@ import { LoginComponent } from './components/login/login.component';
 
 import { adminConfig } from './config/admin.config';
 import { ActiveQLAdminUIModule } from 'activeql-admin-ui';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 registerLocaleData(en);
 
@@ -67,6 +68,7 @@ registerLocaleData(en);
     GraphQLModule.forRoot({uri: 'http://localhost:3000/graphql'}),
     ActiveQLAdminUIModule.forRoot( adminConfig ),
     BrowserModule,
+    FlexLayoutModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
