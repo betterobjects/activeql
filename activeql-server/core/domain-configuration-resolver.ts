@@ -62,7 +62,7 @@ export class DomainConfigurationResolver {
     resolved.singular = _.get( entity, 'singular', this.singular( resolved.typeName ) );
     resolved.plural = _.get( entity, 'plural', inflection.pluralize( resolved.singular ));
     resolved.collection = _.get( entity, 'collection', resolved.plural );
-    resolved.path = _.get( entity, 'path', inflection.underscore( resolved.plural ));
+    resolved.path = _.get( entity, 'path', inflection.dasherize( _.toLower(resolved.plural) ));
     resolved.foreignKey = _.get( entity, 'foreignKey', `${resolved.singular}Id` );
     resolved.foreignKeys = _.get( entity, 'foreignKeys', `${resolved.singular}Ids` );
     resolved.createInputTypeName = _.get( entity, 'createInputTypeName', `${resolved.typeName}CreateInput` );
@@ -121,8 +121,8 @@ export class DomainConfigurationResolver {
     const list = _.startsWith(shortcut, '[') && _.endsWith( shortcut, ']');
     if( list ) shortcut = shortcut.slice(1, -1);
 
-    let mediaType = undefined;
-    switch( shortcut ){
+    let mediaType:'image'|'video'|'audio'|undefined;
+    switch( _.toLower(shortcut) ){
       case 'image':
         mediaType = 'image';
         break;
@@ -138,7 +138,7 @@ export class DomainConfigurationResolver {
     const type = this.resolveType( shortcut );
     const filterType = FilterType.getFilterName( shortcut ) || false;
     return {
-      name, type, required, list, filterType, unique: false,
+      name, type, required, list, filterType, mediaType, unique: false,
       createInput: true, updateInput: true, objectTypeField: true, virtual: false };
   }
 

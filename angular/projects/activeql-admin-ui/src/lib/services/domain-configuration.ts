@@ -26,6 +26,7 @@ export type EntityType = {
   plural:string
   singular:string;
   collection:string;
+  path:string;
 
   seeds:{[seedId:string]:SeedType}
   permissions?:PermissionDelegate|EntityPermissionsType

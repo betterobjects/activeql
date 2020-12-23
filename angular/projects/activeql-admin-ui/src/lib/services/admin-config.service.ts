@@ -140,17 +140,7 @@ export type SaveResult = {
 @Injectable({providedIn: 'root'})
 export class AdminConfigService { 
 
-  adminConfig:AdminConfig = {
-    entities: {
-      Car: {
-        itemName: (item:any) => _.get( item, 'licence' ),
-        index: {
-          fields: ['id', 'licence', 'brand', 'mileage', 'color', { name: 'Fleet', label: 'CarPark'}, 'Driver']
-        }
-      }
-    }
-  };
-
+  adminConfig:AdminConfig = {};
 
   entityViewTypes:{[name:string]:EntityViewType} = {};
   domainConfiguration:DomainConfigurationType = { entity: {}, enum: {} }
@@ -160,8 +150,8 @@ export class AdminConfigService { 
   constructor( private metaDataService:MetaDataService ){}
 
   async init( adminConfig:() => Promise<any> ):Promise<any> {
-    const metaData = await this.metaDataService.getMetaData();
-    this.domainConfiguration = metaData;
+    this.domainConfiguration = await this.metaDataService.getMetaData();
+    this.adminConfig = await adminConfig();
     this.resolveViewTypes();
   }
 
@@ -184,7 +174,7 @@ export class AdminConfigService { 
     this.entityViewTypes = {};
     _.forEach( this.domainConfiguration.entity, (entity, name) => {
       _.set( entity, 'name', name );
-      const path = this.getPathForEntity( name );
+      const path = this.getPathForEntity( entity );
       _.set( this.entityViewTypes, path, this.resolveViewType( path, entity ) );
     })
   }
@@ -350,7 +340,7 @@ export class AdminConfigService { 
   }
 
   private setParentQuery( parent:ParentType, query:any, entity?:EntityType ):void {
-    const path = this.getPathForEntity( parent.viewType.path );
+    const path = this.getPathForEntity( parent.viewType.entity );
     const config = this.getEntityView( path );
     const asParent = config.asParent;
     if( ! asParent ) return;
@@ -377,8 +367,9 @@ export class AdminConfigService { 
 
   private resolveField( action:Action, entity:EntityType, config:FieldConfig ):FieldConfig {
     if( config.name === 'id' ) return this.resolveIdField( action, config );
+
     const attribute:AttributeType = _.get( entity, ['attributes', config.name] );
-    if( attribute ) return this.resolveAttributeField( action, attribute, config );
+    if( attribute ) return this.resolveAttributeField( action, attribute, config, entity );
 
     const assocTo:AssocToType = _.find( _.get( entity, 'assocTo' ), assocTo => assocTo.type === config.name );
     if( assocTo ) return this.resolveAssocToField( action, assocTo, config );
@@ -401,12 +392,13 @@ export class AdminConfigService { 
   }
 
 
-  private resolveAttributeField( action:Action, attribute:AttributeType, config:FieldConfig ):FieldConfig {
+  private resolveAttributeField( action:Action, attribute:AttributeType, config:FieldConfig, entity:EntityType ):FieldConfig {
     if( action === 'create' && attribute.createInput === false ) return undefined;
+    if( attribute.type === 'File' ) return this.resolveFileField( action, attribute, config, entity );
     config.type = this.isEnum( attribute.type ) ? 'enum' : attribute.type;
     config.list = attribute.list;
     config.label = config.label || inflection.humanize( config.name )
-    config.required = config.required || attribute.required
+    config.required = config.required || attribute.required;
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
     config.render = config.render || (( item:any, parent:ParentType ) => {
       let value = config.value( item );
@@ -418,6 +410,25 @@ export class AdminConfigService { 
     config.query = config.query || (() => _.set( {}, config.name, attribute.objectTypeField ));
     if( config.type === 'enum' && ! config.options ) config.options = this.defaultEnumOptionsFn( attribute.type );
     this.setAttributeControl( config, attribute );
+    return config;
+  }
+
+  private resolveFileField( action:Action, attribute:AttributeType, config:FieldConfig, entity:EntityType ):FieldConfig {
+    config.type = attribute.mediaType;
+    config.label = config.label || inflection.humanize( config.name )
+    config.required = config.required || attribute.required;
+    config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
+    config.render = config.render || (( item:any ) => {
+      const file = _.get( item, config.name );
+      if( ! file ) return;
+      const src = `http://localhost:3000/files/${entity.path}/${item.id}/${file.secret}/${config.name}/${file.filename}`;
+      if( config.type === 'image' ) return `<img class="defaultImageRender" src="${src}">`;
+      return `<a href="${src}" target="_blank">${src}</a>`;
+    });
+    config.value = config.value || ((item:any) => null);
+    config.sortValue = config.sortValue || (() => 0) ;
+    config.query = config.query || (() => _.set( {}, config.name, { filename: true, secret: true } ));
+    config.control = 'File';
     return config;
   }
 
@@ -521,14 +532,14 @@ export class AdminConfigService { 
 
   itemLink( entity:EntityType, itemOrId:any|string, parent?:ParentType ){
     const id = _.isString( itemOrId ) ? itemOrId : _.get( itemOrId, 'id');
-    const link = [this.getPathForEntity( entity.name ), 'show', id ];
+    const link = [this.getPathForEntity( entity ), 'show', id ];
     if( parent ) link.unshift( parent.viewType.path, parent.id );
     link.unshift( this.adminLinkPrefix );
     return link;
   }
 
   itemsLink( entity:EntityType, parent?:ParentType ){
-    const link = [this.getPathForEntity( entity.name ) ];
+    const link = [this.getPathForEntity( entity ) ];
     if( parent ) link.unshift( parent.viewType.path, parent.id );
     link.unshift( this.adminLinkPrefix );
     return link;
@@ -542,9 +553,8 @@ export class AdminConfigService { 
     return `<a class="router-link" href="${link}">${value}</a>`;
   }
 
-  private getPathForEntity( entity:string ):string {
-    return _.get( this.adminConfig, ['entities', entity, 'path'],
-      _.toLower(inflection.dasherize( inflection.pluralize(entity) ) ) );
+  private getPathForEntity( entity:EntityType ):string {
+    return _.get( this.adminConfig, ['entities', entity.name, 'path'], entity.path );
   }
 
   private guessName( item:any ):string {

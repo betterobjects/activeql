@@ -21,9 +21,9 @@ export class EntityFileSave extends EntityModule {
     return new Promise( async (resolve, reject) => {
       const dirname = [
         this.runtime.config.uploadRootDir as string,
-        fileInfo.secret,
-        this.entity.typeName,
+        this.entity.path,
         _.toString(id),
+        fileInfo.secret,
         fileInfo.name ];
       await fs.mkdirp( path.join(...dirname) );
       const filename = path.join( ...dirname, fileInfo.filename );

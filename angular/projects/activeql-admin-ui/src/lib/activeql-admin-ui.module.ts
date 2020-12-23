@@ -52,9 +52,9 @@ import { ShowComponent } from './components/show/show.component';
 import { TableComponent } from './components/table/table.component';
 import { SafePipe } from './pipes/safe.pipe';
 import { AdminConfigService } from './services/admin-config.service';
+import { FileUploadComponent } from './components/file-upload.component';
 
 // import { ErrorComponent } from './components/error.component';
-// import { FileUploadComponent } from './components/file-upload.component';
 // import { HomeComponent } from './components/home/home.component';
 
 registerLocaleData(en);
@@ -78,7 +78,7 @@ export function initializeApp1(adminConfigService:AdminConfigService) {
     ConfirmDialogComponent,
     MessageDialogComponent,
     SafePipe,
-    // FileUploadComponent,
+    FileUploadComponent
     // ErrorComponent,
     // HomeComponent,
   ],

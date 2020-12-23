@@ -63,7 +63,7 @@ export class Runtime {
       entityPermissions: ( entity:Entity ) => new DefaultEntityPermissions( entity ),
       entityFileSave: ( entity:Entity ) => new EntityFileSave( entity ),
       entitySeeder: ( entity:Entity ) => new EntitySeeder( entity ),
-      uploadRootDir: 'uploads ',
+      uploadRootDir: 'uploads',
       stage: 'development',
       domainDefinition: {}
     };

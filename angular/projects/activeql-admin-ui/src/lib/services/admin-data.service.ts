@@ -61,10 +61,10 @@ export class AdminDataService  {
 
   private sanitizeAttributeInput( input:any, entity:EntityType ):void {
     _.forEach( entity.attributes, (attribute, name) => {
+      if( attribute.type === 'File' ) return _.unset( input, name );
       const value = _.get( input, name );
-      if( _.isNil( value ) ) return
+      if( _.isNil( value ) ) return;
       switch( attribute.type ) {
-        case 'File': return _.unset( input, name );
         case 'Int': return _.set( input, name, _.toInteger( value ) );
         case 'Float': return _.set( input, name, _.toNumber( value ) );
       }

@@ -62,6 +62,7 @@ export class Entity {
   get filterTypeName() { return this.config.filterTypeName }
   get sorterEnumName() { return this.config.sorterEnumName}
   get collection() { return this.config.collection }
+  get path() { return this.config.path }
   get seeds() { return this.config.seeds }
   get description() { return this.config.description }
   get typeField() { return this.config.typeField }
