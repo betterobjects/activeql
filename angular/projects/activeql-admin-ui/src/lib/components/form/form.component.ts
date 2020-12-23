@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 
-import { Action, EntityViewType, ParentType, ViolationType } from '../../services/admin-config.service';
+import { Action, EntityViewType, FieldConfig, ParentType, ViolationType } from '../../services/admin-config.service';
 import { AdminDataService } from '../../services/admin-data.service';
 import { AdminComponent } from '../admin.component';
 
@@ -99,11 +99,20 @@ export class FormComponent extends AdminComponent implements OnInit {
     const definition = _.reduce( this.viewType[this.action].fields, (definition, field) => {
       if( _.isFunction( field.options ) ) this.options[field.name] = field.options( this.data );
       const validators = field.required ? [Validators.required] : [];
-      const value = field.value( this.item );
-      const disabled = field.disabled || this.parent?.viewType.name === field.name;
-      return _.set(definition, field.name, [{value, disabled}, validators]);
+      const valueDisabled = this.resolveValueDisbled( field );
+      return _.set(definition, field.name, [valueDisabled, validators]);
     }, {} );
     this.form = this.fb.group(definition);
+  }
+
+  private resolveValueDisbled( field:FieldConfig ){
+    if( this.parent?.viewType.name !== field.name ) return { value: field.value( this.item), disabled: field.disabled };
+    if( field.type === 'assocTo' )return { value: this.parent.id, disabled: true };
+    if( field.type === 'assocToMany' ){
+      let value = field.value( this.item );
+      value = value ? _.uniq( _.concat( value, this.parent.id) ) : [this.parent.id];
+      return { value, disabled: false };
+    }
   }
 
 }

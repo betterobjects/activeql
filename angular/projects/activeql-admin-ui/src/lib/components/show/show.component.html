@@ -25,13 +25,13 @@
 <div class="assocFrom" *ngFor="let assocFrom of viewType.show.assocFrom">
 
   <mat-toolbar-row>
-    <a [routerLink]="assocFromLink( assocFrom )">
+    <a [routerLink]="onAssocFromIndex( assocFrom )">
       <h3>{{ assocFromTitle( assocFrom ) }}</h3>
     </a>
     <span style="flex: 1 1 auto;"></span>
     <div mat-dialog-actions align="end">
-      <button mat-icon-button color="accent" (click)="onNew()">
-        <mat-icon>add</mat-icon>
+      <button mat-icon-button color="accent" (click)="onAssocFromNew( assocFrom )">
+      <mat-icon>add</mat-icon>
       </button>
     </div>
   </mat-toolbar-row>

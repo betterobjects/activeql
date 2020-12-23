@@ -46,15 +46,15 @@ export class ShowComponent extends AdminActionComponent  {
     return config.listTitle();
   }
 
-  assocFromLink( assocFrom:UiAssocFromConfig ){
-    const config = this.adminConfigService.getEntityViewByName( assocFrom.entity );
-    return ['/admin', this.viewType.path, this.item.id, config.path ];
+  onAssocFromIndex( assocFrom:UiAssocFromConfig ){
+    const viewType = this.adminConfigService.getEntityViewByName( assocFrom.entity );
+    this.viewTypeLink( viewType, null, { viewType: this.viewType, id: this.id } );
   }
 
-
-  // onChildNew( table:AssocTableConfigType ){
-  //   this.router.navigate( ['/admin', this.data.path, this.data.id, table.path, 'new' ] );
-  // }
+  onAssocFromNew( assocFrom:UiAssocFromConfig ) {
+    const viewType = this.adminConfigService.getEntityViewByName( assocFrom.entity );
+    this.goto( viewType, null, { viewType: this.viewType, id: this.id }, 'new' );
+  }
 
   onAttributeClick( event:any ):void {
     const url = _.get( event, 'srcElement.currentSrc' );

@@ -130,5 +130,4 @@ export abstract class AdminActionComponent extends AdminComponent {
       text: 'Edit', link: null
     });
   }
-
 }
