@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import _ from 'lodash';
+import _, { reject } from 'lodash';
 
 import { EntityType } from './domain-configuration';
 import { AdminConfigService, SaveResult } from '../services/admin-config.service';
@@ -24,11 +24,12 @@ export class AdminDataService  {
 
   delete( id:string, entity:EntityType ):Promise<string[]>{
     const deleteItem = gql`mutation { ${entity.deleteMutationName}(id: "${id}" )  }`;
-    return new Promise( resolve => {
-      this.apollo.mutate({ mutation: deleteItem }).subscribe(({data}) => {
+    return new Promise( (resolve, reject) => {
+      this.apollo.mutate({ mutation: deleteItem }).subscribe(({data, errors}) => {
+        if( errors ) return reject( errors );
         const violations = _.get( data, entity.deleteMutationName ) as string[];
         resolve( violations );
-      });
+      }, error => reject( error ) );
     });
   }
 
@@ -74,11 +75,14 @@ export class AdminDataService  {
   private create( variables:any, entity:EntityType ):Promise<SaveResult> {
     const mutation = this.getCreateMutation( entity )
     const context = this.getMutationContext( variables );
-    return new Promise( resolve => {
-      this.apollo.mutate({ mutation, variables, context }).subscribe(({data}) => resolve({
-        violations: _.get( data, [entity.createMutationName, 'validationViolations'] ),
-        id: _.get( data, [entity.createMutationName, entity.typeQueryName, 'id'] )
-      }));
+    return new Promise( (resolve, reject) => {
+      this.apollo.mutate({ mutation, variables, context }).subscribe(({data, errors}) => {
+        if( errors ) return reject( errors );
+        resolve({
+          violations: _.get( data, [entity.createMutationName, 'validationViolations'] ),
+          id: _.get( data, [entity.createMutationName, entity.typeQueryName, 'id'] )
+        });
+      }, error => reject( error ) );
     });
   }
 
@@ -95,13 +99,16 @@ export class AdminDataService  {
 
   private async update( id:string, variables:any, entity:EntityType ):Promise<SaveResult> {
     _.set( variables, 'input.id', id );
-    const updateMutation = this.getUpdateMutation( entity );
+    const mutation = this.getUpdateMutation( entity );
     const context = this.getMutationContext( variables );
     return new Promise( (resolve, reject) => {
-      this.apollo.mutate({mutation: updateMutation, variables, context }).subscribe(({data}) => resolve({
-        violations: _.get( data, [entity.updateMutationName, 'validationViolations'] ),
-        id: _.get( data, [entity.updateMutationName, entity.typeQueryName, 'id'] )
-      }), error => reject( error ) );
+      this.apollo.mutate({mutation, variables, context }).subscribe(({data, errors}) => {
+        if( errors ) reject( errors );
+        resolve({
+          violations: _.get( data, [entity.updateMutationName, 'validationViolations'] ),
+          id: _.get( data, [entity.updateMutationName, entity.typeQueryName, 'id'] )
+        });
+      }, error => reject( error ) );
     });
   }
 

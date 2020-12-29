@@ -1,17 +1,10 @@
-import _ from 'lodash';
-import inflection from 'inflection';
 import { Component, OnInit } from '@angular/core';
-// import { AdminService, EntityConfigType } from 'activeql-admin-ui';
-
-import {Event,
-NavigationCancel,
-NavigationEnd,
-NavigationError,
-NavigationStart,
-Router
-} from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
+import { AdminConfigService, ConfirmDialogComponent, ConfirmDialogModel, EntityViewType } from 'activeql-admin-ui';
+import _ from 'lodash';
 import { LoginService } from 'src/app/services/login.service';
-import { AdminConfigService, EntityViewType } from 'activeql-admin-ui';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +20,8 @@ export class AppComponent implements OnInit{
 
   constructor(
     private router:Router,
+    protected dialog:MatDialog,
+    protected snackBar:MatSnackBar,
     private adminConfig:AdminConfigService,
     private loginService:LoginService
   ) {}
@@ -50,9 +45,29 @@ export class AppComponent implements OnInit{
     });
   }
 
-  logout() {
+  logout1() {
     if( confirm('Are you sure, you want to log-out?') ) this.loginService.logout();
   }
+
+  logout(){
+    const message = `Are you sure?`;
+    const dialogData = new ConfirmDialogModel('Confirm Logout', message);
+    this.dialog.open( ConfirmDialogComponent, { minWidth: '400px', maxWidth: '400px', data: dialogData } ).
+      afterClosed().subscribe(dialogResult => {
+        dialogResult ?
+          this.doLogout() :
+          this.snackBar.open('Alright', 'Logout aborted', {
+            duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
+          });
+      });
+  }
+
+  private doLogout(){
+    this.loginService.logout();
+    this.snackBar.open('Alright', `You're logged out`, {
+      duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
+    });
+}
 
   login(){
     this.router.navigate(['/login']);

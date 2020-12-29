@@ -53,9 +53,8 @@ import { TableComponent } from './components/table/table.component';
 import { SafePipe } from './pipes/safe.pipe';
 import { AdminConfigService } from './services/admin-config.service';
 import { FileUploadComponent } from './components/file-upload.component';
+import { ErrorComponent } from './components/error.component';
 
-// import { ErrorComponent } from './components/error.component';
-// import { HomeComponent } from './components/home/home.component';
 
 registerLocaleData(en);
 
@@ -78,9 +77,8 @@ export function initializeApp1(adminConfigService:AdminConfigService) {
     ConfirmDialogComponent,
     MessageDialogComponent,
     SafePipe,
-    FileUploadComponent
-    // ErrorComponent,
-    // HomeComponent,
+    FileUploadComponent,
+    ErrorComponent
   ],
   imports: [
     ActiveQLAdminRoutingModule,
@@ -130,8 +128,7 @@ export function initializeApp1(adminConfigService:AdminConfigService) {
     EditComponent,
     CreateComponent,
     TableComponent,
-    // HomeComponent,
-    // ErrorComponent
+    ErrorComponent
   ],
   providers: [
     AdminConfigService,

@@ -28,6 +28,8 @@ export class LoginService {
       localStorage.setItem( 'username', username );
       resolve( true );
       this.loginStatus.next('login');
+    }, error => {
+      reject( error );
     }));
   }
 
