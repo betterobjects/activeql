@@ -420,7 +420,7 @@ export class AdminConfigService { 
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
     config.render = config.render || (( item:any ) => {
       const file = _.get( item, config.name );
-      if( ! file ) return;
+      if( ! file ) return '';
       const src = `http://localhost:3000/files/${entity.path}/${item.id}/${file.secret}/${config.name}/${file.filename}`;
       if( config.type === 'image' ) return `<img class="defaultImageRender" src="${src}">`;
       return `<a href="${src}" target="_blank">${src}</a>`;
