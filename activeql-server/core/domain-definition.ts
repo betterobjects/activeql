@@ -3,15 +3,14 @@ import _ from 'lodash';
 import path from 'path';
 import YAML from 'yaml';
 
-import { EnumBuilder } from '../builder/enum-builder';
 import { Entity } from '../entities/entity';
-import { DomainConfiguration } from './domain-configuration';
+import { DomainConfiguration, DomainConfigurationType } from './domain-configuration';
+import { DomainConfigurationResolver } from './domain-configuration-resolver';
 import { Runtime } from './runtime';
 
 export class DomainDefinition {
 
   readonly entities:Entity[] = [];
-  readonly enums:EnumBuilder[] = [];
   readonly extendSchemaFn:((runtime:Runtime) => void)[] = []
   readonly contextFn:((expressContext:any, apolloContext:any) => void)[] = [];
   private configuration:DomainConfiguration;
@@ -29,6 +28,12 @@ export class DomainDefinition {
 
   getConfiguration():DomainConfiguration {
     return this.configuration;
+  }
+
+  getResolvedConfiguration( seeds = true, customQueriesMutations:boolean|'src' = true ):DomainConfigurationType {
+    const resolver = new DomainConfigurationResolver( this.configuration, seeds, customQueriesMutations );
+    resolver.resolve();
+    return resolver.resolvedConfiguration;
   }
 }
 

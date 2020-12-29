@@ -1,5 +1,5 @@
 <mat-toolbar-row>
-  <h2> {{ title('show') }} </h2>
+  <h1> {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onList()"> All </button>
@@ -9,43 +9,40 @@
     <button mat-flat-button (click)="onDelete()"> Delete </button>
   </div>
 </mat-toolbar-row>
-<mat-toolbar-row>
-  <h3> {{ name() }} </h3>
-</mat-toolbar-row>
+
 
 <div class="mat-elevation-z4">
   <table class="showTable">
     <tbody>
       <tr class="mat-row cdk-row" *ngFor="let field of fields">
         <th align="right"> {{ label( field ) }} </th>
-        <td (click)="onAttributeClick($event)" [innerHTML]="render( field ) | safe: 'html'"></td>
+        <td (click)="onAttributeClick($event)" [innerHTML]="render( field, item ) | safe: 'html'"></td>
       </tr>
     </tbody>
   </table>
 </div>
 
-<div *ngFor="let table of data.entityConfig.show.table" class="childTable">
+<div class="assocFrom" *ngFor="let assocFrom of viewType.show.assocFrom">
+
   <mat-toolbar-row>
-    <a [routerLink]="['/admin', this.data.path, this.data.id, table.path]">
-      <h3>{{ title( 'detailTable', table )}}</h3>
+    <a [routerLink]="onAssocFromIndex( assocFrom )">
+      <h3>{{ assocFromTitle( assocFrom ) }}</h3>
     </a>
     <span style="flex: 1 1 auto;"></span>
     <div mat-dialog-actions align="end">
-      <button mat-icon-button color="accent" (click)="onChildNew(table)">
-        <mat-icon>add</mat-icon>
+      <button mat-icon-button color="accent" (click)="onAssocFromNew( assocFrom )">
+      <mat-icon>add</mat-icon>
       </button>
     </div>
   </mat-toolbar-row>
 
-
   <admin-table
-    [parent]="{path:data.path, id:data.id}"
-    [config]="table"
-    [items]="tableItems(table)"
-    (selectItem)="onChildSelect( $event, table.path )"
-    (actionItem)="onChildAction($event, table.path )">
-  </admin-table>
+    [fields]="assocFromFields( assocFrom )"
+    [items]="assocFromItems( assocFrom )"
+    (selectItem)="onSelect(assocFrom)($event)"
+    (actionItem)="onAction(assocFrom)($event)">
 
+  </admin-table>
 </div>
 
 <admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

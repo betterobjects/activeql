@@ -31,10 +31,10 @@
         <a matRipple matRippleColor="lightgray" *ngIf="defaultActions.includes('show')" (click)="onSelect(item.id)">
           <mat-icon class="mat-accent" aria-hidden="false" aria-label="Show">show</mat-icon>
         </a>
-        <a matRipple matRippleColor="lightgray" *ngIf="defaultActions.includes('edit')" (click)="onEdit(item.id)">
+        <a matRipple matRippleColor="lightgray" *ngIf="defaultActions.includes('edit')" (click)="onEdit(item)">
           <mat-icon class="mat-accent" aria-hidden="false" aria-label="Edit">edit</mat-icon>
         </a>
-        <a matRipple matRippleColor="lightgray" *ngIf="defaultActions.includes('delete')" (click)="onDelete(item.id)">
+        <a matRipple matRippleColor="lightgray" *ngIf="defaultActions.includes('delete')" (click)="onDelete(item)">
           <mat-icon class="mat-accent" aria-hidden="false" aria-label="Delete">delete</mat-icon>
         </a>
       </td>

@@ -38,9 +38,22 @@
         <admin-file-upload
             *ngSwitchCase="'File'"
             [field]="field"
-            [item]="data.item"
+            [item]="item"
             (onLoad)="this.onFileLoad($event)">
         </admin-file-upload>
+
+        <mat-form-field *ngSwitchCase="'number'" >
+          <mat-label>{{ label( field ) }}</mat-label>
+          <input
+            matInput
+            type="number"
+            [required]="field.required"
+            [formControl]="form.controls[field.name]">
+
+            <mat-error *ngIf="form.controls[field.name].invalid">
+              {{errorTip(field)}}
+            </mat-error>
+        </mat-form-field>
 
         <mat-form-field *ngSwitchDefault >
           <mat-label>{{ label( field ) }}</mat-label>

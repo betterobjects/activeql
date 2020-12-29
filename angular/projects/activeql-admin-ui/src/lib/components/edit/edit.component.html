@@ -1,5 +1,5 @@
 <mat-toolbar-row>
-  <h1> Edit {{ name() }} </h1>
+  <h1> Edit {{ viewType.itemTitle() }} <em>{{ viewType.itemName( item ) }}</em> </h1>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onSave()"> Save </button>
@@ -8,6 +8,13 @@
   </div>
 </mat-toolbar-row>
 
-<admin-form action="update" [data]="data" [submit]="submit" (saveSuccess)="onSuccess()"></admin-form>
+<admin-form
+  action="edit"
+  [viewType]="viewType"
+  [parent]="parent"
+  [data]="data"
+  [submit]="submit"
+  (saveSuccess)="onSuccess($event)">
+</admin-form>
 
 <admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

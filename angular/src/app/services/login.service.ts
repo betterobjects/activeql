@@ -2,15 +2,18 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
 import _ from 'lodash';
+import { Subject } from 'rxjs';
 
 
 @Injectable({providedIn: 'root'})
 export class LoginService {
 
+  loginStatus:Subject<string> = new Subject();
+
   get user() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
-    if( ! token || ! username ) return this.logout();
+    if( ! token || ! username ) return this.removeFromLocalStorage();
     return username;
   }
 
@@ -18,16 +21,22 @@ export class LoginService {
 
   login( username:string, password:string ):Promise<boolean> {
     const mutation = gql`mutation {  login ( username: "${username}", password: "${password}" )  }`;
-    return new Promise( resolve => this.apollo.mutate({ mutation }).subscribe(({data}) => {
+    return new Promise( (resolve,reject) => this.apollo.mutate({ mutation, errorPolicy: 'all' }).subscribe(({data, errors}) => {
       const token = _.toString( _.get(data, 'login') );
-      if( ! token ) return resolve( false );
+      if( ! token ) return reject( errors );
       localStorage.setItem( 'token', token );
       localStorage.setItem( 'username', username );
       resolve( true );
+      this.loginStatus.next('login');
     }));
   }
 
   logout() {
+    this.removeFromLocalStorage();
+    this.loginStatus.next('logout');
+  }
+
+  private removeFromLocalStorage(){
     localStorage.removeItem( 'username' );
     localStorage.removeItem( 'token' );
   }

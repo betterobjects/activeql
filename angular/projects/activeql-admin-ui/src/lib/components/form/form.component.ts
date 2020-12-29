@@ -1,14 +1,12 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import * as _ from 'lodash';
-
-import { Subject } from 'rxjs';
-import { FieldConfigType, ViolationType } from '../../lib/admin-config';
-import { AdminData } from '../../lib/admin-data';
-import { AdminService } from '../../services/admin.service';
-
-import { AdminComponent } from '../../components/admin.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import _ from 'lodash';
+import { Subject } from 'rxjs';
+
+import { Action, EntityViewType, FieldConfig, ParentType, ViolationType } from '../../services/admin-config.service';
+import { AdminDataService } from '../../services/admin-data.service';
+import { AdminComponent } from '../admin.component';
 
 @Component({
   selector: 'admin-form',
@@ -17,22 +15,25 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class FormComponent extends AdminComponent implements OnInit {
 
-  @Input() action:'create'|'update';
-  @Input() data:AdminData;
+  @Input() action:Action;
+  @Input() viewType:EntityViewType
+  @Input() parent:ParentType
+  @Input() data:any;
   @Input() submit:Subject<any>;
   @Output() saveSuccess = new EventEmitter<any>();
 
+  get fields() { return this.viewType[this.action].fields }
+  get item() { return _.get( this.data, this.viewType.entity.typeQueryName, {} ) };
   violations:ViolationType[]
   form!:FormGroup
-  get fields() { return this.data.entityConfig.form.fields as FieldConfigType[] }
   options = {}
   files:_.Dictionary<File> = {}
 
   constructor(
-    private fb:FormBuilder,
-    protected snackBar:MatSnackBar,
-    private adminService:AdminService )
-  { super() }
+    protected fb:FormBuilder,
+    protected adminDataService:AdminDataService,
+    protected snackBar:MatSnackBar
+  ){ super() }
 
   ngOnInit(){
     this.buildForm();
@@ -50,21 +51,18 @@ export class FormComponent extends AdminComponent implements OnInit {
   }
 
   onFileLoad( event:any ):void {
-    const field:FieldConfigType = event.field;
+    const field:any = event.field;
     _.set( this.files, field.name, event.file );
   }
 
   protected async save(){
     try {
-      const saveResult = await this.adminService.save( this.data.id, this.form.value, this.files, this.data.entityConfig );
-      _.isUndefined( saveResult.id ) ?
-        this.onSaveViolations( saveResult.violations ) :
-        this.saveSuccess.emit( saveResult.id );
+      const saveResult = await this.adminDataService.save( this.item.id, this.form.value, this.files, this.viewType.entity );
+      _.isString( saveResult.id ) ? this.saveSuccess.emit( saveResult.id ): this.onSaveViolations( saveResult.violations );
     } catch (error) {
       this.snackBar.open('Error', error, {
         duration: 3000, horizontalPosition: 'center', verticalPosition: 'top'
       });
-
     }
   }
 
@@ -76,15 +74,7 @@ export class FormComponent extends AdminComponent implements OnInit {
     });
   }
 
-  disabled( field:FieldConfigType ):boolean {
-    if( _.has( field, 'path' ) && _.get( field, 'path' ) === _.get( this.data.parent, 'path' ) ) return true;
-    switch( this.action ){
-      case 'create': return field.createInput === false;
-      case 'update': return field.updateInput === false;
-    }
-  }
-
-  errorTip(field:FieldConfigType):string {
+  errorTip(field:any):string {
     const control = this.form.controls[field.name];
     if( ! control ) return undefined;
     if( control.hasError('required') ) return 'is required';
@@ -94,26 +84,35 @@ export class FormComponent extends AdminComponent implements OnInit {
       join(', ');
   }
 
-  onSelectionChange(field:FieldConfigType, value:any ){
-    const assocConfig = this.adminService.getEntityConfig( field.path );
-    if( ! assocConfig ) return;
-    _.set( this.data.item, [assocConfig.typeQueryName, 'id'], value );
-    _.forEach( this.fields, field => {
-      const config = this.data.entityConfig.assocs[field.path];
-      if( config && config.scope ) this.options[field.name] =
-        _.isFunction( field.values ) ? field.values( this.data.data ) : [];
-    });
+  onSelectionChange(field:any, value:any ){
+    // const assocConfig = this.adminService.getEntityConfig( field.path );
+    // if( ! assocConfig ) return;
+    // _.set( this.data.item, [assocConfig.typeQueryName, 'id'], value );
+    // _.forEach( this.fields, field => {
+    //   const config = this.data.entityConfig.assocs[field.path];
+    //   if( config && config.scope ) this.options[field.name] =
+    //     _.isFunction( field.values ) ? field.values( this.data.data ) : [];
+    // });
   }
 
   protected buildForm(){
-    const definition = _.reduce( this.fields, (definition, field) => {
-      this.options[field.name] = _.isFunction( field.values ) ? field.values( this.data.data ) : [];
+    const definition = _.reduce( this.viewType[this.action].fields, (definition, field) => {
+      if( _.isFunction( field.options ) ) this.options[field.name] = field.options( this.data );
       const validators = field.required ? [Validators.required] : [];
-      const value = field.path ? field.keyValue( this.data.item ) : this.value( field, this.data.item );
-      const disabled = this.disabled( field );
-      return _.set(definition, field.name, [{value, disabled}, validators]);
+      const valueDisabled = this.resolveValueDisbled( field );
+      return _.set(definition, field.name, [valueDisabled, validators]);
     }, {} );
     this.form = this.fb.group(definition);
+  }
+
+  private resolveValueDisbled( field:FieldConfig ){
+    if( this.parent?.viewType.name !== field.name ) return { value: field.value( this.item), disabled: field.disabled };
+    if( field.type === 'assocTo' )return { value: this.parent.id, disabled: true };
+    if( field.type === 'assocToMany' ){
+      let value = field.value( this.item );
+      value = value ? _.uniq( _.concat( value, this.parent.id) ) : [this.parent.id];
+      return { value, disabled: false };
+    }
   }
 
 }

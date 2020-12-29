@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
-import { EntityConfigType } from '../../lib/admin-config';
+import { EntityConfigType } from '../../services/admin-config';
 import { AdminComponent } from '../admin.component';
 import { ConfirmDialogModel } from '../confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';

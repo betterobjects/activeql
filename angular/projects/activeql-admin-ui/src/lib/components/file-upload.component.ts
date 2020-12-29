@@ -1,14 +1,14 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { Component, EventEmitter, Output, Input, ViewChild, ElementRef } from '@angular/core';
-import { FieldConfigType } from '../lib/admin-config';
 import { AdminComponent } from './admin.component';
+import { FieldConfig } from '../services/admin-config.service';
 
 @Component({
   selector: 'admin-file-upload',
   template: `
     <div class="admin-file-upload">
       <label> {{ label( field ) }} </label>
-      <div (click)="uploadFile()" class="current" *ngIf="item" [innerHTML]="render( field, item ) | safe: 'html'"></div>
+      <div (click)="uploadFile()" class="current" *ngIf="item" [innerHTML]="field.render(item) | safe: 'html'"></div>
       <input type="file" #file (change)="onFileChange($event)" />
     </div>
   `,
@@ -16,13 +16,13 @@ import { AdminComponent } from './admin.component';
     .admin-file-upload { margin-top: 20px; }
     .current { margin-top: 20px; }
     label { color: rgba(0,0,0,.54); }
-    :host ::ng-deep img.defaultImageRender { max-height: 200px; }
+    :host ::ng-deep img.defaultImageRender { max-height: 100px; }
   `]
 })
 export class FileUploadComponent extends AdminComponent {
 
   @Input() item:any;
-  @Input() field:FieldConfigType;
+  @Input() field:FieldConfig;
   @Output() onLoad = new EventEmitter<any>();
 
   @ViewChild('file') file:ElementRef;

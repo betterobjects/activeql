@@ -4,6 +4,7 @@ import { Sort } from '../core/data-store';
 import {
   AfterResolverHook,
   AttributeResolveContext,
+  AttributeType,
   PreResolverHook,
   ResolverContext,
   ResolverHookContext,
@@ -12,7 +13,6 @@ import { Entity } from './entity';
 import { FileInfo } from './entity-file-save';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
-import { TypeAttribute } from './type-attribute';
 
 export enum CRUD  {
   CREATE = 'create',
@@ -54,7 +54,7 @@ export class EntityResolver extends EntityModule {
     return this.callWithHooks( impl, resolverCtx, this.hooks?.preTypesQuery, this.hooks?.afterTypesQuery );
   }
 
-  async resolveByQuery( resolverCtx:ResolverContext, name:string, attribute:TypeAttribute ):Promise<any|any[]>{
+  async resolveByQuery( resolverCtx:ResolverContext, name:string, attribute:AttributeType ):Promise<any|any[]>{
     const impl = async (resolverCtx:ResolverContext) => {
       await this.permissions.ensureTypesRead( resolverCtx );
       const filter = _.get( resolverCtx.args, 'filter');
@@ -112,6 +112,7 @@ export class EntityResolver extends EntityModule {
   async resolveAssocToManyTypes( refEntity:Entity, resolverCtx:ResolverContext ):Promise<any> {
     if( refEntity.isPolymorph ) return this.resolvePolymorphAssocToMany( refEntity, resolverCtx );
     const ids = _.map( _.get( resolverCtx.root, refEntity.foreignKeys ), id => _.toString(id) );
+    if( _.isNil( ids) || _.isEmpty( ids ) ) return null;
     const refResolverCtx = _.defaults( { args: { filter: { id: ids } } }, resolverCtx );
     return refEntity.resolver.resolveTypes( refResolverCtx );
   }
@@ -125,6 +126,7 @@ export class EntityResolver extends EntityModule {
   }
 
   async resolveStats( resolverCtx:ResolverContext ):Promise<any> {
+    if( _.isFunction( this.entity.statsQuery ) ) return this.entity.statsQuery( resolverCtx, this.runtime );
     await this.permissions.ensureTypesRead( resolverCtx );
     const filter = _.get( resolverCtx.args, 'filter');
     const enits = await this.accessor.findByFilter( filter );

@@ -17,10 +17,9 @@ export class AssocFromFilterType extends FilterType{
   graphqlTypeName() { return '' }
 
   attributes() { return {
-    min: { graphqlType: GraphQLInt, description: 'min referenced items' },
-    max: { graphqlType: GraphQLInt, description: 'max referenced items' }
+    min: { type: 'Int', description: 'min referenced items' },
+    max: { type: 'Int', description: 'max referenced items' }
   }}
-
 
   async setFilterExpression( expression:any, condition:any, field:string, entity:Entity ):Promise<void> {
     const refEntity = _.find( this.runtime.entities, entity => entity.plural === field );

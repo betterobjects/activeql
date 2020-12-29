@@ -10,11 +10,10 @@ import {
 } from 'graphql';
 import _ from 'lodash';
 
-import { AssocToType, AssocType } from '../core/domain-configuration';
+import { AssocToType, AssocType, AttributeType } from '../core/domain-configuration';
 import { GraphQLTypes } from '../core/graphx';
 import { Runtime } from '../core/runtime';
 import { Entity } from '../entities/entity';
-import { TypeAttribute } from '../entities/type-attribute';
 import { FilterType } from './filter-type';
 import { TypeBuilder } from './schema-builder';
 
@@ -29,7 +28,7 @@ export class EntityBuilder extends TypeBuilder {
 
   name() { return this.entity.name }
   get resolver() { return this.entity.resolver }
-  attributes():{[name:string]:TypeAttribute} { return this.entity.attributes };
+  attributes():{[name:string]:AttributeType} { return this.entity.attributes };
 
   /**
    *
@@ -180,6 +179,9 @@ export class EntityBuilder extends TypeBuilder {
       () => _.reduce( assocToMany, (fields, ref) => this.addAssocToManyForeignKeysToInput( fields, ref ), {} ));
     this.graphx.type(this.entity.filterTypeName).extendFields( // re-use input for filter intentionally
       () => _.reduce( assocToMany, (fields, ref) => this.addAssocToManyForeignKeysToInput( fields, ref ), {} ));
+    this.graphx.type(this.entity.filterTypeName).extendFields(
+      () => _.reduce( assocToMany, (fields, ref) => this.addAssocToManyToFilter( fields, ref ), {} ));
+
     }
 
   //
@@ -203,6 +205,14 @@ export class EntityBuilder extends TypeBuilder {
     return fields;
   }
 
+  private addAssocToManyToFilter( fields:any, ref:AssocType ):any {
+    const refEntity = this.runtime.entities[ref.type];
+    const filterType = this.runtime.filterTypes['IDFilter'];
+    _.set( fields, refEntity.foreignKeys, { type: filterType ? this.graphx.type(filterType.name()) : GraphQLID });
+    if( refEntity.isPolymorph ) _.set( fields, refEntity.typeField,
+      { type: this.graphx.type( refEntity.typesEnumName ) } );
+    return fields;
+  }
 
   //
   //
@@ -238,7 +248,7 @@ export class EntityBuilder extends TypeBuilder {
   private addAssocToManyReferenceToType( fields:any, ref:AssocType ):any {
     const refEntity = this.runtime.entities[ref.type];
     const refObjectType = this.graphx.type(refEntity.typeName);
-    return _.set( fields, refEntity.plural, {
+    return _.set( fields, refEntity.typesQueryName, {
       type: new GraphQLList( refObjectType),
       resolve: (root:any, args:any, context:any ) =>
         this.resolver.resolveAssocToManyTypes( refEntity, {root, args, context} )
@@ -263,7 +273,7 @@ export class EntityBuilder extends TypeBuilder {
     const refEntity = this.runtime.entities[ref.type];
     const filterType = this.runtime.filterTypes['AssocFromFilter'];
     if( ! filterType ) return fields;
-    _.set( fields, refEntity.plural, { type: this.graphx.type(filterType.name() ) });
+    _.set( fields, refEntity.typesQueryName, { type: this.graphx.type(filterType.name() ) });
     // if( refEntity.isPolymorph ) _.set( fields, refEntity.typeField,
     //   { type: this.graphx.type( refEntity.typesEnumName ) } );
     return fields;
@@ -274,7 +284,7 @@ export class EntityBuilder extends TypeBuilder {
   private addAssocFromReferenceToType(fields:any, ref:AssocType):any {
     const refEntity = this.runtime.entities[ref.type];
     const refObjectType = this.graphx.type(refEntity.typeName)
-    return _.set( fields, refEntity.plural, {
+    return _.set( fields, refEntity.typesQueryName, {
       type: new GraphQLList( refObjectType ),
       resolve: (root:any, args:any, context:any ) =>
         this.resolver.resolveAssocFromTypes( refEntity, {root, args, context} )
@@ -340,7 +350,7 @@ export class EntityBuilder extends TypeBuilder {
 
   //
   //
-  private getFieldConfig(name:string, attribute:TypeAttribute, purpose:AttributePurpose ):AttrFieldConfig|undefined {
+  private getFieldConfig(name:string, attribute:AttributeType, purpose:AttributePurpose ):AttrFieldConfig|undefined {
     if( _.includes(['createInput', 'updateInput'], purpose) && this.entity.isFileAttribute( attribute ) ) return;
     if( purpose === 'createInput' && attribute.createInput === false ) return;
     if( purpose === 'updateInput' && attribute.updateInput === false ) return;
@@ -352,7 +362,7 @@ export class EntityBuilder extends TypeBuilder {
     return fieldConfig;
   }
 
-  private getDescriptionForField(attribute:TypeAttribute, purpose:AttributePurpose):string|undefined {
+  private getDescriptionForField(attribute:AttributeType, purpose:AttributePurpose):string|undefined {
     if( ! attribute.validation ) return attribute.description;
     if( ! _.includes( ['type', 'updateInput', 'createInput'], purpose )) return attribute.description;
     const validationConfig = JSON.stringify(attribute.validation, null, 2);
@@ -363,7 +373,7 @@ export class EntityBuilder extends TypeBuilder {
 
   //
   //
-  private shouldAddNonNull( name:string, attribute:TypeAttribute, purpose:AttributePurpose ):boolean {
+  private shouldAddNonNull( name:string, attribute:AttributeType, purpose:AttributePurpose ):boolean {
     if( ! attribute.required ) return false;
     if( purpose === 'filter' ) return false;
     if( _.includes( ['createInput', 'updateInput'], purpose) && ! _.isNil( attribute.defaultValue ) ) return false;
@@ -374,7 +384,7 @@ export class EntityBuilder extends TypeBuilder {
 
   //
   //
-  private skipVirtualAttribute(name:string, attribute:TypeAttribute, purpose:AttributePurpose, fieldConfig:AttrFieldConfig ):boolean {
+  private skipVirtualAttribute(name:string, attribute:AttributeType, purpose:AttributePurpose, fieldConfig:AttrFieldConfig ):boolean {
     return attribute.virtual === true && purpose !== 'type';
   }
 
@@ -429,10 +439,10 @@ export class EntityBuilder extends TypeBuilder {
     });
   }
 
-  private addByQuery( name:string, attribute:TypeAttribute ){
+  private addByQuery( name:string, attribute:AttributeType ){
     this.graphx.type( 'query' ).extendFields( () => {
       const queryName = _.isString( attribute.queryBy ) ? attribute.queryBy :  this.entity.getByQueryName( name, attribute );
-      const byType = _.isString( attribute.graphqlType ) ? this.runtime.type( attribute.graphqlType ) : attribute.graphqlType;
+      const byType = this.runtime.type( attribute.type )
       const args = _.set( {}, name, { type: GraphQLNonNull( byType ) } );
       if( attribute.unique !== true ){
         _.set( args, 'sort', { type: this.graphx.type(this.entity.sorterEnumName) } );
@@ -550,7 +560,7 @@ export class EntityBuilder extends TypeBuilder {
   /**
    *
    */
-  private getGraphQLTypeDecorated( attr:TypeAttribute, addNonNull:boolean, purpose:AttributePurpose ):GraphQLType {
+  private getGraphQLTypeDecorated( attr:AttributeType, addNonNull:boolean, purpose:AttributePurpose ):GraphQLType {
     let type = this.getGraphQLType( attr, purpose );
     if( addNonNull ) type = new GraphQLNonNull( type ) ;
     if( attr.list ) type = new GraphQLList( type );
@@ -560,14 +570,13 @@ export class EntityBuilder extends TypeBuilder {
   /**
    *
    */
-  private getGraphQLType( attr:TypeAttribute, purpose:AttributePurpose ):GraphQLType {
-    if( ! _.isString( attr.graphqlType ) ) return attr.graphqlType;
-    const type = this.getScalarType( attr.graphqlType, purpose );
+  private getGraphQLType( attr:AttributeType, purpose:AttributePurpose ):GraphQLType {
+    const type = this.getScalarType( attr.type, purpose );
     if( type ) return type;
     try {
-      return this.graphx.type(attr.graphqlType);
+      return this.graphx.type(attr.type);
     } catch (error) {
-      console.error(`no such graphqlType:`, attr.graphqlType, ` - using GraphQLString instead` );
+      console.error(`no such graphqlType:`, attr.type, ` - using GraphQLString instead` );
     }
     return GraphQLString;
   }
@@ -585,27 +594,13 @@ export class EntityBuilder extends TypeBuilder {
   /**
    *
    */
-  private getFilterType( attr:TypeAttribute):FilterType|undefined {
+  private getFilterType( attr:AttributeType):FilterType|undefined {
     if( attr.filterType === false ) return;
 
     try {
       if( attr.filterType ) return this.runtime.graphx.type( attr.filterType );
     } catch (error) {
-      console.error( `[${this.entity.name}:${attr.graphqlType}] no such filterType: ${attr.filterType}` );
-    }
-
-    return this.getDefaultFilterTypeForAttributeType( attr );
-  }
-
-  private getDefaultFilterTypeForAttributeType( attr:TypeAttribute ):FilterType|undefined {
-    const attrType = this.getGraphQLType( attr, 'type' );
-    const filterTypeName = TypeBuilder.getFilterName( attrType );
-
-    try {
-      return this.runtime.graphx.type(filterTypeName);
-    } catch (error) {
-      console.error( `[${this.entity.name}:${attr.graphqlType}] no such filterType: ${filterTypeName}` );
+      console.error( `[${this.entity.name}:${attr.name}] no such filterType: ${attr.filterType}` );
     }
   }
-
 }

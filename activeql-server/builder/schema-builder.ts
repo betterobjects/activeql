@@ -1,8 +1,8 @@
 import { GraphQLType } from 'graphql';
 import _ from 'lodash';
 
+import { AttributeType } from '../core/domain-configuration';
 import { Runtime } from '../core/runtime';
-import { TypeAttribute } from '../entities/type-attribute';
 
 
 /**
@@ -29,16 +29,17 @@ export abstract class TypeBuilder extends SchemaBuilder {
 
   //
   //
-  static getFilterName( type:string|GraphQLType ):string {
+  static getFilterName( type:string|GraphQLType ):string|undefined {
     if( ! _.isString(type) ) type = _.get( type, 'name' );
+    if( _.includes(['File','JSON'], type ) ) return undefined;
     return `${type}Filter`
   }
 
-  attributes():{[name:string]:TypeAttribute} { return {} }
+  attributes():{[name:string]:{type: string, description?:string}} { return {} }
 
   //
   //
-  public attribute( name:string):TypeAttribute {
+  public attribute( name:string):{type: string, description?:string} {
     return this.attributes()[name];
   }
 }

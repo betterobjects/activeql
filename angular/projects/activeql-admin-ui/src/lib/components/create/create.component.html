@@ -1,5 +1,5 @@
 <mat-toolbar-row>
-  <h1> New {{ title('show') }} </h1>
+  <h1> New {{ viewType.itemTitle()  }} </h1>
   <span style="flex: 1 1 auto;"></span>
   <div mat-dialog-actions align="end">
     <button mat-flat-button color="primary" (click)="onSave()"> Save </button>
@@ -8,7 +8,13 @@
   </div>
 </mat-toolbar-row>
 
-
-<admin-form action="create" [data]="data" [submit]="submit" (saveSuccess)="onSuccess($event)"></admin-form>
+<admin-form
+  action="create"
+  [viewType]="viewType"
+  [parent]="parent"
+  [data]="data"
+  [submit]="submit"
+  (saveSuccess)="onSuccess($event)">
+</admin-form>
 
 <admin-breadcrumb [items]="breadcrumbs"></admin-breadcrumb>

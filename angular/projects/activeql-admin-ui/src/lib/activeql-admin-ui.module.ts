@@ -43,26 +43,25 @@ import { AdminRoutingModule as ActiveQLAdminRoutingModule } from './activeql-adm
 import { BreadcrumComponent } from './components/breadcumb.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { CreateComponent } from './components/create/create.component';
-import { DynContentComponent } from './components/dyn-content.component';
+import { DynamicContentComponent } from './components/dynamic-content.component';
 import { EditComponent } from './components/edit/edit.component';
-import { ErrorComponent } from './components/error.component';
-import { FileUploadComponent } from './components/file-upload.component';
 import { FormComponent } from './components/form/form.component';
-import { HomeComponent } from './components/home/home.component';
 import { IndexComponent } from './components/index/index.component';
 import { MessageDialogComponent } from './components/message-dialog/message-dialog.component';
 import { ShowComponent } from './components/show/show.component';
 import { TableComponent } from './components/table/table.component';
-import { AdminConfigType } from './lib/admin-config';
 import { SafePipe } from './pipes/safe.pipe';
-import { AdminDataResolver } from './services/admin-data.resolver';
-import { AdminService } from './services/admin.service';
+import { AdminConfigService } from './services/admin-config.service';
+import { FileUploadComponent } from './components/file-upload.component';
+
+// import { ErrorComponent } from './components/error.component';
+// import { HomeComponent } from './components/home/home.component';
 
 registerLocaleData(en);
 
 // @dynamic
-export function initializeApp1(adminService:AdminService) {
-  return () => adminService.init( async ():Promise<AdminConfigType> => ActiveQLAdminUIModule.adminConfig );
+export function initializeApp1(adminConfigService:AdminConfigService) {
+  return () => adminConfigService.init( async ():Promise<any> => ActiveQLAdminUIModule.adminConfig );
 }
 
 // @dynamic
@@ -70,18 +69,18 @@ export function initializeApp1(adminService:AdminService) {
   declarations: [
     IndexComponent,
     TableComponent,
-    ShowComponent,
-    EditComponent,
-    CreateComponent,
-    FileUploadComponent,
-    DynContentComponent,
     BreadcrumComponent,
+    DynamicContentComponent,
+    ShowComponent,
+    CreateComponent,
+    EditComponent,
     FormComponent,
     ConfirmDialogComponent,
     MessageDialogComponent,
-    ErrorComponent,
-    HomeComponent,
-    SafePipe
+    SafePipe,
+    FileUploadComponent
+    // ErrorComponent,
+    // HomeComponent,
   ],
   imports: [
     ActiveQLAdminRoutingModule,
@@ -126,26 +125,24 @@ export function initializeApp1(adminService:AdminService) {
     FlexLayoutModule
   ],
   exports: [
-    HomeComponent,
     IndexComponent,
     ShowComponent,
     EditComponent,
     CreateComponent,
     TableComponent,
-    DynContentComponent,
-    ErrorComponent
+    // HomeComponent,
+    // ErrorComponent
   ],
   providers: [
-    AdminService,
-    AdminDataResolver,
-    { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminService], multi: true },
+    AdminConfigService,
+    { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminConfigService], multi: true },
   ]
 })
 export class ActiveQLAdminUIModule {
 
-  static adminConfig:AdminConfigType;
+  static adminConfig:any;
 
-  public static forRoot(adminConfig:AdminConfigType): ModuleWithProviders<ActiveQLAdminUIModule> {
+  public static forRoot(adminConfig:any): ModuleWithProviders<ActiveQLAdminUIModule> {
     return {
       ngModule: ActiveQLAdminUIModule,
       providers: (() => {

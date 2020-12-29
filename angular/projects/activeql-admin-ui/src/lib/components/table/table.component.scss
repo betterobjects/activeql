@@ -4,7 +4,9 @@ table {
 
   .action {
     text-align: right;
+    width: 100px;
     min-width: 100px;
+    max-width: 100px;
   }
 
   a { cursor: pointer; }
@@ -14,4 +16,8 @@ table {
 :host ::ng-deep img.defaultImageRender {
   max-height: 40px;
   padding: -5px;
+}
+
+.mat-row:hover {
+  background-color: #ECF0F1;
 }

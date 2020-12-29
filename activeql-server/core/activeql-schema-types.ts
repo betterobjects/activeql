@@ -1,7 +1,6 @@
 import { GraphQLBoolean, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString, Kind } from 'graphql';
 import _ from 'lodash';
 
-import { DomainDefinition } from './domain-definition';
 import { GraphQLTypes } from './graphx';
 import { Runtime } from './runtime';
 
@@ -14,7 +13,6 @@ export const parseActiveQLScalarDate = (value:string) => {
   const pad = (i:number) => _.padStart( _.toString(i), 2, '0' );
   return `${y}-${pad(m+1)}-${pad(d)}`;
 }
-
 
 export class ActiveQLSchemaTypes {
 
@@ -107,50 +105,19 @@ export class ActiveQLSchemaTypes {
         }
       }));
 
-      if( ! _.isEmpty( this.runtime.entities) ) this.graphx.type('Entity', {
-        from: GraphQLTypes.GraphQLEnumType,
-        values: _.reduce( this.runtime.entities,
-          (value,  entity) => _.set( value, entity.name, { value: entity.name } ), {} )
+      this.graphx.type('query').extendFields( () => {
+        return _.set( {}, 'metaData', {
+          args: {
+            seeds: { type: GraphQLBoolean },
+            customQueriesMutationsSrc: { type: GraphQLBoolean },
+          },
+          type: this.graphx.type('JSON'),
+          resolve: (__:never, args:any ) =>
+            this.runtime.domainDefinition.getResolvedConfiguration( args.seed === true, args.customQueriesMutationsSrc ? 'src' : false )
+        });
       });
 
-      if( ! _.isEmpty( this.runtime.enums) ) this.graphx.type('Enum', {
-        from: GraphQLTypes.GraphQLEnumType,
-        values: _.reduce( this.runtime.enums,
-          (values, enumName) => _.set( values, enumName, { value: enumName } ), {} )
-      });
-
-      this.runtime.type('query').extendFields( () => {
-        return {
-          domainConfiguration: {
-            type: this.runtime.type( 'JSON' ),
-            args: {
-              entity: { type: this.runtime.type( _.isEmpty( this.runtime.enums) ? 'String' : 'Entity' ) },
-              enum: { type: this.runtime.type( _.isEmpty( this.runtime.enums) ? 'String' : 'Enum' ) }
-            },
-            resolve: (root:any, args:any) => this.resolveDomainDefinition( args )
-          }
-        };
-      });
     }
-  }
-
-  private resolveDomainDefinition( args:any ) {
-    if( args.entity ) return this.resolveEntityDefinition( args.entity );
-    if( args.enum ) return this.resolveEnumDefinition( args.enum );
-    const config:any = _.cloneDeep( (this.runtime.config.domainDefinition as DomainDefinition).getConfiguration() );
-    config.query = _.mapValues( config.query, () => '[Custom Function]');
-    config.mutation = _.mapValues( config.mutation, () => '[Custom Function]');
-    return config;
-  }
-
-  private resolveEntityDefinition( entity:string ) {
-    const config = _.get( this.runtime.config.domainDefinition, ['configuration', 'entity', entity ] );
-    if( config ) return _.set( {}, entity, config );
-  }
-
-  private resolveEnumDefinition( enumName:string ) {
-    const config = _.get( this.runtime.config.domainDefinition, ['configuration', 'enum', enumName ] );
-    if( config ) return _.set( {}, enumName, config );
   }
 
 }

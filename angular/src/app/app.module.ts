@@ -6,7 +6,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AdminService } from 'activeql-admin-ui';
+import { AdminConfigService } from 'activeql-admin-ui';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AboutComponent } from './components/about/about.component';
@@ -52,6 +52,7 @@ import { LoginComponent } from './components/login/login.component';
 
 import { adminConfig } from './config/admin.config';
 import { ActiveQLAdminUIModule } from 'activeql-admin-ui';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 registerLocaleData(en);
 
@@ -67,6 +68,7 @@ registerLocaleData(en);
     GraphQLModule.forRoot({uri: 'http://localhost:3000/graphql'}),
     ActiveQLAdminUIModule.forRoot( adminConfig ),
     BrowserModule,
+    FlexLayoutModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
@@ -108,7 +110,7 @@ registerLocaleData(en);
     MatTabsModule
   ],
   providers: [
-    AdminService
+    AdminConfigService
   ],
   bootstrap: [AppComponent]
 })

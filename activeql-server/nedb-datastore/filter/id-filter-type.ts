@@ -12,11 +12,11 @@ export class IdFilterType extends AttributeFilterType {
   graphqlTypeName() { return GraphQLID.name }
 
   attributes() { return {
-    is: { graphqlType: GraphQLID, description: 'equal' },
-    isNot: { graphqlType: GraphQLID, description: 'not equal' },
-    isIn: { graphqlType: new GraphQLList(GraphQLID), description: 'ID is in list' },
-    notIn: { graphqlType: new GraphQLList(GraphQLID), description: 'ID is not in list' },
-    exist: { graphqlType: GraphQLBoolean }
+    is: { type: 'ID', description: 'equal' },
+    isNot: { type: 'ID', description: 'not equal' },
+    isIn: { type: '[ID]', description: 'ID is in list' },
+    notIn: { type: '[ID]', description: 'ID is not in list' },
+    exist: { type: 'Boolean' }
   }}
 
   setFilterExpression( expression:any, condition:any, field:string ):any {
@@ -36,9 +36,10 @@ export class IdFilterType extends AttributeFilterType {
   }
 
   private getOperation( operator:string, operand:any, field:string ):any {
-    operand = _.isBoolean( operand ) ? operand :
-      _.isArray( operand ) ? _.map( operand, op => field == '_id' ? new ObjectID(op) : _.toString( op ) ) :
-      field == '_id' ? new ObjectID( operand ) : _.toString( operand );
+    operand =
+      _.isBoolean( operand ) ? operand :
+      _.isArray( operand ) ? _.map( operand, op => _.toString( op ) ) :
+      _.toString( operand );
     switch( operator ){
       case 'isNot': return { $ne : operand };
       case 'isIn': return { $in : operand };

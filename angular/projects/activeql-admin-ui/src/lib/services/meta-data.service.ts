@@ -4,54 +4,7 @@ import gql from 'graphql-tag';
 
 const query = gql`
   query {
-    metaData {
-      path
-      typeQueryName
-      typesQueryName
-      deleteMutationName
-      updateMutationName
-      updateInputTypeName
-      createMutationName
-      createInputTypeName
-      foreignKey
-      foreignKeys
-      fields {
-        name
-        type
-        required
-        unique
-        mediaType
-        filterType
-        description
-        defaultValue
-        list
-        virtual
-        createInput
-        updateInput
-        objectTypeField
-      }
-      assocTo {
-        path
-        query
-        required
-        typesQuery
-        foreignKey
-      }
-      assocToMany {
-        path
-        query
-        required
-        typesQuery
-        foreignKey
-        scope
-      }
-      assocFrom {
-        path
-        query
-        typesQuery
-        foreignKey
-      }
-    }
+    metaData
   }
 `;
 
@@ -62,7 +15,7 @@ export class MetaDataService {
 
   constructor(private apollo:Apollo) {}
 
-  async getMetaData():Promise<any[]> {
+  async getMetaData():Promise<any> {
     if( ! this.metaData ) this.metaData = await this.loadMetaData();
     return this.metaData;
   }

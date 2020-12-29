@@ -10,20 +10,16 @@ export class DateFilterType extends AttributeFilterType {
   graphqlTypeName() { return 'Date' }
 
   attributes() {
-    const dateType = this.graphx.type('Date');
     return {
-      eq: { graphqlType: dateType, description: 'equal' },
-      ne: { graphqlType: dateType, description: 'not equal' },
-      beforeOrEqual: { graphqlType: dateType },
-      before: { graphqlType: dateType },
-      afterOrEqual: { graphqlType: dateType },
-      after: { graphqlType: dateType },
-      isIn: { graphqlType: new GraphQLList( dateType ), description: 'is in list of dates' },
-      notIn: { graphqlType: new GraphQLList( dateType ), description: 'is not in list of dates' },
-      between: {
-        graphqlType: new GraphQLList( dateType ),
-        description: 'is before or equal to the first and after the last date of the list'
-      }
+      is: { type: 'Date', description: 'equal' },
+      isNot: { type: 'Date', description: 'not equal' },
+      beforeOrEqual: { type: 'Date' },
+      before: { type: 'Date' },
+      afterOrEqual: { type: 'Date' },
+      after: { type: 'Date' },
+      isIn: { type: '[Date]', description: 'is in list of dates' },
+      notIn: { type: '[Date]', description: 'is not in list of dates' },
+      between: { type: '[Date]', description: 'is before or equal to the first and after the last date of the list' }
     };
   }
 

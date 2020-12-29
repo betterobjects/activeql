@@ -11,16 +11,16 @@ export class EnumFilterType extends AttributeFilterType {
   graphqlTypeName() { return this.graphx.type( this.enumName )?.name }
 
   attributes() {
-    const enumType = this.graphx.type( this.enumName );
     return {
-      is: { graphqlType: enumType},
-      isNot: { graphqlType: enumType },
-      in: { graphqlType: new GraphQLList( enumType ) },
-      notIn: { graphqlType: new GraphQLList( enumType ) }
+      is: { type: this.enumName },
+      isNot: { type: this.enumName },
+      in: { type: `[${this.enumName}]` },
+      notIn: { type: `[${this.enumName}]` }
     }
   }
 
   getFilterExpression( condition:any, field:string ):any {
+    if( _.has( condition, 'is' ) ) return _.get( condition, 'is' );
     return _.merge( {}, ... _.compact( _.map( condition, (operand, operator) => this.getOperation( operator, operand ) ) ) );
   }
 
