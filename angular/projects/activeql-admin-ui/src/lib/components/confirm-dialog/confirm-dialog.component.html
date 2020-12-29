@@ -6,7 +6,11 @@
   <p>{{message}}</p>
 </div>
 
-<div mat-dialog-actions>
+<div *ngIf="kind === 'yesno'" mat-dialog-actions>
   <button mat-button (click)="onDismiss()">No</button>
   <button mat-raised-button color="primary" (click)="onConfirm()">Yes</button>
+</div>
+
+<div *ngIf="kind === 'ok'" mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onConfirm()">OK</button>
 </div>

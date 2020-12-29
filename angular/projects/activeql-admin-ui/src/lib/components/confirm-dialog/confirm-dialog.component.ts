@@ -9,12 +9,15 @@ export class ConfirmDialogComponent {
 
   title:string;
   message:string;
+  kind:ConfirmKind;
+
 
   constructor(
       public dialogRef:MatDialogRef<ConfirmDialogComponent>,
       @Inject(MAT_DIALOG_DATA) public data:ConfirmDialogModel) {
     this.title = data.title;
     this.message = data.message;
+    this.kind = data.kind;
   }
 
   onConfirm():void {
@@ -26,6 +29,8 @@ export class ConfirmDialogComponent {
   }
 }
 
+export type ConfirmKind = 'yesno'|'ok';
+
 /**
  * Class to represent confirm dialog model.
  *
@@ -33,6 +38,5 @@ export class ConfirmDialogComponent {
  */
 export class ConfirmDialogModel {
 
-  constructor(public title:string, public message:string) {
-  }
+  constructor( public title:string, public message:string, public kind:ConfirmKind = 'yesno' ) { }
 }

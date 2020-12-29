@@ -25,6 +25,7 @@
     </button>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="logout()">Log Out</button>
+      <button mat-menu-item (click)="seed()">Seed Data</button>
     </mat-menu>
     <button *ngIf="!user" mat-button (click)="login()">
       <mat-icon>login</mat-icon>

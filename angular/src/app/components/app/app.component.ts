@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { AdminConfigService, ConfirmDialogComponent, ConfirmDialogModel, EntityViewType } from 'activeql-admin-ui';
 import _ from 'lodash';
+import { AdminDataService } from 'projects/activeql-admin-ui/src/lib/services/admin-data.service';
 import { LoginService } from 'src/app/services/login.service';
 
 @Component({
@@ -23,6 +24,7 @@ export class AppComponent implements OnInit{
     protected dialog:MatDialog,
     protected snackBar:MatSnackBar,
     private adminConfig:AdminConfigService,
+    private adminData:AdminDataService,
     private loginService:LoginService
   ) {}
 
@@ -45,10 +47,6 @@ export class AppComponent implements OnInit{
     });
   }
 
-  logout1() {
-    if( confirm('Are you sure, you want to log-out?') ) this.loginService.logout();
-  }
-
   logout(){
     const message = `Are you sure?`;
     const dialogData = new ConfirmDialogModel('Confirm Logout', message);
@@ -57,6 +55,30 @@ export class AppComponent implements OnInit{
         dialogResult ?
           this.doLogout() :
           this.snackBar.open('Alright', 'Logout aborted', {
+            duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
+          });
+      });
+  }
+
+  seed(){
+    const message = `Are you sure to delete all existing data and fill DataStore with Seed-Data?`;
+    const dialogData = new ConfirmDialogModel('Confirm Seed', message);
+    this.dialog.open( ConfirmDialogComponent, { minWidth: '400px', maxWidth: '400px', data: dialogData } ).
+      afterClosed().subscribe(dialogResult => {
+        dialogResult ?
+          this.doSeed() :
+          this.snackBar.open('Alright', 'Nothing was deleted or seeded', {
+            duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
+          });
+      });
+  }
+
+  private async doSeed(){
+    const message = await this.adminData.seed();
+    const dialogData = new ConfirmDialogModel('Seed executed', JSON.stringify(message), 'ok');
+    this.dialog.open( ConfirmDialogComponent, { minWidth: '400px', data: dialogData } ).
+      afterClosed().subscribe(dialogResult => {
+          this.snackBar.open('Alright', 'Seed done', {
             duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
           });
       });

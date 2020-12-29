@@ -58,6 +58,7 @@ export class EntityAccessor extends EntityModule {
   async save( attributes:any, skipValidation = false ):Promise<EntityItem|ValidationViolation[]> {
     await this.setDefaultValues( attributes );
     this.setTimestamps( attributes );
+    this.sanitizeValues( attributes );
     if( ! skipValidation ){
       const validationViolations = await this.entity.validate( attributes );
       if( _.size( validationViolations ) ) return validationViolations;
@@ -115,7 +116,7 @@ export class EntityAccessor extends EntityModule {
       const defaultValue = _.isFunction( attribute.defaultValue ) ?
         await Promise.resolve( attribute.defaultValue( attributes, this.runtime ) ) :
         attribute.defaultValue;
-      _.set( attributes, name, this.sanitizedValue( attribute, defaultValue ) );
+      _.set( attributes, name, defaultValue );
     }
   }
 
@@ -126,6 +127,14 @@ export class EntityAccessor extends EntityModule {
     const now = new Date();
     if( ! attributes.id ) _.set( attributes, 'createdAt', now );
     _.set( attributes, 'updatedAt', now );
+  }
+
+  private sanitizeValues( item:any ){
+    _.forEach( this.entity.attributes, (attribute, name) => {
+      const value = _.get( item, name);
+      if( _.isNil( value ) ) return;
+      _.set( item, name, this.sanitizedValue( attribute, value ) );
+    });
   }
 
   private sanitizedValue( attribute:AttributeType, value:any ){

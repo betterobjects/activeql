@@ -33,6 +33,17 @@ export class AdminDataService  {
     });
   }
 
+  seed():Promise<any>{
+    const mutation = gql`mutation { seed( truncate: true ) }`;
+    return new Promise( (resolve, reject) => {
+      this.apollo.mutate({ mutation }).subscribe(({data, errors}) => {
+        if( errors ) return reject( errors );
+        resolve( data );
+      }, error => reject( error ) );
+    });
+  }
+
+
   private sanitizeInput( input:any, entity:EntityType ):void {
     this.sanitizeAssocToInput( input, entity );
     this.sanitizeAssocToManyInput( input, entity );
