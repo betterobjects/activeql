@@ -436,6 +436,7 @@ export class AdminConfigService { 
     if( field.control ) return;
     if( field.options ) return field.control = attribute.list ? 'multiple' : 'select';
     if( _.includes(['Int', 'Float' ], attribute.type ) ) return field.control = 'number';
+    if( _.includes(['Date'], attribute.type ) ) return field.control = 'datepicker';
   }
 
   private defaultEnumOptionsFn = (enumName:string) => () => {

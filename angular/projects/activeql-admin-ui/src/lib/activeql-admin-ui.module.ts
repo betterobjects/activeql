@@ -13,7 +13,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatRippleModule } from '@angular/material/core';
+import { MatNativeDateModule, MatRippleModule, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -58,6 +58,20 @@ import { ErrorComponent } from './components/error.component';
 
 registerLocaleData(en);
 
+
+export const DD_MM_YYYY_Format = {
+  parse: {
+      dateInput: 'LL',
+  },
+  display: {
+      dateInput: 'DD-MM-YYYY',
+      monthYearLabel: 'MMM YYYY',
+      dateA11yLabel: 'LL',
+      monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
+
 // @dynamic
 export function initializeApp1(adminConfigService:AdminConfigService) {
   return () => adminConfigService.init( async ():Promise<any> => ActiveQLAdminUIModule.adminConfig );
@@ -100,6 +114,7 @@ export function initializeApp1(adminConfigService:AdminConfigService) {
     MatCheckboxModule,
     MatChipsModule,
     MatDatepickerModule,
+    MatNativeDateModule,
     MatDialogModule,
     MatDividerModule,
     MatExpansionModule,
@@ -133,6 +148,7 @@ export function initializeApp1(adminConfigService:AdminConfigService) {
   providers: [
     AdminConfigService,
     { provide: APP_INITIALIZER ,useFactory: initializeApp1, deps: [AdminConfigService], multi: true },
+    { provide: MAT_DATE_FORMATS, useValue: DD_MM_YYYY_Format }
   ]
 })
 export class ActiveQLAdminUIModule {
