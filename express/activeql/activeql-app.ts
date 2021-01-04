@@ -34,8 +34,8 @@ const apolloConfig:ApolloServerExpressConfig = { validationRules: [depthLimit(7)
 // ActiveQL config
 const runtimeConfig = { domainDefinition };
 
-export const activeql = async( app: any ) => {
-  addJwtLogin( domainDefinition, app );
+export const activeqlServer = async( app: any ) => {
+  addJwtLogin( app, domainDefinition );
   app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
   const server = await ActiveQLServer.create( apolloConfig, runtimeConfig );
   server.applyMiddleware({ app, path: GRAPHQL_URL });
