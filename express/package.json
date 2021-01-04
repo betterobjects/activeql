@@ -7,7 +7,7 @@
     "build": "rimraf dist && tsc",
     "watch:build": "tsc --watch",
     "start": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --no-notify --inspect --watch ./domain-configuration -- ./app.ts",
-    "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./seed.ts",
+    "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/seed.ts",
     "test": "jest --watch --detectOpenHandles"
   },
   "dependencies": {
