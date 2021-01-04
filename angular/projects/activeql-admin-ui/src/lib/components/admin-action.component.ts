@@ -35,6 +35,7 @@ export abstract class AdminActionComponent extends AdminComponent {
   abstract action():string;
 
   ngOnInit() {
+
     this.route.params.subscribe( (params:any) => {
       const parentPath = params['parent'];
       const parentId = params['parentId'];

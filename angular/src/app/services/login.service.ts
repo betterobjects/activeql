@@ -17,7 +17,21 @@ export class LoginService {
     return username;
   }
 
-  constructor( protected apollo:Apollo ){}
+  constructor( protected apollo:Apollo ){
+    this.jwtValid();
+  }
+
+  jwtValid(){
+    const query = gql`query { jwtValid }`;
+    return new Promise( (resolve,reject) => this.apollo.query({ query, errorPolicy: 'all' }).subscribe(({data, errors}) => {
+      const valid = _.get(data, 'jwtValid');
+      if( ! valid ) this.removeFromLocalStorage();
+      resolve( valid );
+      this.loginStatus.next('login');
+    }, error => {
+      reject( error );
+    }));
+  }
 
   login( username:string, password:string ):Promise<boolean> {
     const mutation = gql`mutation {  login ( username: "${username}", password: "${password}" )  }`;

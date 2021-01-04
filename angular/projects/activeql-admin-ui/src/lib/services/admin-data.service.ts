@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import _, { reject } from 'lodash';
+import _ from 'lodash';
 
 import { EntityType } from './domain-configuration';
 import { AdminConfigService, SaveResult } from '../services/admin-config.service';
@@ -15,8 +15,8 @@ export class AdminDataService  {
     private apollo:Apollo
   ) {}
 
-  save( id:string|undefined, input:any, files:_.Dictionary<File>, entity:EntityType ):Promise<SaveResult> {
-    this.sanitizeInput( input, entity );
+  async save( id:string|undefined, input:any, files:_.Dictionary<File>, entity:EntityType ):Promise<SaveResult> {
+    await this.sanitizeInput( input, entity );
     const variables = _.set( {}, 'input', input );
     _.merge( variables, files );
     return id ? this.update( id, variables, entity ) : this.create( variables, entity );
@@ -44,28 +44,30 @@ export class AdminDataService  {
   }
 
 
-  private sanitizeInput( input:any, entity:EntityType ):void {
-    this.sanitizeAssocToInput( input, entity );
-    this.sanitizeAssocToManyInput( input, entity );
+  private async sanitizeInput( input:any, entity:EntityType ) {
+    await this.sanitizeAssocToInput( input, entity );
+    await this.sanitizeAssocToManyInput( input, entity );
     this.sanitizeAttributeInput( input, entity );
   }
 
-  private sanitizeAssocToInput( input:any, entity:EntityType ):void {
+  private async sanitizeAssocToInput( input:any, entity:EntityType ){
+    const domainConfiguration = await this.adminConfig.domainConfiguration;
     _.forEach( entity.assocTo, assocTo => {
       const id = _.get( input, assocTo.type );
       if( _.isNil( id ) ) return;
-      const assocEntity = _.get( this.adminConfig.domainConfiguration, ['entity', assocTo.type ] );
+      const assocEntity = _.get( domainConfiguration, ['entity', assocTo.type ] );
       _.unset( input, assocTo.type );
       _.set( input, assocEntity.foreignKey, id );
     });
   }
 
-  private sanitizeAssocToManyInput( input:any, entity:EntityType ):void {
+  private async sanitizeAssocToManyInput( input:any, entity:EntityType ) {
+    const domainConfiguration = await this.adminConfig.domainConfiguration;
     _.forEach( entity.assocToMany, assocToMany => {
       let ids = _.get( input, assocToMany.type );
       if( _.isNil( ids ) ) return;
       if( ! _.isArray( ids ) ) ids = [ids]
-      const assocEntity = _.get( this.adminConfig.domainConfiguration, ['entity', assocToMany.type ] );
+      const assocEntity = _.get( domainConfiguration, ['entity', assocToMany.type ] );
       _.unset( input, assocToMany.type );
       _.set( input, assocEntity.foreignKeys, ids );
     });

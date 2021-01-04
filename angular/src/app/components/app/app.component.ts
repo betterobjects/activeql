@@ -16,8 +16,7 @@ export class AppComponent implements OnInit{
 
   loading = false;
   entities:EntityViewType[] = [];
-
-  get user() { return this.loginService.user }
+  user:any = undefined;
 
   constructor(
     private router:Router,
@@ -29,8 +28,8 @@ export class AppComponent implements OnInit{
   ) {}
 
   ngOnInit(){
-    this.setEntities();
-    this.loginService.loginStatus.subscribe(()=> this.setEntities());
+    this.onLoginStatus();
+    this.loginService.loginStatus.subscribe(()=> this.onLoginStatus() );
     this.router.events.subscribe((event:Event) => {
       switch (true) {
         case event instanceof NavigationStart: {
@@ -95,8 +94,11 @@ export class AppComponent implements OnInit{
     this.router.navigate(['/login']);
   }
 
-  private setEntities(){
-    this.entities = _.values( this.adminConfig.entityViewTypes  );
-    if( ! this.user ) this.entities = _.filter( this.entities, entity => _.isNil( entity.entity.permissions ) );
+  private onLoginStatus(){
+    this.user = this.loginService.user;
+    this.entities = this.user ?
+      this.adminConfig.getEntities() :
+      _.filter( this.adminConfig.getEntities(), entity => _.isNil( entity.entity.permissions ) );
   }
+
 }

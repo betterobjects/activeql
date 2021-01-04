@@ -94,6 +94,18 @@ export class ActiveQLSchemaTypes {
       })
     });
 
+    this.graphx.type('query').extendFields( () => {
+      return _.set( {}, 'domainConfiguration', {
+        args: {
+          seeds: { type: GraphQLBoolean },
+          customQueriesMutationsSrc: { type: GraphQLBoolean },
+        },
+        type: this.graphx.type('JSON'),
+        resolve: (__:never, args:any ) =>
+          this.runtime.domainDefinition.getResolvedConfiguration( args.seed === true, args.customQueriesMutationsSrc ? 'src' : false )
+      });
+    });
+
 
     if(this.runtime.config.stage === 'development') {
 
@@ -104,19 +116,6 @@ export class ActiveQLSchemaTypes {
           resolve: ( root:any, args:any ) =>  this.runtime.seed( args.truncate )
         }
       }));
-
-      this.graphx.type('query').extendFields( () => {
-        return _.set( {}, 'metaData', {
-          args: {
-            seeds: { type: GraphQLBoolean },
-            customQueriesMutationsSrc: { type: GraphQLBoolean },
-          },
-          type: this.graphx.type('JSON'),
-          resolve: (__:never, args:any ) =>
-            this.runtime.domainDefinition.getResolvedConfiguration( args.seed === true, args.customQueriesMutationsSrc ? 'src' : false )
-        });
-      });
-
     }
   }
 

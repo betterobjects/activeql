@@ -6,8 +6,7 @@ const truncate = true;
 
 (async () => {
   console.log('Seeding datastore...');
-  const runtime = await activeqlSeeed();
-  const result = await runtime.seed( truncate );
-  console.log( _.join(result, '\n') );
+  const result = await activeqlSeeed( truncate );
+  console.log( _.join(result, '\n'), '\n' );
   exit();
 })();

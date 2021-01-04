@@ -6,7 +6,7 @@
     "clean": "rimraf dist",
     "build": "rimraf dist && tsc",
     "watch:build": "tsc --watch",
-    "start": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --no-notify --inspect -- ./app.ts",
+    "start": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --no-notify --inspect --watch ./domain-configuration -- ./app.ts",
     "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./seed.ts",
     "test": "jest --watch --detectOpenHandles"
   },
@@ -20,6 +20,8 @@
     "express-jwt": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
+    "reload": "^3.1.1",
+    "watch": "^1.0.2",
     "yaml": "^1.7.2"
   },
   "devDependencies": {

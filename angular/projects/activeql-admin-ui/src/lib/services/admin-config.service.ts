@@ -1,9 +1,10 @@
+import { templateJitUrl } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { EventEmitter } from 'events';
 import inflection from 'inflection';
 import _ from 'lodash';
 import { AssocToType, AssocToManyType, AttributeType, DomainConfigurationType, EntityType } from './domain-configuration';
-import { MetaDataService } from './meta-data.service';
+import { DomainConfigurationService } from './domain-configuration.service';
 
 const nameCandidates = ['name', 'Name', 'NAME'];
 const keyCandidates = ['key', 'Key', 'KEY', 'id', 'Id', 'ID'];
@@ -138,19 +139,18 @@ export type SaveResult = {
 @Injectable({providedIn: 'root'})
 export class AdminConfigService { 
 
-  adminConfig:AdminConfig = {};
-
-  entityViewTypes:{[name:string]:EntityViewType} = {};
-  domainConfiguration:DomainConfigurationType = { entity: {}, enum: {} }
-  onReady = new EventEmitter();
+  private adminConfig:AdminConfig = {};
+  private entityViewTypes:{[name:string]:EntityViewType} = {};
+  domainConfiguration:DomainConfigurationType = undefined;
   get adminLinkPrefix() { return this.adminConfig.adminLinkPrefix || '/admin' }
+  onReady = new EventEmitter();
 
-  constructor( private metaDataService:MetaDataService ){}
+  constructor( private domainConfigurationService:DomainConfigurationService ){}
 
   async init( adminConfig:() => Promise<any> ):Promise<any> {
-    this.domainConfiguration = await this.metaDataService.getMetaData();
     this.adminConfig = await adminConfig();
-    this.resolveViewTypes();
+    this.domainConfiguration = await this.domainConfigurationService.getDomainConfiguration();
+    console.log( this.domainConfiguration );
   }
 
   /** @deprecated */
@@ -159,16 +159,21 @@ export class AdminConfigService { 
   }
 
   getEntityView( path:string ):EntityViewType {
-    if(_.isEmpty( this.entityViewTypes ) ) this.resolveViewTypes();
+    if(_.isEmpty( this.entityViewTypes ) ) this.resolveConfig();
     return _.get( this.entityViewTypes, path );
   }
 
   getEntityViewByName( name:string ):EntityViewType {
-    if(_.isEmpty( this.entityViewTypes ) ) this.resolveViewTypes();
+    if(_.isEmpty( this.entityViewTypes ) ) this.resolveConfig();
     return _.find( this.entityViewTypes, entityViewType => entityViewType.name === name );
   }
 
-  private resolveViewTypes(){
+  getEntities(){
+    if(_.isEmpty( this.entityViewTypes ) ) this.resolveConfig();
+    return _.values( this.entityViewTypes  );
+  }
+
+  private async resolveConfig(){
     this.entityViewTypes = {};
     _.forEach( this.domainConfiguration.entity, (entity, name) => {
       _.set( entity, 'name', name );
