@@ -1,0 +1,30 @@
+enum:
+  CarBrand:
+    - Mercedes
+    - Porsche
+    - Audi
+    - BMW
+
+entity:
+  Car:
+    attributes:
+      licence: Key
+      brand: String!
+      color: String
+      mileage: Int
+    seeds:
+      3:
+        licence:
+          faker: vehicle.vin
+        brand:
+          sample: CarBrand
+        color:
+          sample:
+            - red
+            - green
+            - white
+            - black
+        mileage:
+          random:
+            min: 10000
+            max: 120000
