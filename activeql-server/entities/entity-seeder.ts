@@ -25,7 +25,7 @@ export class EntitySeeder extends EntityModule {
   /**
    *
    */
-  public async seedAttributes():Promise<any> {
+  public async seedAttributes( ):Promise<any> {
     const ids = {};
     const seeds = this.getSeedsDictionary();
 
@@ -112,6 +112,7 @@ export class EntitySeeder extends EntityModule {
   private async resolveSeedValue( value:SeedAttributeType, seed:SeedType, idsMap?:any ) {
     return  _.isFunction( value ) ? Promise.resolve( value( { seed, runtime: this.runtime, idsMap } ) ) :
             _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
+            _.has( value, 'faker' ) ? this.getFaker( value, seed, idsMap ) :
             _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap ) :
             _.has( value, 'random' ) ? this.getRandom( value, seed, idsMap ) :
             _.has( value, 'hash' ) ? this.getHash( value ) :
@@ -231,6 +232,21 @@ export class EntitySeeder extends EntityModule {
     }
   }
 
+  private async getFaker( value:any, _seed:any, _idsMap?:any ):Promise<any>{
+    if( this.skipShare( value ) ) return undefined;
+    const locale = _.get( this.runtime.config.domainDefinition, 'locale', 'en' )
+    const faker:any = _.get(fakers, locale, FakerEN );
+    try {
+      const fakerValues = _.split( value.faker, '.' );
+      const fakerCategory = _.first( fakerValues ) || '';
+      const fakerFunction = _.last( fakerValues ) || '';
+      return faker[fakerCategory][fakerFunction]();
+    } catch (error) {
+      console.error( `could not get faker value for '${value.faker}'\n`, error);
+    }
+  }
+
+
   private async getRandom( value:any, _seed:any, idsMap?:any ):Promise<any>{
     if( this.skipShare( value ) ) return undefined;
     const min = value.min || 0;
@@ -252,6 +268,12 @@ export class EntitySeeder extends EntityModule {
 
     if( _.isArray( value.sample) ) return sampleSize ?
       _.sampleSize( value.sample, size ) : _.sample( value.sample );
+
+    if( _.includes( this.runtime.enums, value.sample ) ){
+      const enumType = this.runtime.type( value.sample );
+      const enumValues = _.map( enumType.getValues(), value => value.value );
+      return sampleSize ? _.sampleSize( enumValues, size ) : _.sample( enumValues );
+    }
 
     const src = _.keys( idsMap[ value.sample ] );
     const ref = sampleSize ? _.sampleSize( src, size ) : _.sample( src );
