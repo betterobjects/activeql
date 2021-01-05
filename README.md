@@ -13,43 +13,25 @@ You can find the [documentation here](https://betterobjects.github.io/activeql/)
 
 # Use ActiveQL
 
-To develop applications with ActiveQL you do not need this repository but use instead either the Starter-Application (recommended) or embedd the ActiveQL Express-Server (and optionally Admin-UI client) library in your application.
+To develop applications with ActiveQL you do not need this repository but use instead either 
+
+### Application Generator 
+
+```
+npx betterobjects/activeql-generator
+```
 
 ## Starter-Application 
 
-The easiest and fastest way to start developing a GraphQL API (and optional UI) with ActiveQL is to clone the ActiveQL-Starter-Application: 
+You could also clone the ActiveQL-Starter-Application: 
 
 [https://betterobjects.github.com/activeql-app](https://betterobjects.github.com/activeql-app)
-
-Image
-
-Image
-
-After you cloned your repository, you could start by adding an entity ( e.g. `Car`) in the folder `./express/domain-configuration`.
-
-```yaml
-Car: 
-  attributes: 
-    brand: String!
-    model: String!
-    color: String
-    mileage: Int
-```
-
-You would then start the ActiveQL Server by
-
-```
-cd express
-npm run start
-```
-
-If you go with a browser to `http://localhost:3000/graphql` you should see the generated schema and be able to call queries and mutations. 
 
 
 ## Embed Libraries 
 
 You can also use the following libraries in your in your ExpressJS and optionally Angular Applications and follow the documentation how to embed them. We suggest taking a a look into the [Starter Application](#starter-application.md) to see how to use it.
-
+w
 | Libray            | URL                                                 | 
 | ----------------- | --------------------------------------------------- | 
 | ActiveQLServer    | https://www.npmjs.com/package/activeql-server       |
@@ -78,3 +60,9 @@ You have to run `npm install` in this folders:
 | Angular           | `npm run ng`    | starts the Angular Admin UI application       |
 | Express & Angular | `npm run dev`   | starts the Express and Angular application    |
 
+### Publish package 
+
+```
+npm version patch 
+npm publish
+```
