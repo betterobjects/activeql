@@ -8,7 +8,7 @@ import expressJwt from 'express-jwt';
 require('dotenv').config();
 
 const CLAIM = 'https://activeql.io';
-const SECRET = process.env.JWT_SECRET || '';
+const SECRET = process.env.JWT_SECRET || 'My$3cr3Tf0r$1gn1n9';
 const ALGORITHM = 'HS256';
 
 export const addJwtLogin = ( app:any, domainDefinition:DomainDefinition ) => {
