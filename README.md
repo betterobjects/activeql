@@ -62,6 +62,8 @@ You have to run `npm install` in this folders:
 
 ### Publish package 
 
+In folder `./angular/projects/activeql-admin-ui` and `./activeql-server` do 
+
 ```
 npm version patch 
 npm publish
