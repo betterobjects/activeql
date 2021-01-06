@@ -30,6 +30,7 @@
     "apollo-client": "^2.6.0",
     "apollo-link": "^1.2.11",
     "apollo-link-context": "^1.0.20",
+    "apollo-link-error": "^1.1.13",
     "concurrently": "^5.2.0",
     "graphql": "^14.6.0",
     "graphql-tag": "^2.10.0",
