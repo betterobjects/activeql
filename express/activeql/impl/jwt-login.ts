@@ -11,12 +11,15 @@ const CLAIM = 'https://activeql.io';
 const SECRET = process.env.JWT_SECRET || 'My$3cr3Tf0r$1gn1n9';
 const ALGORITHM = 'HS256';
 
-export const addJwtLogin = ( app:any, domainDefinition:DomainDefinition ) => {
+export const addJwtLogin = (domainDefinition:DomainDefinition) => {
+  domainDefinition.add( domainConfiguration );
+  domainDefinition.contextFn.push( addPrincipalToApolloContext );
+}
+
+export const useJwtLogin = (app:any) => {
   app.use( expressJwt({ secret: SECRET, algorithms: [ALGORITHM], credentialsRequired: false } ),
     (err:any, req:any, res:any, next:any) => err.code === 'invalid_token' ? next() : next( err ) );
     // https://github.com/auth0/express-jwt/issues/194
-  domainDefinition.add( domainConfiguration );
-  domainDefinition.contextFn.push( addPrincipalToApolloContext );
 }
 
 const generateToken = (principal:any) => sign(
