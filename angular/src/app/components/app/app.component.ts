@@ -21,6 +21,7 @@ export class AppComponent implements OnInit{
 
   loading = false;
   entities:EntityViewType[] = [];
+  networkError = false;
   user:any = undefined;
 
   constructor(
@@ -101,6 +102,7 @@ export class AppComponent implements OnInit{
 
   private onLoginStatus(){
     this.user = this.loginService.user;
+    this.networkError = this.adminConfig.networkError;
     this.entities = this.user ?
       this.adminConfig.getEntities() :
       _.filter( this.adminConfig.getEntities(), entity => _.isNil( entity.entity.permissions ) );

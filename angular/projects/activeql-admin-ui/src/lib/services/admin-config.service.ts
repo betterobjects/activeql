@@ -144,13 +144,19 @@ export class AdminConfigService { 
   domainConfiguration:DomainConfigurationType = undefined;
   get adminLinkPrefix() { return this.adminConfig.adminLinkPrefix || '/admin' }
   onReady = new EventEmitter();
+  networkError = false;
 
   constructor( private domainConfigurationService:DomainConfigurationService ){}
 
   async init( adminConfig:() => Promise<any> ):Promise<any> {
-    this.adminConfig = await adminConfig();
-    this.domainConfiguration = await this.domainConfigurationService.getDomainConfiguration();
-    console.log( this.domainConfiguration );
+    try{
+      this.adminConfig = await adminConfig();
+      this.domainConfiguration = await this.domainConfigurationService.getDomainConfiguration();
+    } catch( error ){
+      console.error( error );
+      this.networkError = true;
+    }
+
   }
 
   /** @deprecated */

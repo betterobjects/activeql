@@ -7,8 +7,10 @@
     </div>
 
     <a mat-button routerLink="/">
-      <a href="/"><h1>ActiveQL Admin UI</h1></a>
+      <a href="/"><h1>ActiveQL</h1></a>
     </a>
+    <span class="example-spacer"></span>
+    <span *ngIf="networkError">[GraphQL Server Not Reachable]</span>
     <span class="example-spacer"></span>
     <div fxShow="true" fxHide.lt-md="true">
       <a *ngFor="let entity of entities"
