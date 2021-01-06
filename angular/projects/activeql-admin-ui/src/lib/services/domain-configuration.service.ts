@@ -22,13 +22,15 @@ export class DomainConfigurationService {
   }
 
   private async loadDomainConfiguration():Promise<any[]> {
-    return new Promise( (resolve,reject) => this.apollo.query({ query, errorPolicy: 'all' }).subscribe(({data, errors}) => {
-      if( errors ) reject( errors );
-      resolve( _.get(data, 'domainConfiguration' ));
-    }, error => {
-      reject( error );
-    }));
+    return new Promise( (resolve,reject) => {
+      const result = this.apollo.query({ query, errorPolicy: 'all' });
+      result.subscribe(({data, errors}) => {
+        if( errors ) reject( errors );
+        resolve( _.get(data, 'domainConfiguration' ));
+      }, error => {
+        reject( error );
+      });
+    });
   }
-
 
 }
