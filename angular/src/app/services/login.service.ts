@@ -29,7 +29,7 @@ export class LoginService {
       resolve( valid );
       this.loginStatus.next('login');
     }, error => {
-      reject( error );
+      this.loginStatus.next('network-error');
     }));
   }
 
