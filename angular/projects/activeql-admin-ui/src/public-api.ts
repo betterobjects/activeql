@@ -18,8 +18,6 @@ export * from './lib/components/dynamic-content.component';
 export * from './lib/components/file-upload.component';
 export * from './lib/components/message-dialog/message-dialog.component';
 export * from './lib/components/confirm-dialog/confirm-dialog.component';
-
 export * from './lib/components/breadcumb.component';
-
 export * from './lib/services/admin-config.service';
 export * from './lib/services/admin-data.service';
