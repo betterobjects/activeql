@@ -10,7 +10,7 @@ import { AdminComponent } from './admin.component';
 import { ConfirmDialogComponent, ConfirmDialogModel } from './confirm-dialog/confirm-dialog.component';
 import { MessageDialogComponent } from './message-dialog/message-dialog.component';
 
-export abstract class AdminActionComponent extends AdminComponent {
+export class AdminActionComponent extends AdminComponent {
 
   data:any;
   viewType:EntityViewType;
@@ -32,10 +32,9 @@ export abstract class AdminActionComponent extends AdminComponent {
     protected adminConfigService:AdminConfigService ){ super() }
 
 
-  abstract action():string;
+  action():string { return 'none' }
 
   ngOnInit() {
-
     this.route.params.subscribe( (params:any) => {
       const parentPath = params['parent'];
       const parentId = params['parentId'];
