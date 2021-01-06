@@ -114,7 +114,7 @@ export class EntitySeeder extends EntityModule {
             _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
             _.has( value, 'faker' ) ? this.getFaker( value, seed, idsMap ) :
             _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap ) :
-            _.has( value, 'random' ) ? this.getRandom( value, seed, idsMap ) :
+            _.has( value, 'random' ) ? this.getRandom( value ) :
             _.has( value, 'hash' ) ? this.getHash( value ) :
             value;
   }
@@ -247,11 +247,11 @@ export class EntitySeeder extends EntityModule {
   }
 
 
-  private async getRandom( value:any, _seed:any, idsMap?:any ):Promise<any>{
+  private async getRandom( value:any ):Promise<any>{
     if( this.skipShare( value ) ) return undefined;
-    const min = value.min || 0;
-    const max = value.min || 999999;
-    return _.random( min, max );
+    const min = _.isNumber( value.random ) ? 0 : _.get( value, 'random.min' );
+    const max = _.isNumber( value.random ) ? value.random : _.get( value, 'random.max' );
+    return _.random( min || 0, max || 999999 );
   }
 
   private async getSample( value:any, _seed:any, idsMap?:any ):Promise<any>{
