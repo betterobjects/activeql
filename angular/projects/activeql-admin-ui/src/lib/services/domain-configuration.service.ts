@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
-import { LoginService } from 'src/app/services/login.service';
 
 const query = gql`
   query {
