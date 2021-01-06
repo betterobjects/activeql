@@ -2,9 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Event, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
-import { AdminConfigService, ConfirmDialogComponent, ConfirmDialogModel, EntityViewType } from 'activeql-admin-ui';
+import {
+  AdminConfigService,
+  AdminDataService,
+  ConfirmDialogComponent,
+  ConfirmDialogModel,
+  EntityViewType,
+} from 'activeql-admin-ui';
 import _ from 'lodash';
-import { AdminDataService } from 'projects/activeql-admin-ui/src/lib/services/admin-data.service';
 import { LoginService } from 'src/app/services/login.service';
 
 @Component({
