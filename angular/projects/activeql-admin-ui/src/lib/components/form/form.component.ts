@@ -1,11 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormGroup, Validators } from '@angular/forms';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 
 import { Action, EntityViewType, FieldConfig, ParentType, ViolationType } from '../../services/admin-config.service';
-import { AdminDataService } from '../../services/admin-data.service';
 import { AdminComponent } from '../admin.component';
 
 @Component({
@@ -28,12 +26,6 @@ export class FormComponent extends AdminComponent implements OnInit {
   form!:FormGroup
   options = {}
   files:_.Dictionary<File> = {}
-
-  constructor(
-    protected fb:FormBuilder,
-    protected adminDataService:AdminDataService,
-    protected snackBar:MatSnackBar
-  ){ super() }
 
   ngOnInit(){
     this.buildForm();

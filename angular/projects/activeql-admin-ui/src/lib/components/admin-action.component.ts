@@ -1,15 +1,12 @@
-import { HostListener } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Directive, HostListener } from '@angular/core';
 import _ from 'lodash';
 
-import { AdminConfigService, EntityViewType, ParentType } from '../services/admin-config.service';
-import { AdminDataService } from '../services/admin-data.service';
+import { EntityViewType, ParentType } from '../services/admin-config.service';
 import { AdminComponent } from './admin.component';
 import { ConfirmDialogComponent, ConfirmDialogModel } from './confirm-dialog/confirm-dialog.component';
 import { MessageDialogComponent } from './message-dialog/message-dialog.component';
 
+@Directive()
 export class AdminActionComponent extends AdminComponent {
 
   data:any;
@@ -22,15 +19,6 @@ export class AdminActionComponent extends AdminComponent {
   get items() { return _.get( this.data, [this.viewType.entity.typesQueryName]) }
   get item() { return _.get( this.data, [this.viewType.entity.typeQueryName]) }
   get parentItem() { return _.get( this.data, [this.parent.viewType.entity.typeQueryName ]) }
-
-  constructor(
-    protected route:ActivatedRoute,
-    protected router:Router,
-    protected dialog:MatDialog,
-    protected snackBar:MatSnackBar,
-    private adminDataService:AdminDataService,
-    protected adminConfigService:AdminConfigService ){ super() }
-
 
   action():string { return 'none' }
 

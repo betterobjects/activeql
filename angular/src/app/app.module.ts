@@ -40,7 +40,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ActiveQLAdminUIModule, AdminConfigService } from 'activeql-admin-ui';
+import { ActiveQLAdminUIModule } from 'activeql-admin-ui';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './components/app/app.component';
