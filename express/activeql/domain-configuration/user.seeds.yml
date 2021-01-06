@@ -1,0 +1,20 @@
+entity:
+  User:
+    seeds:
+      admin:
+        username: admin
+        password:
+          hash: admin
+        roles: admin
+      manager:
+        username: manager
+        password:
+          hash: manager
+        roles:
+          - manager
+          - user
+      user:
+        username: user
+        password:
+          hash: user
+        roles: user
