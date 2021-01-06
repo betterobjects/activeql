@@ -132,9 +132,16 @@ export class EntityAccessor extends EntityModule {
   private sanitizeValues( item:any ){
     _.forEach( this.entity.attributes, (attribute, name) => {
       const value = _.get( item, name);
-      if( _.isNil( value ) ) return;
-      _.set( item, name, this.sanitizedValue( attribute, value ) );
+      if( _.isNil( value ) ) return _.unset( item, name );
+      _.set( item, name, attribute.list ?
+        this.sanitizedListValues( attribute, value ) :
+        this.sanitizedValue( attribute, value ) );
     });
+  }
+
+  private sanitizedListValues(attribute:AttributeType, values:any):any[]{
+    if( ! _.isArray( values ) ) values = [values];
+    return _.map( values, value => this.sanitizedValue( attribute, value ) );
   }
 
   private sanitizedValue( attribute:AttributeType, value:any ){
