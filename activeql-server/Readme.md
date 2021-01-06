@@ -1,134 +1,260 @@
 # ActiveQL Server
 
-This is the server package for ActiveQL - A framework for building domain driven GraphQL APIs with an oppionated approach and _convention over configuration_ and _DRY_ in mind. Based on a simple domain configuration (mainly entities with attributes and their relationships) it 
+This is the server package for ActiveQL - a framework for building domain driven GraphQL APIs with an oppionated approach and _convention over configuration_ and _DRY_ in mind. Based on a simple domain configuration (mainly entities with attributes and their relationships) it 
 
   * generates a full GraphQL schema with aspects like searching, sorting, paging, permission access etc.   
-  * provides a full fledged GraphQL API with resolvers - powered by [Apollo](https://www.apollographql.com) and [MongoDB](https://www.mongodb.com) (other Databases can be supported as well)
-  * provides an Admin UI for basic CRUD applications 
+  * provides a full fledged GraphQL API with resolvers 
   * allows to be extended for any non-convention requirement with custom code
+  * provides an Admin UI for basic CRUD applications; see: [https://www.npmjs.com/package/activeql-admin-ui](https://www.npmjs.com/package/activeql-admin-ui)
 
-You can find the [documentation here](https://betterobjects.github.io/activeql/)
+You can find the [full documentation and tutorial here](https://betterobjects.github.io/activeql).
 
+## Start Developing
 
-## Starter Application 
+To start developing a GraphQL API you could embedd this library in your [Express](http://expressjs.com) application - but we recommend one the following methods that provides you with an instantly up-and-running environment. 
 
-The easiest and fastest way to start developing a GraphQL API (and optional UI) with ActiveQL is **not** to use this library but to use the ActiveQL-Starter-Application. 
+### Application Generator (not yet fully functional)
 
-You can clone this here: [https://betterobjects.github.com/activeql-app](https://betterobjects.github.com/activeql-app)
-
-You find all necessary instructions there. 
-
-
-## Embedding the library in your own application
-
-Instead of using the ActiveQL-Starter-Application you can of course also embedd this library in your own [Express](http://expressjs.com) application. 
-
-We would nonetheless recommend to look into the ActiveQL-Starter-Application at [https://betterobjects.github.com/activeql-app](https://betterobjects.github.com/activeql-app) to see how to use this library. 
-
-
-### Creating an ActivQL server instance 
-
-If you want to apply all defaults you can simply create an instance of the ActiveQLServer and apply your app as a middleware to it.
-
-`./app.ts`
-```typescript
-import { ActiveQLServer } from 'activeql-server';
-import compression from 'compression';
-import cors from 'cors';
-import express from 'express';
-import { createServer } from 'http';
-
-(async () => {
-  const app = express();
-  app.use('*', cors());
-  app.use(compression());
-
-  const server = await ActiveQLServer.create();
-  server.applyMiddleware({ app, path: '/graphql' });
-
-  const httpServer = createServer( app );
-
-  httpServer.listen(
-    { port: 3000 },
-    () => console.log(`
-      🚀 GraphQL is now running on http://localhost:3000/graphql`)
-  );
-
-})();
+```
+npx betterobjects/activeql-generator
 ```
 
-### Customizing the ActiveQLServer instance
+<br>
 
-If you want to apply some more options to the creation of the ActiveQLServer instance (which is probably the case), you could extract this to a seperate file, that you call from you app.ts: 
+### Starter-Application 
 
-`./app.ts`
-```typescript
-import compression from 'compression';
-import cors from 'cors';
-import express from 'express';
-import { createServer } from 'http';
+You can clone the ActiveQL-Starter-Application and following the instructions there:
 
-import { activeql } from './activeql-app';
+[https://github.com/betterobjects/activeql-starter](https://github.com/betterobjects/activeql-starter)
 
-(async () => {
-  const app = express();
-  app.use('*', cors());
-  app.use(compression());
-
-  await activeql( app );
-
-  const httpServer = createServer( app );
-
-  httpServer.listen(
-    { port: 3000 },
-    () => console.log(`
-      🚀 GraphQL is now running on http://localhost:3000/graphql`)
-  );
-
-})();
+```
+git clone https://github.com/betterobjects/activeql-starter
 ```
 
-`./activeql-server.ts`
-```typescript
-import { ApolloServerExpressConfig } from 'apollo-server-express';
-import depthLimit from 'graphql-depth-limit';
-import path from 'path';
-import express from 'express';
+<br>
 
-import { domainConfiguration } from './domain-configuration';
-import { addJwtLogin } from './impl/jwt-login';
+### Quick Example
 
-// some default values
-const UPLOAD_DIR = '/uploads';
-const UPLOAD_PATH = '/files';
-const GRAPHQL_URL = '/graphql';
-const DOMAIN_CONFIGURATION_FOLDER = './domain-configuration';
+In the folder `./express/activeql/domain-configuration` create a YAML file, e.g. `car.yml` with the following content: 
 
-// load domain configuration from yaml files in folder ./domain-configuration
-const domainDefinition:DomainDefinition = new DomainDefinition( DOMAIN_CONFIGURATION_FOLDER );
+```yaml
+entity:
+  Car: 
+    attributes: 
+      licence: Key
+      brand: String!
+      mileage: Int
+```
 
-// add custom code from ./domain-configuration.ts
-domainDefinition.add( domainConfiguration );
+Start the server 
 
-// default Apollo configuration
-const apolloConfig:ApolloServerExpressConfig = { validationRules: [depthLimit(7)] };
+```
+cd express
+npm run server:dev
+```
 
-// create runtime config
-const runtimeConfig = { domainDefinition };
+This will start a GraphqlAPI endpoint at `http://localhost:3000/graphql`. 
 
-export const activeql = async( app: any ) => {
+If you point your browser to this address you will find full fledged GraphQL API whith many queries and mutations you can interact with. For reading / storing data an embedded MongoDB-like database [NeDB](https://github.com/louischatriot/nedb) is used per default. You can change the used database of course.
 
-  // add JWT Authentication
-  addJwtLogin( domainDefinition, app );
-  
-  // serve files uploaded via API statically 
-  app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
-  
-  // create ActiveQLServer instance 
-  const server = await ActiveQLServer.create( apolloConfig, runtimeConfig );
-  
-  // apply to middleware
-  server.applyMiddleware({ app, path: GRAPHQL_URL });
+To create a car you could call the mutation: 
+
+```graphql
+mutation{
+  createCar( car: { licence: "HH AQ 2021" brand: "Mercedes", mileage: 10000 } ){
+    car{ id licence brand mileage }
+  }
 }
 ```
 
+with the answer from your GraphQL API
+
+```json
+{
+  "data": {
+    "createCar": {
+      "car": {
+        "id": "GjgoJZ9RNHPQ1Pij",
+        "licence": "HH AQ 2021",
+        "brand": "Mercedes",
+        "mileage": 10000
+      }
+    }
+  }
+}
+```
+
+The whole generated schema from the example above would look like:
+
+```graphql
+type Car {
+  id: ID!
+  licence: String!
+  brand: String!
+  color: String
+  mileage: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CarCreateInput {
+  licence: String!
+  brand: String!
+  color: String
+  mileage: Int
+}
+
+input CarFilter {
+  id: IDFilter
+  licence: StringFilter
+  brand: StringFilter
+  color: StringFilter
+  mileage: IntFilter
+}
+
+enum CarSort {
+  licence_ASC
+  licence_DESC
+  brand_ASC
+  brand_DESC
+  color_ASC
+  color_DESC
+  mileage_ASC
+  mileage_DESC
+  id_ASC
+  id_DESC
+}
+
+input CarUpdateInput {
+  id: ID!
+  brand: String
+  color: String
+  mileage: Int
+}
+
+scalar Date
+
+scalar DateTime
+
+input EntityPaging {
+  page: Int!
+  size: Int!
+}
+
+type EntityStats {
+  count: Int!
+  createdFirst: Date
+  createdLast: Date
+  updatedLast: Date
+}
+
+input IDFilter {
+  is: ID
+  isNot: ID
+  isIn: [ID]
+  notIn: [ID]
+  exist: Boolean
+}
+
+input IntFilter {
+  is: Int
+  isNot: Int
+  lowerOrEqual: Int
+  lower: Int
+  greaterOrEqual: Int
+  greater: Int
+  isIn: [Int]
+  notIn: [Int]
+  between: [Int]
+}
+
+scalar JSON
+
+type Mutation {
+  ping(some: String): String
+  login(username: String!, password: String!): String
+  createCar(car: CarCreateInput): SaveCarMutationResult
+  updateCar(car: CarUpdateInput): SaveCarMutationResult
+  deleteCar(id: ID): [String]
+  createUser(user: UserCreateInput): SaveUserMutationResult
+  updateUser(user: UserUpdateInput): SaveUserMutationResult
+  deleteUser(id: ID): [String]
+  seed(truncate: Boolean): [String]
+}
+
+type Query {
+  ping: String
+  jwtValid: Boolean
+  car(id: ID!): Car
+  cars(filter: CarFilter, sort: CarSort, paging: EntityPaging): [Car]
+  carsStats(filter: CarFilter): EntityStats
+  user(id: ID!): User
+  users(filter: UserFilter, sort: UserSort, paging: EntityPaging): [User]
+  usersStats(filter: UserFilter): EntityStats
+  domainConfiguration(seeds: Boolean, customQueriesMutationsSrc: Boolean): JSON
+}
+
+type SaveCarMutationResult {
+  validationViolations: [ValidationViolation]!
+  car: Car
+}
+
+type SaveUserMutationResult {
+  validationViolations: [ValidationViolation]!
+  user: User
+}
+
+input StringFilter {
+  is: String
+  isNot: String
+  in: [String]
+  notIn: [String]
+  contains: String
+  doesNotContain: String
+  beginsWith: String
+  endsWith: String
+  caseSensitive: Boolean
+  regex: String
+}
+
+type User {
+  id: ID!
+  username: String!
+  roles: [String!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input UserCreateInput {
+  username: String!
+  roles: [String!]
+  password: String!
+}
+
+input UserFilter {
+  id: IDFilter
+  username: StringFilter
+}
+
+enum UserSort {
+  username_ASC
+  username_DESC
+  roles_ASC
+  roles_DESC
+  password_ASC
+  password_DESC
+  id_ASC
+  id_DESC
+}
+
+input UserUpdateInput {
+  id: ID!
+  roles: [String!]
+  password: String!
+}
+
+type ValidationViolation {
+  attribute: String
+  message: String!
+}
+```
