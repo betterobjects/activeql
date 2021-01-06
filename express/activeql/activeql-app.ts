@@ -5,7 +5,7 @@ import path from 'path';
 import express from 'express';
 
 import { domainConfiguration } from './domain-configuration';
-import { addJwtLogin } from './impl/jwt-login';
+import { addJwtLogin, useJwtLogin } from './impl/jwt-login';
 import { addPrincipalFromHeader } from './impl/principal-from-header';
 
 // some default values
@@ -24,6 +24,7 @@ domainDefinition.add( domainConfiguration );
 
 // add custom code
 // addPrincipalFromHeader( domainDefinition );
+addJwtLogin( domainDefinition );
 
 // the default datastore implementation
 // const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONGODB_DBNAME });
@@ -35,7 +36,7 @@ const apolloConfig:ApolloServerExpressConfig = { validationRules: [depthLimit(7)
 const runtimeConfig = { domainDefinition };
 
 export const activeqlServer = async( app: any ) => {
-  addJwtLogin( app, domainDefinition );
+  useJwtLogin( app );
   app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
   const server = await ActiveQLServer.create( apolloConfig, runtimeConfig );
   server.applyMiddleware({ app, path: GRAPHQL_URL });
