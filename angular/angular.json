@@ -136,7 +136,7 @@
         }
       }
     },
-    "ActiveQLAdminUI": {
+    "activeql-admin-ui": {
       "projectType": "library",
       "root": "projects/activeql-admin-ui",
       "sourceRoot": "projects/activeql-admin-ui/src",
