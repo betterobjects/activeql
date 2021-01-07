@@ -20,4 +20,6 @@ export * from './lib/components/message-dialog/message-dialog.component';
 export * from './lib/components/confirm-dialog/confirm-dialog.component';
 export * from './lib/components/breadcumb.component';
 export * from './lib/services/admin-config.service';
+export * from './lib/services/admin-config.types';
 export * from './lib/services/admin-data.service';
+export * from './lib/services/admin-data.resolver';

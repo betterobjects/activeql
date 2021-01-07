@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import _ from 'lodash';
 
-import { FieldConfig, UiAssocFromConfig } from '../../services/admin-config.service';
+import { FieldConfig, UiAssocFromConfig } from '../../services/admin-config.types';
 import { AdminActionComponent } from '../admin-action.component';
 
 @Component({

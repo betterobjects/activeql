@@ -9,7 +9,8 @@ import { CreateComponent } from '../components/create/create.component';
 import { EditComponent } from '../components/edit/edit.component';
 import { IndexComponent } from '../components/index/index.component';
 import { ShowComponent } from '../components/show/show.component';
-import { Action, AdminConfigService, EntityViewType, ParentType } from '../services/admin-config.service';
+import { AdminConfigService } from '../services/admin-config.service';
+import { Action, EntityViewType, ParentType } from '../services/admin-config.types';
 
 @Injectable({ providedIn: 'root' })
 export class AdminDataResolver implements Resolve<any> {

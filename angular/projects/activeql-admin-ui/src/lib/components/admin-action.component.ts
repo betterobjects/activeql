@@ -1,7 +1,7 @@
 import { Directive, HostListener } from '@angular/core';
 import _ from 'lodash';
 
-import { EntityViewType, ParentType } from '../services/admin-config.service';
+import { EntityViewType, ParentType } from '../services/admin-config.types';
 import { AdminComponent } from './admin.component';
 import { ConfirmDialogComponent, ConfirmDialogModel } from './confirm-dialog/confirm-dialog.component';
 import { MessageDialogComponent } from './message-dialog/message-dialog.component';

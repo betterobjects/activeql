@@ -5,7 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { FieldList, FieldConfig  } from '../../services/admin-config.service';
+import { FieldList } from '../../services/admin-config.types';
 import { AdminComponent } from '../admin.component';
 
 @Component({

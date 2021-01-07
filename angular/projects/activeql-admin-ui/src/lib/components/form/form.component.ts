@@ -3,7 +3,7 @@ import { FormGroup, Validators } from '@angular/forms';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 
-import { Action, EntityViewType, FieldConfig, ParentType, ViolationType } from '../../services/admin-config.service';
+import { Action, EntityViewType, FieldConfig, ParentType, ViolationType } from '../../services/admin-config.types';
 import { AdminComponent } from '../admin.component';
 
 @Component({

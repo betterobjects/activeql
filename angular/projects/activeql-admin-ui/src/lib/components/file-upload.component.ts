@@ -1,7 +1,8 @@
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import _ from 'lodash';
-import { Component, EventEmitter, Output, Input, ViewChild, ElementRef } from '@angular/core';
+
+import { FieldConfig } from '../services/admin-config.types';
 import { AdminComponent } from './admin.component';
-import { FieldConfig } from '../services/admin-config.service';
 
 @Component({
   selector: 'admin-file-upload',

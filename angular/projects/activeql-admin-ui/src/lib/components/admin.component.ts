@@ -1,13 +1,13 @@
 import { Directive } from '@angular/core';
-import _ from 'lodash';
+import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AdminConfigService, EntityViewType, ParentType } from '../services/admin-config.service';
-import { AdminDataService } from '../services/admin-data.service';
+import _ from 'lodash';
 
-import { FieldConfig } from '../services/admin-config.service';
-import { FormBuilder } from '@angular/forms';
+import { AdminConfigService } from '../services/admin-config.service';
+import { FieldConfig } from '../services/admin-config.types';
+import { AdminDataService } from '../services/admin-data.service';
 
 @Directive()
 export class AdminComponent {

@@ -1,16 +1,15 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { IndexComponent } from './components/index/index.component';
-import { AdminDataResolver } from './services/admin-data.resolver';
-import { ShowComponent } from './components/show/show.component';
+import { RouterModule, Routes } from '@angular/router';
+
 import { CreateComponent } from './components/create/create.component';
 import { EditComponent } from './components/edit/edit.component';
-// import { HomeComponent } from './components/home/home.component';
 import { ErrorComponent } from './components/error.component';
+import { IndexComponent } from './components/index/index.component';
+import { ShowComponent } from './components/show/show.component';
+import { AdminDataResolver } from './services/admin-data.resolver';
 
 const routes:Routes = [
   { path: 'admin', children: [
-    // { path: 'home', component: HomeComponent },
     { path: 'error', component: ErrorComponent  },
     { path: ':path', component: IndexComponent , resolve: { data: AdminDataResolver }, runGuardsAndResolvers: 'always' },
     { path: ':path/show/:id', component: ShowComponent, resolve: { data: AdminDataResolver } },

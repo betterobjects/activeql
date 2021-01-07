@@ -1,3 +1,5 @@
+// copy from ActiveQLServer
+
 type Runtime = never
 type EntityResolverFn = never
 type QueryConfigFn = never
