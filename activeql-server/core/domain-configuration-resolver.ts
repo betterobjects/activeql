@@ -92,37 +92,43 @@ export class DomainConfigurationResolver {
     return attributes;
   }
 
-  private resolveAttribute( name:string, attribute:string|AttributeConfig ):AttributeType {
-    if( _.isString( attribute ) ) return this.resolveAttributeShortcut( name, attribute );
-    const resolved:any = _.merge( { name }, _.pick( attribute,
-      'description', 'defaultValue', 'validation', 'resolve', 'mediaType', 'virtual',
+  private resolveAttribute( name:string, config:string|AttributeConfig ):AttributeType {
+    if( _.isString( config ) ) config = { type: config }
+    this.resolveAttributTypeShortcut( name, config );
+    const resolved:any = _.merge( { name }, _.pick( config,
+      'type', 'description', 'defaultValue', 'validation', 'resolve', 'mediaType', 'virtual',
       'queryBy', 'createInput', 'updateInput', 'objectTypeField' ) );
-    resolved.type = this.resolveType( _.get(attribute, 'type', 'String' ) );
-    resolved.required = attribute.required === true;
-    resolved.unique = attribute.unique ? attribute.unique : false;
-    resolved.unique = attribute.list === false;
-    resolved.filterType = _.get( attribute, 'filterType', TypeBuilder.getFilterName( resolved.type ) || false );
+    resolved.required = config.required === true;
+    resolved.unique = config.unique ? config.unique : false;
+    resolved.unique = config.list === false;
+    resolved.filterType = _.get( config, 'filterType', TypeBuilder.getFilterName( resolved.type ) || false );
     return resolved;
   }
 
-  private resolveAttributeShortcut( name:string, shortcut:string ):AttributeType {
-    if( _.toLower(shortcut) !== 'key') return this.resolveAttributTypeShortcut( name, shortcut );
-    const attribute = this.resolveAttributTypeShortcut( name, 'String' );
-    attribute.required = true;
-    attribute.unique = true;
-    attribute.updateInput = false;
-    return attribute;
+  private fromKeyShortcut( config:AttributeConfig ):AttributeConfig {
+    config.type = 'String';
+    config.required = true;
+    config.unique = true;
+    config.updateInput = false;
+    return config;
   }
 
-  private resolveAttributTypeShortcut( name:string, shortcut:string ):AttributeType {
-    const required = _.endsWith( shortcut, '!' );
-    if( required ) shortcut = shortcut.slice(0, -1);
+  private resolveAttributTypeShortcut( name:string, config:AttributeConfig ):AttributeConfig {
+    if( _.toLower( config.type ) === 'key' ) return this.fromKeyShortcut( config );
+    if( ! config.type ) config.type = 'String';
 
-    const list = _.startsWith(shortcut, '[') && _.endsWith( shortcut, ']');
-    if( list ) shortcut = shortcut.slice(1, -1);
+    let required = _.endsWith( config.type, '!' );
+    if( required ) config.type = config.type.slice(0, -1);
+
+    const list = _.startsWith(config.type, '[') && _.endsWith( config.type, ']');
+    if( list ) config.type = config.type.slice(1, -1);
+
+    // could be ! inside [] now
+    required = _.endsWith( config.type, '!' );
+    if( required ) config.type = config.type.slice(0, -1);
 
     let mediaType:'image'|'video'|'audio'|undefined;
-    switch( _.toLower(shortcut) ){
+    switch( _.toLower(config.type) ){
       case 'image':
         mediaType = 'image';
         break;
@@ -133,12 +139,12 @@ export class DomainConfigurationResolver {
         mediaType = 'audio';
         break;
     }
-    if( mediaType ) shortcut = 'File';
+    if( mediaType ) config.type = 'File';
 
-    const type = this.resolveType( shortcut );
-    const filterType = FilterType.getFilterName( shortcut ) || false;
+    const type = this.resolveType( config.type );
+    const filterType = FilterType.getFilterName( type ) || false;
     return {
-      name, type, required, list, filterType, mediaType, unique: false,
+      type, required, list, filterType, mediaType, unique: false,
       createInput: true, updateInput: true, objectTypeField: true, virtual: false };
   }
 
