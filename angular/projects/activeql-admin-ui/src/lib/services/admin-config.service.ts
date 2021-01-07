@@ -122,22 +122,17 @@ export class AdminConfigService { 
   }
 
   private resolveEntityConfigIndex( path:string, entity:EntityType ){
+    const config:any = _.get(this.adminConfig, ['entities', entity.name, 'index' ], {} );
     return {
-      fields: this.getFieldListForAction( 'index', entity  ),
-      query: ({parent}) => {
-        if( entity.typesQuery === false ) return;
-        const query = { query: {} };
-        const fieldList = this.getEntityView( path )['index'].fields;
-        const fields = this.fieldListToQueryFields( fieldList );
-        _.set( query, ['query', entity.typesQueryName], fields );
-        if( parent ) this.setParentQuery( parent, query, entity );
-        return query;
-      }
+      fields: this.resolveFieldList( 'index', entity, config.fields ),
+      query: config.query || this.indexQuery( path, entity ),
+      search: config.search
     };
   }
 
   private resolveAsParent( path:string, entity:EntityType ):AsReferenceType {
-    return {
+    const config = _.get(this.adminConfig, ['entities', entity.name, 'asParent' ], {} );
+    const defaultImpl = {
       query: ({id}) => {
         if( entity.typeQuery === false ) return;
         const query = { query: {} };
@@ -147,10 +142,12 @@ export class AdminConfigService { 
       },
       render: (item:any) => this.guessName( item )
     };
+    return _.defaults( config, defaultImpl );
   }
 
-  private resolveAsLookup( path:string, entity:EntityType ):AsReferenceType{
-    return {
+  private resolveAsLookup( path:string, entity:EntityType ):AsReferenceType {
+    const config = _.get(this.adminConfig, ['entities', entity.name, 'asLookup' ], {} );
+    const defaultImpl = {
       query: () => {
         if( entity.typesQuery === false ) return;
         const query = {};
@@ -159,33 +156,44 @@ export class AdminConfigService { 
       },
       render: (item:any) => this.guessName( item )
     };
+    return _.defaults( config, defaultImpl );
   }
 
   private resolveEntityConfigShow( path:string, entity:EntityType ){
+    const config:any = _.get(this.adminConfig, ['entities', entity.name, 'show' ], {} );
     return {
-      fields: this.getFieldListForAction( 'show', entity ),
-      query: this.showQuery( path, entity ),
-      assocFrom: this.resolveShowAssocFrom( entity )
+      fields: this.resolveFieldList( 'show', entity, config.fields ),
+      query: config.query || this.showQuery( path, entity ),
+      assocFrom: config.assocFrom || this.resolveShowAssocFrom( entity )
     };
   }
 
   private resolveEntityConfigCreate( path:string, entity:EntityType ){
+    const config:any = _.get(this.adminConfig, ['entities', entity.name, 'create' ], {} );
     return {
-      fields: this.getFieldListForAction( 'create', entity ),
-      query: this.createQuery( entity )
+      fields: this.resolveFieldList( 'create', entity, config.fields ),
+      query: config.query || this.createQuery( entity )
     };
   }
 
   private resolveEntityConfigEdit( path:string, entity:EntityType ){
+    const config:any = _.get(this.adminConfig, ['entities', entity.name, 'edit' ], {} );
     return {
-      fields: this.getFieldListForAction( 'edit', entity ),
-      query: this.editQuery( path, entity )
+      fields: this.resolveFieldList( 'edit', entity, config.fields ),
+      query: config.query || this.editQuery( path, entity )
     };
   }
 
-  private getFieldListForAction( action:Action, entity:EntityType ){
-    const fields = _.get(this.adminConfig, ['entities', entity.name, action, 'fields' ] );
-    return this.resolveFieldList( action, entity, fields );
+  private indexQuery( path:string, entity:EntityType ){
+    return ({parent}) => {
+      if( entity.typesQuery === false ) return;
+      const query = { query: {} };
+      const fieldList = this.getEntityView( path )['index'].fields;
+      const fields = this.fieldListToQueryFields( fieldList );
+      _.set( query, ['query', entity.typesQueryName], fields );
+      if( parent ) this.setParentQuery( parent, query, entity );
+      return query;
+    }
   }
 
   private showQuery( path:string, entity:EntityType ){
@@ -242,9 +250,8 @@ export class AdminConfigService { 
     }
   }
 
-
   private fieldListToQueryFields( fieldList:FieldList ) {
-    return _.reduce( fieldList, (result, field) => _.merge(result, field.query() ), { id: true } );
+    return _.reduce( fieldList, (result, field) => _.merge(result, _.isFunction(field.query ) ? field.query() : {} ), { id: true } );
   }
 
   private setParentQuery( parent:ParentType, query:any, entity?:EntityType ):void {
@@ -285,7 +292,18 @@ export class AdminConfigService { 
     const assocToMany:AssocToType = _.find( _.get( entity, 'assocToMany' ), assocToMany => assocToMany.type === config.name );
     if( assocToMany ) return this.resolveAssocToManyField( action, assocToMany, config );
 
+    return this.resolveUnknown(config);
+  }
+
+  private resolveUnknown( config:FieldConfig ):FieldConfig {
+    config.type = config.type || 'String';
+    config.label = config.label || config.name
+    config.render = config.render || ((item:any) => _.get(item, config.name ) );
+    config.value = config.value || ((item:any) => _.get(item, config.name ) );
+    config.sortValue = config.sortValue || config.value;
+    config.query = config.query || (() => _.set({}, config.name, true ));
     return config;
+
   }
 
   private resolveIdField( action:Action, config:FieldConfig ):FieldConfig {
@@ -295,6 +313,7 @@ export class AdminConfigService { 
     config.disabled = true;
     config.render = config.render || ((item:any) => _.get(item, 'id' ) );
     config.value = config.value || ((item:any) => _.get(item, 'id' ) );
+    config.sortValue = config.sortValue || config.value;
     config.query = () => null;
     return config;
   }

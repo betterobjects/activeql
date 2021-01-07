@@ -5,7 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { FieldList } from '../../services/admin-config.types';
+import { EntityViewType, FieldList } from '../../services/admin-config.types';
 import { AdminComponent } from '../admin.component';
 
 @Component({
@@ -18,9 +18,10 @@ export class TableComponent extends AdminComponent {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
   @Input() fields:FieldList
+  @Input() viewType:EntityViewType
+  @Input() set items( items:any[]){ this.setDataSource( items ) }
   @Output() selectItem = new EventEmitter<any>();
   @Output() actionItem = new EventEmitter<{item:any, action:string}>();
-  @Input() set items( items:any[]){ this.setDataSource( items ) }
 
   dataSource:MatTableDataSource<any> = null;
   searchTerm:string;
@@ -36,7 +37,7 @@ export class TableComponent extends AdminComponent {
   }
 
   get columns() { return _.concat( _.map( this.fields, field => field.name ), 'actions' ) }
-  get search():boolean { return false /* _.isBoolean( this.config.search ) ? this.config.search : _.size(this.dataSource?.data) > 10 */ }
+  get search():boolean { return _.isBoolean( this.viewType.index.search ) ? this.viewType.index.search : _.size(this.dataSource?.data) > 10 }
   get pageSizeOptions() { return [10, 20, 50] }
 
   get defaultActions() { return /* this.config.defaultActions || */ ['show', 'edit', 'delete'] }
@@ -56,15 +57,15 @@ export class TableComponent extends AdminComponent {
 
   private prepareSearch(){
     this.searchTerm = undefined;
-    // this.dataSource.filterPredicate = (item:any, filter:string ) => {
-    //   return _.some( this.fields, field => {
-    //     if( _.isFunction( field.search ) ) return field.search( _.get( item, field.name ), filter );
-    //     const value = _.toLower( this.value( field, item ) );
-    //     return _.includes( value, _.toLower( filter ) );
-    //   });
-    // }
-    // this.searchEntered.pipe( debounceTime(400), distinctUntilChanged() ).
-    //   subscribe( () => this.doSearch() );
+    this.dataSource.filterPredicate = (item:any, filter:string ) => {
+      return _.some( this.fields, field => {
+        // if( _.isFunction( field.search ) ) return field.search( _.get( item, field.name ), filter );
+        const value = _.toLower( _.toString( field.sortValue( item ) ) );
+        return _.includes( value, _.toLower( filter ) );
+      });
+    }
+    this.searchEntered.pipe( debounceTime(400), distinctUntilChanged() ).
+      subscribe( () => this.doSearch() );
   }
 
   private doSearch(){

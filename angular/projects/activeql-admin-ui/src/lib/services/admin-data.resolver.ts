@@ -41,7 +41,9 @@ export class AdminDataResolver implements Resolve<any> {
         const adminData = await load;
         resolve( adminData );
       } catch (error) {
-        this.router.navigate(['/admin/error'], {state: {error: JSON.stringify( error ) } } );
+        console.error( error );
+        const msg = _.has( error, 'message' ) ? error.message : JSON.stringify( error );
+        this.router.navigate(['/admin/error'], {state: {error: msg } } );
       }
     });
   }

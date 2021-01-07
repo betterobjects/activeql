@@ -29,6 +29,7 @@ export type AsReferenceType = {
 export type UiConfig = {
   fields?: FieldListConfig
   query?: QueryFn
+  search?:boolean
 }
 
 export type UiAssocFromConfig = UiConfig & {
@@ -68,6 +69,7 @@ export type EntityViewType = {
   index: {
     fields: FieldList
     query: QueryFn
+    search?:boolean
   }
   show: {
     fields: FieldList
