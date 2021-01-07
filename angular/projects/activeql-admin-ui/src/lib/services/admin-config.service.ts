@@ -416,7 +416,7 @@ export class AdminConfigService { 
     });
     config.value = config.value || ((item:any) => _.get(item, config.name) );
     config.sortValue = config.sortValue || config.value;
-    config.query = config.query || (() => _.set( {}, config.name, attribute.objectTypeField ));
+    config.query = config.query || (() => _.set( {}, config.name, attribute.objectTypeField !== false ));
     if( config.type === 'enum' && ! config.options ) config.options = this.defaultEnumOptionsFn( attribute.type );
     this.setAttributeControl( config, attribute );
     return config;
