@@ -387,6 +387,7 @@ export class AdminConfigService { 
     config.value = config.value || ((item:any) => _.get( item, [assocEntity.typeQueryName, 'id'] ) );
     config.render = config.render || (( item:any, parent:ParentType ) => {
       const value = _.get( item, assocEntity.typeQueryName );
+      if( ! value ) return undefined;
       const display = viewType.asLookup.render(value);
       const link = this.itemLink( assocEntity, value );
       return this.decorateLink( display, link )
@@ -408,6 +409,7 @@ export class AdminConfigService { 
     config.required = config.required || assocToMany.required;
     config.render = config.render || (( item:any, parent:ParentType ) => {
       let values = _.get( item, assocEntity.typesQueryName );
+      if( ! values ) return undefined;
       if( ! _.isArray( values ) ) values = [values];
       values = _.map( values, value => {
         const display = viewType.asLookup.render(value);

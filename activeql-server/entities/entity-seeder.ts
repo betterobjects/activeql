@@ -176,12 +176,15 @@ export class EntitySeeder extends EntityModule {
 
     if( _.isString( value ) ) {
       value = { type: assocToMany.type, ref: [value] }
+    } else if( _.isArray( value ) ) {
+      value = { type: assocToMany.type, ref: value };
     } else if( _.has( value, 'sample' ) ){
-      if( ! _.isNumber( value.size ) && ! _.isNumber(value.random) ) value.size = 1;
+      if( _.isNumber( value.random ) ) value.size = _.random( assocToMany.required ? 1 : 0, value.random );
+      if( ! _.isNumber( value.size ) ) value.size = _.random( assocToMany.required ? 1 : 0, 3 );
       value = await this.resolveSeedValue( value, seed, idsMap );
     }
 
-    if( _.isArray( value ) ) value = { type: assocToMany.type, ref: value };
+
 
     const ids = _.compact( _.map( value.ref, ref => _.get(idsMap, [value.type, ref] ) ));
 

@@ -21,7 +21,10 @@ export class AdminComponent {
     protected adminDataService:AdminDataService,
     protected adminConfigService:AdminConfigService ){}
 
-  render( field:FieldConfig, item:any ){ return field.render( item ) }
+  render( field:FieldConfig, item:any ){
+    const display = field.render( item );
+    return _.isNil( display ) ? '' : display;
+   }
   label( field:FieldConfig ){ return _.isString( field.label ) ? field.label : field.label() }
 
 }
