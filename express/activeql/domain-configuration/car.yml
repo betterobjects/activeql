@@ -13,7 +13,7 @@ entity:
       color: String
       mileage: Int
     seeds:
-      50:
+      3:
         licence:
           faker: vehicle.vin
         brand:

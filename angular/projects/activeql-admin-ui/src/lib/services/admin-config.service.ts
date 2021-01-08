@@ -379,6 +379,7 @@ export class AdminConfigService { 
   private resolveAssocToField( action:Action, assocTo:AssocToType, config:FieldConfig ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocTo.type]);
     if( ! assocEntity ) return undefined;
+    const viewType = this.getEntityViewByName( assocEntity.name );
     config.type = 'assocTo';
     config.list = false;
     config.label = config.label || inflection.humanize( config.name );
@@ -386,9 +387,9 @@ export class AdminConfigService { 
     config.value = config.value || ((item:any) => _.get( item, [assocEntity.typeQueryName, 'id'] ) );
     config.render = config.render || (( item:any, parent:ParentType ) => {
       const value = _.get( item, assocEntity.typeQueryName );
-      const name = this.guessName( value );
+      const display = viewType.asLookup.render(value);
       const link = this.itemLink( assocEntity, value );
-      return this.decorateLink( name, link )
+      return this.decorateLink( display, link )
     });
     config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
     config.query = config.query || (() => _.set( {}, assocEntity.typeQueryName, this.getGuessQueryFields( assocEntity ) ) );
@@ -400,6 +401,7 @@ export class AdminConfigService { 
   private resolveAssocToManyField( action:Action, assocToMany:AssocToManyType, config:FieldConfig ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocToMany.type]);
     if( ! assocEntity ) return undefined;
+    const viewType = this.getEntityViewByName( assocEntity.name );
     config.type = 'assocToMany';
     config.list = true;
     config.label = config.label || inflection.humanize( config.name );
@@ -407,8 +409,10 @@ export class AdminConfigService { 
     config.render = config.render || (( item:any, parent:ParentType ) => {
       let values = _.get( item, assocEntity.typesQueryName );
       if( ! _.isArray( values ) ) values = [values];
-      values = _.map( values, value =>
-        this.decorateLink( this.guessName( value ), this.itemLink( assocEntity, value ) ));
+      values = _.map( values, value => {
+        const display = viewType.asLookup.render(value);
+        return this.decorateLink( display, this.itemLink( assocEntity, value ) )
+      });
       return _.join( values, ', ' );
     });
     config.value = config.value || ((item:any) => {
@@ -423,7 +427,7 @@ export class AdminConfigService { 
       values = _.map( values, value => this.guessName( value ) );
       return _.join( values, ', ' );
     });
-    config.query = config.query || (() => _.set( {}, assocEntity.typesQueryName, this.getGuessQueryFields( assocEntity ) ) );
+    config.query = config.query || (() => _.set( {}, assocEntity.typesQueryName, viewType.asLookup.query({}) ) );
     config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
     config.control = 'multiple';
     return config;
