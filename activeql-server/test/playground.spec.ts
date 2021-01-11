@@ -1,5 +1,5 @@
-import { DomainConfiguration } from '../core/domain-configuration';
 import _ from 'lodash';
+import { RandomFormatString } from '../util/random-format-string';
 
 describe('playground', () => {
 
@@ -30,5 +30,19 @@ describe('playground', () => {
       value()
     expect( idStrings ).toEqual(['1','3'])
   })
+
+
+  fit('generates random formatted string', () => {
+
+    const result:string[] = [];
+    _.times( 10, () => {
+      result.push(
+        new RandomFormatString().alphaUpper( 1, 3).append(['-', ' ']).alphaUpper( 2 ).append(' ').numeric( 3, 4 ).value
+      )}
+    );
+    console.log( result )
+  });
 })
+
+
 
