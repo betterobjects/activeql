@@ -290,7 +290,7 @@ export class EntitySeeder extends EntityModule {
    */
   private skipShare( value:{share?:number}):boolean {
     if( ! _.isNumber( value.share ) ) return false;
-    return _.random() > value.share;
+    return _.random( 0, 1, true ) > value.share;
   }
 
 }
