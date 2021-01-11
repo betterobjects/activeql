@@ -11,9 +11,9 @@ entity:
     seeds:
       30:
         firstname:
-          faker: name.lastName
-        lastname:
           faker: name.firstName
+        lastname:
+          faker: name.lastName
         birthdate:
           eval: faker.date.past(50, new Date('2001-01-01') )
         licenceValid:
