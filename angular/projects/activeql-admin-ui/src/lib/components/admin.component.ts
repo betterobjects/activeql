@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import _ from 'lodash';
 
 import { AdminConfigService } from '../services/admin-config.service';
-import { FieldConfig } from '../services/admin-config.types';
+import { FieldConfig, ParentType } from '../services/admin-config.types';
 import { AdminDataService } from '../services/admin-data.service';
 
 @Directive()
