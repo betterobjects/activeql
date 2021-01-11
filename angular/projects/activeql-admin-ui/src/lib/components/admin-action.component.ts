@@ -30,8 +30,10 @@ export class AdminActionComponent extends AdminComponent {
         viewType: this.adminConfigService.getEntityView( parentPath ), id: parentId };
       this.viewType = this.adminConfigService.getEntityView( params.path );
       this.id = params['id'];
-      this.route.data.subscribe( async (data:any) => this.data = data.data);
-      this.buildBreadcrumbs();
+      this.route.data.subscribe( async (data:any) => {
+        this.data = data.data;
+        this.buildBreadcrumbs();
+      });
     });
   }
 
@@ -91,7 +93,7 @@ export class AdminActionComponent extends AdminComponent {
   }
 
   protected buildBreadcrumbs(){
-
+    this.breadcrumbs = [];
     if( this.parent ) this.breadcrumbs.push({
       text: this.parent.viewType.listTitle(), link: this.viewTypeLink( this.parent.viewType, null )
     },{
