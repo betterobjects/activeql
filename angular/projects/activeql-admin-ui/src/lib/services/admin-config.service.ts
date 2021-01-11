@@ -42,6 +42,7 @@ export class AdminConfigService { 
   private entityViewTypes:{[name:string]:EntityViewType} = {};
   domainConfiguration:DomainConfigurationType = undefined;
   get adminLinkPrefix() { return this.adminConfig.adminLinkPrefix || '/admin' }
+  get locale() { return this.adminConfig.locale || 'de' }
   onReady = new EventEmitter();
   networkError = false;
 
@@ -118,7 +119,10 @@ export class AdminConfigService { 
   private resolveItemName( entity:string ){
     const nameFn = _.get(this.adminConfig, ['entities', entity, 'itemName' ] );
     if( _.isFunction( nameFn ) ) return nameFn;
-    return (item:any) => this.guessName( item );
+    return (item:any) => {
+      const viewType = this.getEntityViewByName( entity );
+      return viewType.asLookup.render( item );
+    }
   }
 
   private resolveEntityConfigIndex( path:string, entity:EntityType ){
@@ -287,17 +291,17 @@ export class AdminConfigService { 
     if( attribute ) return this.resolveAttributeField( action, attribute, config, entity );
 
     const assocTo:AssocToType = _.find( _.get( entity, 'assocTo' ), assocTo => assocTo.type === config.name );
-    if( assocTo ) return this.resolveAssocToField( action, assocTo, config );
+    if( assocTo ) return this.resolveAssocToField( action, entity, config, assocTo );
 
     const assocToMany:AssocToType = _.find( _.get( entity, 'assocToMany' ), assocToMany => assocToMany.type === config.name );
-    if( assocToMany ) return this.resolveAssocToManyField( action, assocToMany, config );
+    if( assocToMany ) return this.resolveAssocToManyField( action, entity, config, assocToMany );
 
-    return this.resolveUnknown(config);
+    return this.resolveUnknown(entity, config);
   }
 
-  private resolveUnknown( config:FieldConfig ):FieldConfig {
+  private resolveUnknown( entity:EntityType, config:FieldConfig ):FieldConfig {
     config.type = config.type || 'String';
-    config.label = config.label || config.name
+    config.label = config.label || this.getLabel( entity.name, config.name );
     config.render = config.render || ((item:any) => _.get(item, config.name ) );
     config.value = config.value || ((item:any) => _.get(item, config.name ) );
     config.sortValue = config.sortValue || config.value;
@@ -324,7 +328,7 @@ export class AdminConfigService { 
     if( attribute.type === 'File' ) return this.resolveFileField( action, attribute, config, entity );
     config.type = this.isEnum( attribute.type ) ? 'enum' : attribute.type;
     config.list = attribute.list;
-    config.label = config.label || inflection.humanize( config.name )
+    config.label = config.label || this.getLabel( entity.name, config.name );
     config.required = config.required || attribute.required;
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
     config.render = config.render || (( item:any, parent:ParentType ) => {
@@ -342,7 +346,7 @@ export class AdminConfigService { 
 
   private resolveFileField( action:Action, attribute:AttributeType, config:FieldConfig, entity:EntityType ):FieldConfig {
     config.type = attribute.mediaType;
-    config.label = config.label || inflection.humanize( config.name )
+    config.label = config.label || this.getLabel( entity.name, config.name );
     config.required = config.required || attribute.required;
     config.disabled = config.disabled || ( action === 'edit' && attribute.updateInput === false )
     config.render = config.render || (( item:any ) => {
@@ -376,43 +380,46 @@ export class AdminConfigService { 
   }
 
 
-  private resolveAssocToField( action:Action, assocTo:AssocToType, config:FieldConfig ):FieldConfig {
+  private resolveAssocToField( action:Action, entity:EntityType, config:FieldConfig, assocTo:AssocToType ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocTo.type]);
     if( ! assocEntity ) return undefined;
-    const viewType = this.getEntityViewByName( assocEntity.name );
     config.type = 'assocTo';
     config.list = false;
-    config.label = config.label || inflection.humanize( config.name );
+    config.label = config.label || this.getLabel( assocEntity.name, config.name );
     config.required = config.required || assocTo.required;
     config.value = config.value || ((item:any) => _.get( item, [assocEntity.typeQueryName, 'id'] ) );
-    config.render = config.render || (( item:any, parent:ParentType ) => {
-      const value = _.get( item, assocEntity.typeQueryName );
+    config.render = config.render || (( item:any ) => {
+      const assocViewType = this.getEntityViewByName( assocEntity.name );
+        const value = _.get( item, assocEntity.typeQueryName );
       if( ! value ) return undefined;
-      const display = viewType.asLookup.render(value);
+      const display = assocViewType.asLookup.render(value);
       const link = this.itemLink( assocEntity, value );
       return this.decorateLink( display, link )
     });
     config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
-    config.query = config.query || (() => _.set( {}, assocEntity.typeQueryName, this.getGuessQueryFields( assocEntity ) ) );
+    config.query = config.query || (() => {
+      const assocViewType = this.getEntityViewByName( assocEntity.name );
+      return _.set( {}, assocEntity.typesQueryName, assocViewType.asLookup.query({}) );
+    });
     config.control = 'select';
     config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
     return config;
   }
 
-  private resolveAssocToManyField( action:Action, assocToMany:AssocToManyType, config:FieldConfig ):FieldConfig {
+  private resolveAssocToManyField( action:Action, entity:EntityType, config:FieldConfig, assocToMany:AssocToManyType ):FieldConfig {
     const assocEntity:EntityType = _.get( this.domainConfiguration, ['entity', assocToMany.type]);
     if( ! assocEntity ) return undefined;
-    const viewType = this.getEntityViewByName( assocEntity.name );
     config.type = 'assocToMany';
     config.list = true;
-    config.label = config.label || inflection.humanize( config.name );
+    config.label = config.label || this.getLabel( assocEntity.name, config.name );
     config.required = config.required || assocToMany.required;
-    config.render = config.render || (( item:any, parent:ParentType ) => {
+    config.render = config.render || (( item:any ) => {
+      const assocViewType = this.getEntityViewByName( assocEntity.name );
       let values = _.get( item, assocEntity.typesQueryName );
       if( ! values ) return undefined;
       if( ! _.isArray( values ) ) values = [values];
       values = _.map( values, value => {
-        const display = viewType.asLookup.render(value);
+        const display = assocViewType.asLookup.render(value);
         return this.decorateLink( display, this.itemLink( assocEntity, value ) )
       });
       return _.join( values, ', ' );
@@ -429,7 +436,10 @@ export class AdminConfigService { 
       values = _.map( values, value => this.guessName( value ) );
       return _.join( values, ', ' );
     });
-    config.query = config.query || (() => _.set( {}, assocEntity.typesQueryName, viewType.asLookup.query({}) ) );
+    config.query = config.query || (() => {
+      const assocViewType = this.getEntityViewByName( assocEntity.name );
+      return _.set( {}, assocEntity.typesQueryName, assocViewType.asLookup.query({}) );
+    });
     config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
     config.control = 'multiple';
     return config;
@@ -479,6 +489,11 @@ export class AdminConfigService { 
     return link;
   }
 
+  getLabel( entity:string, field:string ):string {
+    return _.get( this.adminConfig,
+      ['resources', this.locale, 'label', 'entities', entity, field],
+      inflection.humanize( field ) );
+  }
 
   private decorateLink( value:string, link?:string|string[]){
     if( ! link ) return value;

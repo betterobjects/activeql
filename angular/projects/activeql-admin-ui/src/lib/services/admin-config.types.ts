@@ -3,9 +3,15 @@ import { EntityType } from "./domain-configuration.types"
 export type Action = 'index'|'show'|'create'|'edit'
 
 export type AdminConfig = {
+  locale?:string
   adminLinkPrefix?:string
   menu?:string[]
   entities?:{[name:string]:EntityViewConfig}
+  resources?:ResourcesType
+}
+
+export type ResourcesType = {
+  [locale:string]:any
 }
 
 export type EntityViewConfig = {
