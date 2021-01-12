@@ -39,7 +39,7 @@ export class AdminDataService  {
     return new Promise( (resolve, reject) => {
       this.apollo.mutate({ mutation }).subscribe(({data, errors}) => {
         if( errors ) return reject( errors );
-        resolve( data );
+        resolve( _.get(data, 'seed' ) );
       }, error => reject( error ) );
     });
   }
