@@ -79,14 +79,11 @@ export class AppComponent implements OnInit{
   }
 
   private async doSeed(){
-    const message = await this.adminData.seed();
-    const dialogData = new ConfirmDialogModel('Seed executed', JSON.stringify(message), 'ok');
-    this.dialog.open( ConfirmDialogComponent, { minWidth: '400px', data: dialogData } ).
-      afterClosed().subscribe(dialogResult => {
-          this.snackBar.open('Alright', 'Seed done', {
-            duration: 1000, horizontalPosition: 'center', verticalPosition: 'top',
-          });
-      });
+    this.snackBar.open('Seed', 'Seed started', {
+      duration: 1000, horizontalPosition: 'center', verticalPosition: 'top' });
+    const messages = await this.adminData.seed();
+    const dialogData = new ConfirmDialogModel('Seed executed', _.join(messages, '<br>'), 'ok');
+    this.dialog.open( ConfirmDialogComponent, { minWidth: '400px', data: dialogData } );
   }
 
   private doLogout(){
