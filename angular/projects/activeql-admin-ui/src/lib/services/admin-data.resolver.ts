@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot } from '@angular/router';
 import { Apollo } from 'apollo-angular';
+import { WatchQueryOptions } from 'apollo-client';
 import gql from 'graphql-tag';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import _ from 'lodash';
@@ -41,9 +42,9 @@ export class AdminDataResolver implements Resolve<any> {
         const adminData = await load;
         resolve( adminData );
       } catch (error) {
-        console.error( error );
-        const msg = _.has( error, 'message' ) ? error.message : JSON.stringify( error );
-        this.router.navigate(['/admin/error'], {state: {error: msg } } );
+        error = error.networkError?.error?.errors ?
+          _.map( error.networkError?.error?.errors, error => error.message ) : _.toString( error );
+        this.router.navigate(['/admin/error'], {state: { error } } );
       }
     });
   }
@@ -59,16 +60,17 @@ export class AdminDataResolver implements Resolve<any> {
   private async resolveData( action:Action, entityView:EntityViewType, parent?:ParentType, id?:string ):Promise<any> {
     let query = entityView[action].query({ parent, id });
     if( ! _.isString( query ) ) query = jsonToGraphQLQuery( query );
-    const request = { query: gql(query), fetchPolicy: 'network-only' };
+    const request:WatchQueryOptions = { query: gql(query), fetchPolicy: 'network-only', errorPolicy: 'all' };
     return this.loadData( request );
   }
 
-  private async loadData( query:any ):Promise<any>{
-    if( ! query ) return undefined;
+  private async loadData( queryOptions:WatchQueryOptions ):Promise<any>{
+    if( ! queryOptions ) return undefined;
     return new Promise( (resolve, reject) => {
-      this.apollo.watchQuery<any>( query )
+      this.apollo.watchQuery<any>( queryOptions )
       .valueChanges
-      .subscribe(({ data, loading }) => {
+      .subscribe(({ data, loading, errors }) => {
+        if( errors ) console.log({errors})
         if( loading ) return;
         resolve( data );
       }, error => reject( error ) );
