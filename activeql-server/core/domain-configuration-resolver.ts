@@ -93,14 +93,15 @@ export class DomainConfigurationResolver {
   }
 
   private resolveAttribute( name:string, config:string|AttributeConfig ):AttributeType {
-    if( _.isString( config ) ) config = { type: config }
-    this.resolveAttributTypeShortcut( name, config );
+    if( _.isString( config ) ) config = { type: config };
+    if( _.isArray( config ) && _.size( config ) === 1 ) config = { type: `[${_.first(config)}]` };
+    config = this.resolveAttributTypeShortcut( name, config );
     const resolved:any = _.merge( { name }, _.pick( config,
-      'type', 'description', 'defaultValue', 'validation', 'resolve', 'mediaType', 'virtual',
+      'type', 'list', 'description', 'defaultValue', 'validation', 'resolve', 'mediaType', 'virtual',
       'queryBy', 'createInput', 'updateInput', 'objectTypeField' ) );
     resolved.required = config.required === true;
+    resolved.list = config.list === true;
     resolved.unique = config.unique ? config.unique : false;
-    resolved.unique = config.list === false;
     resolved.filterType = _.get( config, 'filterType', TypeBuilder.getFilterName( resolved.type ) || false );
     return resolved;
   }
@@ -117,15 +118,15 @@ export class DomainConfigurationResolver {
     if( _.toLower( config.type ) === 'key' ) return this.fromKeyShortcut( config );
     if( ! config.type ) config.type = 'String';
 
-    let required = _.endsWith( config.type, '!' );
+    const required = _.endsWith( config.type, '!' );
     if( required ) config.type = config.type.slice(0, -1);
 
     const list = _.startsWith(config.type, '[') && _.endsWith( config.type, ']');
     if( list ) config.type = config.type.slice(1, -1);
 
     // could be ! inside [] now
-    required = _.endsWith( config.type, '!' );
-    if( required ) config.type = config.type.slice(0, -1);
+    const requiredInside = _.endsWith( config.type, '!' );
+    if( requiredInside ) config.type = config.type.slice(0, -1);
 
     let mediaType:'image'|'video'|'audio'|undefined;
     switch( _.toLower(config.type) ){
@@ -144,7 +145,7 @@ export class DomainConfigurationResolver {
     const type = this.resolveType( config.type );
     const filterType = FilterType.getFilterName( type ) || false;
     return {
-      type, required, list, filterType, mediaType, unique: false,
+      type, required: required || requiredInside, list, filterType, mediaType, unique: false,
       createInput: true, updateInput: true, objectTypeField: true, virtual: false };
   }
 
