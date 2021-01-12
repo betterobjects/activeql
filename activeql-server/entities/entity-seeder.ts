@@ -1,9 +1,9 @@
 import * as FakerDE from 'faker/locale/de';
 import * as FakerEN from 'faker/locale/en';
-import _ from 'lodash';
+import _, { at } from 'lodash';
 import bcrypt from 'bcryptjs';
 
-import { AssocToManyType, AssocToType, AssocType, SeedAttributeType, SeedType } from '../core/domain-configuration';
+import { AssocToManyType, AssocToType, AssocType, AttributeType, SeedAttributeType, SeedType } from '../core/domain-configuration';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 import { RandomFormatString } from '../util/random-format-string';
@@ -97,36 +97,29 @@ export class EntitySeeder extends EntityModule {
     return this.entity.seeds;
   }
 
-  /**
-   *
-   */
   private async resolveAttributeValues( seed:SeedType ){
-    const attributes = _.keys( this.entity.attributes );
-    attributes.push( ... _.flatten( _.map( this.entity.implements, entity => _.keys( entity.attributes ) ) ) );
+
+    const attributes = _.values( this.entity.attributes );
+    attributes.push( ... _.flatten( _.map( this.entity.implements, entity => _.values( entity.attributes ) ) ) );
     for( const attribute of attributes ){
-      const value = _.get( seed, attribute );
-      const result = await this.resolveSeedValue( value, seed );
-      if( ! _.isUndefined( result ) ) _.set( seed, attribute, result );
+      const value = _.get( seed, attribute.name );
+      const result = await this.resolveSeedValue( value, seed, undefined, attribute );
+      if( ! _.isUndefined( result ) ) _.set( seed, attribute.name, result );
     }
   }
 
-  private async resolveSeedValue( value:SeedAttributeType, seed:SeedType, idsMap?:any ) {
+  private async resolveSeedValue( value:SeedAttributeType|Function, seed:SeedType, idsMap?:any, attribute?:AttributeType ) {
     return  _.isFunction( value ) ? Promise.resolve( value( { seed, runtime: this.runtime, idsMap } ) ) :
-            _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
+            _.has( value, 'value' ) ? this.getValue( value ) :
             _.has( value, 'faker' ) ? this.getFaker( value, seed, idsMap ) :
-            _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap ) :
-            _.has( value, 'random' ) ? this.getRandom( value ) :
+            _.has( value, 'random' ) ? this.getRandom( value, attribute ) :
+            _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap, attribute ) :
             _.has( value, 'hash' ) ? this.getHash( value ) :
+            _.has( value, 'rfs' ) ? this.getRfs( value, seed, idsMap ) :
+            _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
             value;
   }
 
-  private getHash( value:any ):string {
-    return bcrypt.hashSync( value.hash );
-  }
-
-  /**
-   *
-   */
   private async seedInstanceAttributes( name:string, seed:any, ids:any ):Promise<any> {
     try {
       let enit = await EntityItem.create( this.entity, seed );
@@ -140,18 +133,15 @@ export class EntitySeeder extends EntityModule {
     }
   }
 
-  /**
-   *
-   */
   private async seedAssocTo( assocTo: AssocType, seed:SeedType, idsMap: any, name: string ):Promise<void> {
-    const value:SeedAttributeType = _.get( seed, assocTo.type );
+    const value:SeedAttributeType|Function = _.get( seed, assocTo.type );
     if ( ! value ) return;
     try {
-      let ref = await this.resolveSeedValue( value, seed, idsMap );
-      if( _.isString( ref ) ) ref = { type: assocTo.type, ref }
-      _.set( ref, 'id', _.get(idsMap, [ref.type, ref.ref] ) );
-      if( ! ref.id ) return this.deleteForUnavailableRequiredAssocTo( assocTo, seed, name, idsMap );
-      await this.updateAssocTo( idsMap, name, assocTo.type, ref.id, ref.type );
+      let resolved = await this.resolveSeedValue( value, seed, idsMap );
+      if( _.isString( resolved ) ) resolved = { type: assocTo.type, ref: resolved }
+      _.set( resolved, 'id', _.get(idsMap, [resolved.type, resolved.ref] ) );
+      if( ! resolved.id ) return this.deleteForUnavailableRequiredAssocTo( assocTo, seed, name, idsMap );
+      await this.updateAssocTo( idsMap, name, assocTo.type, resolved.id, resolved.type );
     }
     catch ( error ) {
       console.error( `Entity '${this.entity.typeName}' could not seed a reference`, assocTo, name, error );
@@ -168,26 +158,25 @@ export class EntitySeeder extends EntityModule {
     await this.entity.accessor.delete( id );
   }
 
-  /**
-   *
-   */
   private async seedAssocToMany( assocToMany: AssocToManyType, seed: any, idsMap: any, name: string ):Promise<void> {
-    let value:SeedAttributeType = _.get( seed, assocToMany.type );
+    const value:SeedAttributeType = _.get( seed, assocToMany.type );
     if ( ! value ) return;
 
+    if( _.isNumber( value )) return;
+    if( _.isBoolean( value )) return;
+
+    let resolved:any = undefined;
     if( _.isString( value ) ) {
-      value = { type: assocToMany.type, ref: [value] }
+      resolved = { type: assocToMany.type, ref: [value] }
     } else if( _.isArray( value ) ) {
-      value = { type: assocToMany.type, ref: value };
+      resolved = { type: assocToMany.type, ref: value };
     } else if( _.has( value, 'sample' ) ){
       if( _.isNumber( value.random ) ) value.size = _.random( assocToMany.required ? 1 : 0, value.random );
       if( ! _.isNumber( value.size ) ) value.size = _.random( assocToMany.required ? 1 : 0, 3 );
-      value = await this.resolveSeedValue( value, seed, idsMap );
+      resolved = await this.resolveSeedValue( value, seed, idsMap );
     }
 
-
-
-    const ids = _.compact( _.map( value.ref, ref => _.get(idsMap, [value.type, ref] ) ));
+    const ids = _.compact( _.map( resolved.ref, ref => _.get(idsMap, [resolved.type, ref] ) ));
 
     try {
       await this.updateAssocTo( idsMap, name, assocToMany.type, ids );
@@ -215,9 +204,6 @@ export class EntitySeeder extends EntityModule {
   }
 
 
-  /**
-   *
-   */
   private async evalSeedValue( value:any, _seed:any, _idsMap?:any ):Promise<any>{
     if( this.skipShare( value ) ) return undefined;
     const locale = _.get( this.runtime.config.domainDefinition, 'locale', 'en' )
@@ -237,6 +223,23 @@ export class EntitySeeder extends EntityModule {
     }
   }
 
+  private getHash( value:any ) {
+    if( this.skipShare( value ) ) return undefined;
+    return bcrypt.hashSync( value.hash );
+  }
+
+  private getValue( value:any ) {
+    if( this.skipShare( value ) ) return undefined;
+    return value.value;
+  }
+
+  private getRfs( value:any, seed:any, idsMap?:any ) {
+    if( this.skipShare( value ) ) return undefined;
+    value.eval = 'rfs.' + value.rfs;
+    return this.evalSeedValue( value, seed, idsMap );
+  }
+
+
   private async getFaker( value:any, _seed:any, _idsMap?:any ):Promise<any>{
     if( this.skipShare( value ) ) return undefined;
     const locale = _.get( this.runtime.config.domainDefinition, 'locale', 'en' )
@@ -252,14 +255,19 @@ export class EntitySeeder extends EntityModule {
   }
 
 
-  private async getRandom( value:any ):Promise<any>{
+  private async getRandom( value:any, attribute?:AttributeType ):Promise<any>{
+    if( ! attribute ) return;
+    if( ! _.includes(['float','int'], _.toLower( attribute.type ) ) ) return;
+
     if( this.skipShare( value ) ) return undefined;
     const min = _.isNumber( value.random ) ? 0 : _.get( value, 'random.min' );
     const max = _.isNumber( value.random ) ? value.random : _.get( value, 'random.max' );
-    return _.random( min || 0, max || 999999 );
+
+    const floating = _.toLower( attribute.type ) === 'float';
+    return _.random( min || 0, max || floating ? 1 : 100000, floating );
   }
 
-  private async getSample( value:any, _seed:any, idsMap?:any ):Promise<any>{
+  private async getSample( value:any, _seed:any, idsMap?:any, attribute?:AttributeType ):Promise<any>{
     if( this.skipShare( value ) ) return undefined;
 
     let sampleSize = false;
@@ -285,9 +293,6 @@ export class EntitySeeder extends EntityModule {
     return { type: value.sample, ref };
   }
 
-  /**
-   *
-   */
   private skipShare( value:{share?:number}):boolean {
     if( ! _.isNumber( value.share ) ) return false;
     return _.random( 0, 1, true ) > value.share;

@@ -201,22 +201,29 @@ export type AttributeResolveContext = {
   principal:PrincipalType
 }
 
+export type SeedType = {
+  [attribute:string]:SeedAttributeType | (( evalContext:SeedEvalContextType) => any)
+}
+
+export type SeedAttributeType = string | number | boolean | {
+  value:string|number|boolean
+  eval?:string
+  sample?:(string|number|boolean)[]|string
+  faker?:string
+  hash?:string
+  rfs?:string
+  size?:number
+  random?:number
+  min?:number
+  max?:number
+  share?:number
+}
+
 export type SeedEvalContextType = {
   idsMap?:any
   seed:any
   runtime:Runtime
 }
-
-export type SeedAttributeType =
-  any|
-  {eval: string, share?: number} |
-  {sample: string, size?: number}|
-  (( evalContext:SeedEvalContextType) => any)
-
-export type SeedType = {
-  [attribute:string]:SeedAttributeType
-}
-
 
 export type EntityPermissionsType = {
   [role:string]:boolean|PermissionExpressionFn|AssignedEntity|ActionPermissionType
