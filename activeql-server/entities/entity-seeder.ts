@@ -98,7 +98,6 @@ export class EntitySeeder extends EntityModule {
   }
 
   private async resolveAttributeValues( seed:SeedType ){
-
     const attributes = _.values( this.entity.attributes );
     attributes.push( ... _.flatten( _.map( this.entity.implements, entity => _.values( entity.attributes ) ) ) );
     for( const attribute of attributes ){
@@ -112,8 +111,8 @@ export class EntitySeeder extends EntityModule {
     return  _.isFunction( value ) ? Promise.resolve( value( { seed, runtime: this.runtime, idsMap } ) ) :
             _.has( value, 'value' ) ? this.getValue( value ) :
             _.has( value, 'faker' ) ? this.getFaker( value, seed, idsMap ) :
-            _.has( value, 'random' ) ? this.getRandom( value, attribute ) :
             _.has( value, 'sample' ) ? this.getSample( value, seed, idsMap, attribute ) :
+            _.has( value, 'random' ) ? this.getRandom( value, attribute ) :
             _.has( value, 'hash' ) ? this.getHash( value ) :
             _.has( value, 'rfs' ) ? this.getRfs( value, seed, idsMap ) :
             _.has( value, 'eval' ) ? this.evalSeedValue( value, seed, idsMap ) :
