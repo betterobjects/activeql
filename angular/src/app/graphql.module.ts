@@ -23,7 +23,7 @@ const onErrorLink = onError(({ response, graphQLErrors, networkError }) => {
         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
       ),
     );
-  if (networkError) console.log(`[Network error]: ${networkError}`);
+  if (networkError) console.log(`[Network error]: `, networkError );
 });
 
 const authLink = setContext(() => {
