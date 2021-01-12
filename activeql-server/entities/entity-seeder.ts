@@ -104,7 +104,7 @@ export class EntitySeeder extends EntityModule {
     for( const attribute of attributes ){
       const value = _.get( seed, attribute.name );
       const result = await this.resolveSeedValue( value, seed, undefined, attribute );
-      if( ! _.isUndefined( result ) ) _.set( seed, attribute.name, result );
+      _.isUndefined( result ) ? _.unset( seed, attribute.name ) : _.set( seed, attribute.name, result );
     }
   }
 
@@ -255,16 +255,18 @@ export class EntitySeeder extends EntityModule {
   }
 
 
-  private async getRandom( value:any, attribute?:AttributeType ):Promise<any>{
+  private getRandom( value:any, attribute?:AttributeType ){
     if( ! attribute ) return;
+    if( this.skipShare( value ) ) return;
     if( ! _.includes(['float','int'], _.toLower( attribute.type ) ) ) return;
 
-    if( this.skipShare( value ) ) return undefined;
-    const min = _.isNumber( value.random ) ? 0 : _.get( value, 'random.min' );
-    const max = _.isNumber( value.random ) ? value.random : _.get( value, 'random.max' );
+    let min = _.isNumber( value.random ) ? 0 : _.get( value, 'random.min' );
+    let max = _.isNumber( value.random ) ? value.random : _.get( value, 'random.max' );
 
     const floating = _.toLower( attribute.type ) === 'float';
-    return _.random( min || 0, max || floating ? 1 : 100000, floating );
+    if( ! min ) min = 0;
+    if( ! max ) max = floating ? 1 : 100000;
+    return _.random( min, max, floating );
   }
 
   private async getSample( value:any, _seed:any, idsMap?:any, attribute?:AttributeType ):Promise<any>{
