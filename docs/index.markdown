@@ -14,7 +14,7 @@ From business domain definition to full fledged GraphQL API and Admin UI in minu
 
 We think [GraphQL](https://graphql.org) is a great way to expose your business domain to any client or 3rd party system. We also believe that it is a good way to follow an API 1st approach - you express your business entities and functionality as API. Everything else (from different user interfaces, integration with other systems to infrastructure task etc.) uses this API as a common understanding of your business domain.
 
-Implementing a GraphQL API is a tedious task though. You need to decide how to structure your schema, how to handle concepts like permissions, searching, sorting, paging, how to implement resolvers that read data from and write data to a database or similar, validate input, relationships etc. And implement it with quite some repetitive code.
+Implementing a GraphQL API can be a cumbersome task though. You need to decide how to structure your schema, how to handle concepts like permissions, searching, sorting, paging, how to implement resolvers that read data from and write data to a database or similar, validate input, relationships etc. And implement it with quite some repetitive code.
 
 **ActiveQL** supports this development with a highly oppionated generation of a GraphQL schema and resolvers. You can run a GraphQL API directly from the description of a business domain (mainly entities and its relations to each other). This gives you the the freedom to concentrate on the implementation of any non-default functionality on top of that.
 
@@ -41,14 +41,25 @@ You will find extensive documentation here:
 
 | Topic | Documentation |
 | ----- | ------------- |
-| [GraphQL Basics](https://graphql.org/learn) | If you are new GraphQL - we suggest you learn the basics with this very good resources from the makers of the GraphQL specification. |
-| [Domain Configuration](./domain-configuration)       | Starting point to describe your business domain  |
-| [Entity Configuration](./entity-configuration)       | How to describe entities in your business domain |
-| [Attribute Configuration](./attribute-configuration) | Configuration of the attributes of your entities |
-| [Tutorial](./tutorial)                               | Step-by-step creation of an executable GraphQL API and Admin UI based on a domain definition |
-| Installation | How to run **ActiveQL** |
-| Architecture | Technology foundation |
+| [GraphQL Basics](https://graphql.org/learn) | If you are new GraphQL - we suggest you learn the basics with this very good resources from the makers of the GraphQL specification.
+| [Domain Configuration](./domain-configuration)       | Starting point to describe your business domain
+| [Entity Configuration](./entity-configuration)       | How to describe entities in your business domain
+| [Attribute Configuration](./attribute-configuration) | Configuration of the attributes of your entities
+| [Tutorial](./tutorial)                               | Step-by-step creation of an executable GraphQL API and Admin UI based on a domain definition
+| Installation | How to run **ActiveQL**
+| Architecture | Technology foundation
 
+
+## GraphQL API / Apollo Express
+
+The generated Schema and Resolvers can be made available as a GraphQL API using an [Express](http://expressjs.com)
+/ [Apollo](https://www.apollographql.com) NodeJS application.
+
+This can be used by any GrapqhQL Client - restrictions in regards of accessing the API technical (e.g. API call limits, restriced client IPs) are out of concern of ActiveQL and should be handled on a custom level.
+
+## Angular Admin UI
+
+You can access the basic CRUD operations of your domain data via a generich Admin UI (build in Angular). This follows also the _convention over configuration_ approach. You can use it right away but are able to customize nearly every aspect of it.
 
 ## Example
 
@@ -866,6 +877,11 @@ For the next 10 items it would be (and so on)
 ```graphql
 query { cars( sort: mileage_ASC, paging: { page: 1, size: 10 } ) }
 ```
+
+### Admin UI
+
+
+
 
 ## Further reading
 
