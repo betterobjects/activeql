@@ -103,6 +103,11 @@ export class DomainConfigurationResolver {
     resolved.list = config.list === true;
     resolved.unique = config.unique ? config.unique : false;
     resolved.filterType = _.get( config, 'filterType', TypeBuilder.getFilterName( resolved.type ) || false );
+    resolved.virtual = config.virtual === true;
+    resolved.createInput = config.createInput !== false;
+    resolved.updateInput = config.updateInput !== false;
+    resolved.objectTypeField = config.objectTypeField !== false;
+
     return resolved;
   }
 
@@ -142,11 +147,11 @@ export class DomainConfigurationResolver {
     }
     if( mediaType ) config.type = 'File';
 
-    const type = this.resolveType( config.type );
-    const filterType = FilterType.getFilterName( type ) || false;
-    return {
-      type, required: required || requiredInside, list, filterType, mediaType, unique: false,
-      createInput: true, updateInput: true, objectTypeField: true, virtual: false };
+    config.type = this.resolveType( config.type );
+    config.required == config.required || required || requiredInside;
+    config.list = config.list || list;
+    config.mediaType = config.mediaType || mediaType;
+    return config;
   }
 
   private resolveType( name:string ):string {

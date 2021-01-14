@@ -1,6 +1,6 @@
 import * as FakerDE from 'faker/locale/de';
 import * as FakerEN from 'faker/locale/en';
-import _, { at } from 'lodash';
+import _, { at, values } from 'lodash';
 import bcrypt from 'bcryptjs';
 
 import { AssocToManyType, AssocToType, AssocType, AttributeType, SeedAttributeType, SeedType } from '../core/domain-configuration';
@@ -102,6 +102,7 @@ export class EntitySeeder extends EntityModule {
     attributes.push( ... _.flatten( _.map( this.entity.implements, entity => _.values( entity.attributes ) ) ) );
     for( const attribute of attributes ){
       const value = _.get( seed, attribute.name );
+      if( ! value ) continue;
       const result = await this.resolveSeedValue( value, seed, undefined, attribute );
       _.isUndefined( result ) ? _.unset( seed, attribute.name ) : _.set( seed, attribute.name, result );
     }
@@ -133,7 +134,7 @@ export class EntitySeeder extends EntityModule {
   }
 
   private async seedAssocTo( assocTo: AssocType, seed:SeedType, idsMap: any, name: string ):Promise<void> {
-    const value:SeedAttributeType|Function = _.get( seed, assocTo.type );
+    const value:undefined|SeedAttributeType|Function = _.get( seed, assocTo.type );
     if ( ! value ) return;
     try {
       let resolved = await this.resolveSeedValue( value, seed, idsMap );

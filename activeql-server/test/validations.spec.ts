@@ -120,7 +120,7 @@ describe('Validations', () => {
 
   //
   //
-  it('should have validation message for unique attribute', async () => {
+  fit('should have validation message for unique attribute', async () => {
     const alpha = runtime.entities['Alpha'];
 
     const result = await alpha.validate( { name: 'alpha1', some: 'some' } );

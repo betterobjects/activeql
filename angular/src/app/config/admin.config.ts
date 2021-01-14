@@ -4,7 +4,7 @@ import { AdminConfig } from 'activeql-admin-ui';
 export const adminConfig:AdminConfig = {
   locale: 'en',
   entities:  {
-    Car: {
+    _Car: {
       asLookup: {
         query: () => ({id: true, licence:true } ),
         render: (item:any) => _.get(item, 'licence') },
