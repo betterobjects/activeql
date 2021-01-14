@@ -202,11 +202,11 @@ export type AttributeResolveContext = {
 }
 
 export type SeedType = {
-  [attribute:string]:SeedAttributeType | (( evalContext:SeedEvalContextType) => any)
+  [attribute:string]:SeedAttributeType | (( evalContext:SeedEvalContextType) => any|Promise<any>)
 }
 
 export type SeedAttributeType = string | number | boolean | {
-  value:string|number|boolean
+  value?:string|number|boolean
   eval?:string
   sample?:(string|number|boolean)[]|string
   faker?:string
