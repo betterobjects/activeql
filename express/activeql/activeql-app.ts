@@ -1,6 +1,4 @@
-import { ApolloServerExpressConfig } from 'apollo-server-express';
 import { DomainDefinition, MongoDbDataStore, ActiveQLServer, Runtime } from 'activeql-server';
-import depthLimit from 'graphql-depth-limit';
 import path from 'path';
 import express from 'express';
 
@@ -26,19 +24,13 @@ domainDefinition.add( domainConfiguration );
 // addPrincipalFromHeader( domainDefinition );
 addJwtLogin( domainDefinition );
 
-// the default datastore implementation
+// another datastore implementation
 // const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONGODB_DBNAME });
-
-// default Apollo configuration
-const apolloConfig:ApolloServerExpressConfig = { validationRules: [depthLimit(7)] };
-
-// ActiveQL config
-const runtimeConfig = { domainDefinition };
 
 export const activeqlServer = async( app: any ) => {
   useJwtLogin( app );
   app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
-  const server = await ActiveQLServer.create( apolloConfig, runtimeConfig );
+  const server = await ActiveQLServer.create( { domainDefinition } );
   server.applyMiddleware({ app, path: GRAPHQL_URL });
 }
 
