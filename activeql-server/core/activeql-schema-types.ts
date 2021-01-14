@@ -102,7 +102,7 @@ export class ActiveQLSchemaTypes {
         },
         type: this.graphx.type('JSON'),
         resolve: (__:never, args:any ) =>
-          this.runtime.domainDefinition.getResolvedConfiguration( args.seed === true, args.customQueriesMutationsSrc ? 'src' : false )
+          this.runtime.domainDefinition.getResolvedConfiguration( args.seeds === true, args.customQueriesMutationsSrc ? 'src' : false )
       });
     });
 
