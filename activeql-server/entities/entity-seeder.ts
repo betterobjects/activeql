@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import { AssocToManyType, AssocToType, AssocType, AttributeType, SeedAttributeType, SeedType } from '../core/domain-configuration';
 import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
-import { RandomFormatString } from '../util/random-format-string';
+import { RandomFormatString as _RandomFormatString } from '../util/random-format-string';
 
 const fakers = {de: FakerDE, en: FakerEN};
 
@@ -212,7 +212,8 @@ export class EntitySeeder extends EntityModule {
     const ld = _;
     const seed = _seed;
     const idsMap = _idsMap;
-    const rfs = new RandomFormatString();
+    const rfs = new _RandomFormatString();
+    const RandomFormatString = _RandomFormatString;
 
     try {
       const result = ((expression:string) => eval( expression )).call( {}, value.eval );
