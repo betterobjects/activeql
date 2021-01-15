@@ -20,3 +20,7 @@ sleep 5
 cd $ROOT/../activeql-starter/angular
 npm i activeql-admin-ui@$VERSION
 
+sleep 2
+
+cp $ROOT/../activeql-starter/angular/package.json $ROOT/../activeql-generator/starter-template/angular/package.json
+cp $ROOT/../activeql-starter/angular/package-lock.json $ROOT/../activeql-generator/starter-template/angular/package-lock.json
