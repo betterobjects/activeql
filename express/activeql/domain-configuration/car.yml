@@ -13,6 +13,7 @@ entity:
       brand: String!
       color: String
       mileage: Int
+    assocTo: Driver
     seeds:
       50:
         vin:
@@ -31,3 +32,5 @@ entity:
           random:
             min: 10000
             max: 120000
+        Driver:
+          sample: Driver

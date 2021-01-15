@@ -7,7 +7,7 @@ entity:
         unique: firstname
       birthdate: Date
       licenceValid: Date!
-    assocToMany: Car
+    assocFrom: Car
     seeds:
       30:
         firstname:
