@@ -1,6 +1,6 @@
 import * as FakerDE from 'faker/locale/de';
 import * as FakerEN from 'faker/locale/en';
-import _, { at, values } from 'lodash';
+import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 
 import { AssocToManyType, AssocToType, AssocType, AttributeType, SeedAttributeType, SeedType } from '../core/domain-configuration';
