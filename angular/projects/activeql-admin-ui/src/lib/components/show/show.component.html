@@ -38,6 +38,7 @@
 
   <admin-table
     [fields]="assocFromFields( assocFrom )"
+    [viewType]="getViewType(assocFrom)"
     [items]="assocFromItems( assocFrom )"
     (selectItem)="onSelect(assocFrom)($event)"
     (actionItem)="onAction(assocFrom)($event)">

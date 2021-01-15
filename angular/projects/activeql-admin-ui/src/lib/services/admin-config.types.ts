@@ -18,8 +18,10 @@ export type EntityViewConfig = {
   listTitle?: string | (() => string)
   itemTitle?: string | (() => string)
   itemName?: (item:any) => string
+  indication?:string|string[]
   path?:string
   asParent?:AsReferenceType
+  asItem?:AsReferenceType
   asLookup?:AsReferenceType
   index?: UiConfig
   show?: UiShowConfig
@@ -70,7 +72,9 @@ export type EntityViewType = {
   listTitle: () => string
   itemTitle: () => string
   itemName: (item:any) => string
+  indication?:string[]
   asParent:AsReferenceType
+  asItem:AsReferenceType
   asLookup:AsReferenceType
   index: {
     fields: FieldList

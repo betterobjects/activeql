@@ -41,6 +41,10 @@ export class ShowComponent extends AdminActionComponent  {
     return _.get( this.item, entity.typesQueryName );
   }
 
+  getViewType( assocFrom:UiAssocFromConfig ){
+    return this.adminConfigService.getEntityViewByName( assocFrom.entity );
+  }
+
   assocFromTitle( assocFrom:UiAssocFromConfig ){
     const config = this.adminConfigService.getEntityViewByName( assocFrom.entity );
     return config.listTitle();
@@ -48,7 +52,7 @@ export class ShowComponent extends AdminActionComponent  {
 
   onAssocFromIndex( assocFrom:UiAssocFromConfig ){
     const viewType = this.adminConfigService.getEntityViewByName( assocFrom.entity );
-    this.viewTypeLink( viewType, null, { viewType: this.viewType, id: this.id } );
+    return this.viewTypeLink( viewType, null, { viewType: this.viewType, id: this.id } );
   }
 
   onAssocFromNew( assocFrom:UiAssocFromConfig ) {

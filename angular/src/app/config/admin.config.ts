@@ -5,9 +5,13 @@ export const adminConfig:AdminConfig = {
   locale: 'en',
   entities:  {
     Car: {
-      asLookup: {
-        query: () => ({id: true, licence:true } ),
-        render: (item:any) => _.get(item, 'licence') },
+      indication: 'licence'
+    },
+    User: {
+      indication: 'username'
+    },
+    Driver: {
+      indication: ['firstname','lastname']
     }
   },
   resources: {

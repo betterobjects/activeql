@@ -90,6 +90,7 @@ export class AdminConfigService { 
 
   private resolveViewType( path:string, entity:EntityType ):EntityViewType {
     return { name: entity.name, path, entity,
+      indication: this.resolveIndication( entity.name ),
       listTitle: this.resolveListTitle( path ),
       itemTitle: this.resolveItemTitle( path ),
       itemName: this.resolveItemName( entity.name ),
@@ -98,8 +99,15 @@ export class AdminConfigService { 
       create: this.resolveEntityConfigCreate( path, entity ),
       edit: this.resolveEntityConfigEdit( path, entity ),
       asParent: this.resolveAsParent( path, entity ),
+      asItem: this.resolveAsItem( path, entity ),
       asLookup: this.resolveAsLookup( path, entity )
     }
+  }
+
+  private resolveIndication( entity:string ){
+    const indication = _.get(this.adminConfig, ['entities', entity, 'indication' ] );
+    if( ! indication ) return undefined;
+    return _.isArray( indication ) ? indication : [indication];
   }
 
   private resolveListTitle( entity:string ){
@@ -121,7 +129,7 @@ export class AdminConfigService { 
     if( _.isFunction( nameFn ) ) return nameFn;
     return (item:any) => {
       const viewType = this.getEntityViewByName( entity );
-      return viewType.asLookup.render( item );
+      return viewType.asItem.render( item );
     }
   }
 
@@ -140,11 +148,25 @@ export class AdminConfigService { 
       query: ({id}) => {
         if( entity.typeQuery === false ) return;
         const query = { query: {} };
-        const fields = this.getGuessQueryFields( entity );
+        const fields = this.getIndicationQueryFields( entity );
         _.set( fields, '__args', {id} );
         return _.set( query, ['query', entity.typeQueryName], fields );
       },
-      render: (item:any) => this.guessName( item )
+      render: (item:any) => this.getIndication( item, path )
+    };
+    return _.defaults( config, defaultImpl );
+  }
+
+  private resolveAsItem( path:string, entity:EntityType ):AsReferenceType {
+    const config = _.get(this.adminConfig, ['entities', entity.name, 'asItem' ], {} );
+    const defaultImpl = {
+      query: () => {
+        if( entity.typesQuery === false ) return;
+        const query = {};
+        const fields = this.getIndicationQueryFields( entity );
+        return _.set( query, [entity.typeQueryName], fields );
+      },
+      render: (item:any) => this.getIndication( item, path )
     };
     return _.defaults( config, defaultImpl );
   }
@@ -155,10 +177,10 @@ export class AdminConfigService { 
       query: () => {
         if( entity.typesQuery === false ) return;
         const query = {};
-        const fields = this.getGuessQueryFields( entity );
+        const fields = this.getIndicationQueryFields( entity );
         return _.set( query, [entity.typesQueryName], fields );
       },
-      render: (item:any) => this.guessName( item )
+      render: (item:any) => this.getIndication( item, path )
     };
     return _.defaults( config, defaultImpl );
   }
@@ -210,7 +232,7 @@ export class AdminConfigService { 
       const fields = this.fieldListToQueryFields( fieldList );
       _.set( fields, '__args', {id} );
       _.set( query, ['query', entity.typeQueryName], fields );
-      _.forEach( showConfig.assocFrom, assocFrom => _.merge( query.query[entity.typeQueryName], assocFrom.query ) );
+      _.forEach( showConfig.assocFrom, assocFrom => _.merge( query.query[entity.typeQueryName], assocFrom.query({}) ) );
       return query;
     }
   }
@@ -396,10 +418,11 @@ export class AdminConfigService { 
       const link = this.itemLink( assocEntity, value );
       return this.decorateLink( display, link )
     });
-    config.sortValue = config.sortValue || ((item:any)=>  this.guessName( _.get( item, assocEntity.typeQueryName ) ) );
+    config.sortValue = config.sortValue || ((item:any)=>
+      this.getIndication( _.get( item, assocEntity.typeQueryName ), assocEntity.name ) );
     config.query = config.query || (() => {
       const assocViewType = this.getEntityViewByName( assocEntity.name );
-      return _.set( {}, assocEntity.typesQueryName, assocViewType.asLookup.query({}) );
+      return assocViewType.asItem.query({});
     });
     config.control = 'select';
     config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
@@ -433,7 +456,7 @@ export class AdminConfigService { 
     config.sortValue = config.sortValue || ((item:any) => {
       let values = _.get( item, assocEntity.typesQueryName );
       if( ! _.isArray( values ) ) values = [values];
-      values = _.map( values, value => this.guessName( value ) );
+      values = _.map( values, value => this.getIndication( value, entity.path ) );
       return _.join( values, ', ' );
     });
     config.query = config.query || (() => {
@@ -469,9 +492,11 @@ export class AdminConfigService { 
   }
 
   private defaultAssocFromQuery( entity:EntityType, fieldList:FieldList ){
-    if( entity.typesQuery === false ) return;
-    const fields = this.fieldListToQueryFields( fieldList );
-    return _.set( {}, entity.typesQueryName, fields );
+    return () => {
+      if( entity.typesQuery === false ) return;
+      const fields = this.fieldListToQueryFields( fieldList );
+      return _.set( {}, entity.typesQueryName, fields );
+    }
   }
 
   itemLink( entity:EntityType, itemOrId:any|string, parent?:ParentType ){
@@ -506,8 +531,10 @@ export class AdminConfigService { 
     return _.get( this.adminConfig, ['entities', entity.name, 'path'], entity.path );
   }
 
-  private guessName( item:any ):string {
+  private getIndication( item:any, path:string ):string {
     if( ! item ) return '[null]';
+    const viewType = this.getEntityView(path);
+    if( viewType.indication ) return _.join( _.map( viewType.indication, indication => _.get( item, indication ) ), ' ' );
     const firstname = _.find( firstNameCandidates, candidate => _.has( item, candidate ));
     const lastname = _.find( lastNameCandidates, candidate => _.has( item, candidate ));
     if( firstname && lastname ) return `${item[firstname]} ${item[lastname]}`;
@@ -518,8 +545,10 @@ export class AdminConfigService { 
     return _.get( item, 'id', _.toString( item )) ;
   }
 
-  private getGuessQueryFields( entity:EntityType ){
-    return _.reduce( _.intersection( guessCandidates, _.keys(entity.attributes) ), (result, field) =>
+  private getIndicationQueryFields( entity:EntityType ){
+    const viewType = this.getEntityViewByName( entity.name );
+    const fields = viewType.indication || guessCandidates;
+    return _.reduce( _.intersection( fields, _.keys(entity.attributes) ), (result, field) =>
       _.set( result, field, true), { id: true } );
   }
 
