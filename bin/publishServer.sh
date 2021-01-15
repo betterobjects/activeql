@@ -14,3 +14,8 @@ sleep 5
 
 cd $ROOT/../activeql-starter/express
 npm i activeql-server@$VERSION
+
+sleep 2
+
+cp cd $ROOT/../activeql-starter/express/package.json $ROOT/../activeql-generator/express/package.json
+cp cd $ROOT/../activeql-starter/express/package-lock.json $ROOT/../activeql-generator/express/package-lock.json
