@@ -1,6 +1,6 @@
 {
   "name": "activeql-admin-ui",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "peerDependencies": {
     "@angular/common": "^9.1.11",
     "@angular/core": "^9.1.11",
