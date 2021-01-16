@@ -16,7 +16,7 @@ We think [GraphQL](https://graphql.org) is a great way to expose your business d
 
 Implementing a GraphQL API can be a cumbersome task though. You need to decide how to structure your schema, how to handle concepts like permissions, searching, sorting, paging, how to implement resolvers that read data from and write data to a database or similar, validate input, relationships etc. And implement it with quite some repetitive code.
 
-**ActiveQL** supports this development with a highly oppionated generation of a GraphQL schema and resolvers. You can run a GraphQL API directly from the description of a business domain (mainly entities and its relations to each other). This gives you the the freedom to concentrate on the implementation of any non-default functionality on top of that.
+**ActiveQL** supports this development with a highly oppionated generation of a GraphQL schema and resolvers. You can run a GraphQL API directly from the description of a business domain (mainly entities and its relations to each other). This gives you the the freedom to concentrate on the implementation of any non-default functionality on top of that. It does not restrict you in any way how implement your API, what libraries you prefer etc.
 
 ## Terminologies
 

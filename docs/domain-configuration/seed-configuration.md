@@ -94,7 +94,7 @@ entity:
 
 These are the possibilities for generated seed data:
 
-| | |
+| option | description |
 | - | - |
 | value | every generated item will get this value 
 | [random](#random) | random numbers 
@@ -121,7 +121,7 @@ In this example ca. 30% of the generated data would have a gender value, ca. 70%
 
 Random values will only be generated for attributes of the type `Float` or `Int`. 
 
-| | |
+| value | description |
 |-|-|
 random | if random is a number it is the upper border (incl.) or maximum for the generated number 
 random.min | the lower border (incl.) of the generated random number; default: `0` 
@@ -323,7 +323,7 @@ append( values:string|string[], count?:number, randMax?:number, share?:number ):
 
 To add just random characters you can use the following constants from the class `RandomFormatString``
 
-| | |
+| constant | content |
 |-|-|
 | alphaLower    | `['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o', ... ]`
 | alphaUpper    | `['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O', ... ];`
@@ -333,13 +333,13 @@ To add just random characters you can use the following constants from the class
 
 As shortcuts to add a number of alpha, numeric or alphanumeric characters you can use the following methods (with the same method signature - except the values - as the `append` method.)
 
-| | | 
+| method | generated values |
 |-|-|
-| alphaLower  | lower alpha characters  | 
-| alphaUpper  | upper alpha characters | 
-| alpha       | alpha characters (lower, upper mixed) | 
-| numeric     | numeric characters | 
-| specialChars| special characters | 
+| alphaLower  | lower alpha characters 
+| alphaUpper  | upper alpha characters 
+| alpha       | alpha characters (lower, upper mixed) 
+| numeric     | numeric characters
+| specialChars| special characters
 
 So `alphaLower(10).numeric( 2, 3, .7 ).specialChars(1, 0, 1)` which you can read as 
 

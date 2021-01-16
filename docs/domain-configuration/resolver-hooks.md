@@ -54,9 +54,7 @@ In the the `afterXXX` hooks you also get the `resolved` value that is about to b
 
 ## Example
 
-<div style="font-size:0.8em">
-
-```typescript 
+```typescript
 const domainConfiguration:DomainConfiguration = {
   entity: {
     Car: {
@@ -70,12 +68,7 @@ const domainConfiguration:DomainConfiguration = {
         preDelete: () => console.log( 'preDelete' ),
         afterDelete: (resolved:any) => { console.log( "afterDelete"); return resolved },
       }
-
     }
   }
 }
 ```
-</div>
-
-
-

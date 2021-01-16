@@ -65,38 +65,28 @@ export type EntityConfig = {
 
 We suggest writing the entity configuration in YAML files and simply includes these files in your [Domain Configuration](./domain-configuration).
 
-From the definition of an _entity_ a lot of GraphQL schema types, queries and mutations are generated, incl. resolver to read and write its items to and from a _datastore_. The behaviour is strongly oppionated and uses mostly conventions; nonetheless you can configure most of the details.  You will probably only ever use the first of these configuration options, unless you know very well what do you want to achieve: 
+From the definition of an _entity_ a lot of GraphQL schema types, queries and mutations are generated, incl. resolver to read and write its items to and from a _datastore_. The behaviour is strongly oppionated and uses mostly conventions; nonetheless you can configure most of the details.  You will probably only ever use the first few of these configuration options, unless you know very well what do you want to achieve: 
 
-|   |    |
-| - | -- |
-| [attributes](#attributes ) |  the attributes of the entity  |
-| [description](#description ) |  description to add to the schema documentation  |
-| [assocTo](#assocto ) |  has-one relationship to another entity  |
-| [assocToMany](#assocToMany ) |  has-many relationship with references to the other entity at this entity   |
-| [assocFrom](#assocFrom ) |  has-many as relationship to another entity as opposite site of a has-one or has-many relationship with references at the other entity |
-| [seeds](#seeds ) |  generating seed or test data |
-| [validation](#validation ) |  callback for complex or non-attribute based validation  |
-| [permissions](#permissions ) |  role-based rights permission configuration  |
-| [hooks](#hooks ) |  hook callbacks to customize the behaivour and result of the default queries and mutation  |
-| [union](#union ) |  defines a a union relationship between entities |
-| [interface](#interface ) | defines a common interface other entities can implement | |
-| [implements](#implements ) |  defines the implementation of an interface entity  |
-
-<br>
-
-|    |    |
-| -- | -- |
+| option | description |
+| - | - |
+| [attributes](#attributes ) |  the attributes of the entity
+| [description](#description ) |  description to add to the schema documentation
+| [assocTo](#assocto ) |  has-one relationship to another entity
+| [assocToMany](#assocToMany ) |  has-many relationship with references to the other entity at this entity
+| [assocFrom](#assocFrom ) |  has-many as relationship to another entity as opposite site of a has-one or has-many relationship with references at the other entity
+| [seeds](#seeds ) |  generating seed or test data
+| [validation](#validation ) |  callback for complex or non-attribute based validation
+| [permissions](#permissions ) |  role-based rights permission configuration
+| [hooks](#hooks ) |  hook callbacks to customize the behaivour and result of the default queries and mutation
+| [union](#union ) |  defines a a union relationship between entities
+| [interface](#interface ) | defines a common interface other entities can implement
+| [implements](#implements ) |  defines the implementation of an interface entity
 | [typeQuery](#typeQuery) | skip or replace default type query resolver with custom resolver |
 | [typesQuery](#typesQuery) | skip or replace default types query resolver with custom resolver |
 | [createMutation](#createMutation) | skip or replace default create mutation resolver with custom resolver |
 | [updateMutation](#updateMutation) | skip or replace default update mutation resolver with custom resolver |
 | [deleteMutation](#deleteMutation) | skip or replace default delete mutation resolver with custom resolver |
 | [statsQuery](#statsQuery) | skip or replace default entity statistics query resolver with custom resolver |
-
-<br>
-
-|    |    |
-| -- | -- |
 | [typeName](#typeName) | the name of the entity object type |
 | [plural](#plural) | the plural of the entity, used for generated queries and others |
 | [singular](#singular) |  the singular of the entity, used for generated queries and others |
@@ -558,7 +548,7 @@ For mor information please check [Validation](./validation.md).
 
 ### Example
 
-```Typescript
+```typescript
 export const example3:DomainConfiguration = {
   entity:{
     Car: {
@@ -583,7 +573,7 @@ export const example3:DomainConfiguration = {
 </td>
 </tr>
 <tr valign="top">
-<td width="50%">
+<td markdown="block">
 
 ```graphql
 mutation {
@@ -598,7 +588,7 @@ mutation {
 ```
 
 </td>
-<td width="50%">
+<td markdown="block">
 
 ```json
 {
@@ -631,7 +621,7 @@ mutation {
 </td>
 </tr>
 <tr valign="top">
-<td width="50%">
+<td markdown="block">
 
 ```graphql
 mutation {
@@ -646,7 +636,7 @@ mutation {
 ```
 
 </td>
-<td width="50%">
+<td markdown="block">
 
 ```json
 {
@@ -695,7 +685,7 @@ The `typeName` is the name GraphqlType in the schema. Per default it is _capital
 
 <table width="100%" style="font-size: 0.9em"><tr valign="top">
 <td width="50%">YAML</td><td width="50%">Code</td></tr>
-<tr valign="top"><td width="50%">
+<tr valign="top"><td markdown="block">
 
 ```yaml
 entity: 
@@ -704,7 +694,7 @@ entity:
     typeName: Chauffeur
 ```
 
-</td><td width="50%">
+</td><td markdown="block">
 
 ```javascript
 const domainConfiguration = {
@@ -776,7 +766,7 @@ entity:
 ```
 
 _Schema for Car (excerpt)_
-```schema
+```graphql
 type Driver {
   car: Car
 }
@@ -826,8 +816,7 @@ entity:
 ```
 
 _Schema for Driver (excerpt)_
-```schema
-
+```graphql
 type Car {
   drivers: [Driver]
 }
@@ -846,7 +835,7 @@ Per default this is the `plural` of the entity.
 
 ## path
 
-The `path` property is the identfier for this entity in the UI, because it is the _path_ in the url.
+The `path` property is the identfier for this entity in the UI, also it is the _path_ in the url.
 
 Per default this is the underscore version of the `plural` of the entity.
 

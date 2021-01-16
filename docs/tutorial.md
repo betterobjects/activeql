@@ -54,7 +54,7 @@ You see from the schema documentation that a mutation `createCar` exists; it tak
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```graphql
 mutation {
@@ -71,7 +71,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -100,7 +100,7 @@ Let's see if we can update the 'color' attribute value to "blue". We learn from 
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -116,7 +116,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -162,7 +162,7 @@ entity:
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 Let's create a 2nd car and if we leave out the 'licence` again ...
 
@@ -180,7 +180,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ... we get an expected error from our GraphQL API.
 
@@ -197,7 +197,7 @@ mutation {
 ```
 
 </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 Now we add all required attributes ...
 
@@ -216,7 +216,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ... and the car is created.
 
@@ -271,7 +271,7 @@ Adding this to the attribute has a twofold effect - any validation is executed b
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -282,7 +282,7 @@ query {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -339,7 +339,7 @@ Be aware these kind of validations (greater, less, unique etc) other than `requi
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -358,7 +358,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -389,7 +389,7 @@ To check the final mutation we want to delete the last created car. This works a
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top"><td width="50%"> Request </td> <td width="50%"> Response </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -398,7 +398,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -470,7 +470,7 @@ or by calling the `seed` mutation via the GraphQL API explorer.
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top"><td width="50%"> Request </td> <td width="50%"> Response </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -479,7 +479,7 @@ mutation {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -505,7 +505,7 @@ Let's check how to get the data (that is currently the _Seed_ data) from the API
 
 <table width="100%" style="font-size: 0.8em">
 <tr valign="top"><td width="50%"> Request </td> <td width="50%"> Response </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -520,7 +520,7 @@ query {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -576,7 +576,7 @@ So if a client only wanted to get _red BMW or Mercedes with a mileage below 3000
 
 <table width="100%" style="font-size: 0.8em">
 <tr valign="top"><td width="50%"> Request </td> <td width="50%"> Response </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 
 ```graphql
@@ -594,7 +594,7 @@ query {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -649,7 +649,7 @@ We can now use our Enum the same way as we used the `String` type, even the `req
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top"><td width="50%"> Domain Configuration </td> <td width="50%"> Resulting schema (excerpt) </td></tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 <div style="background-color:white;text-align: right">./tutorial/06/domain-configuration/car-brand.yaml</div>
 
@@ -702,7 +702,7 @@ entity:
         color: blue
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
@@ -830,7 +830,7 @@ Now that we have a `Driver` entity we could add the relationship between cars an
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top"> <td width="50%"> Domain Configuration </td> <td width="50%"> Schema (excerpt) </td> </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 <div style="text-align: right">./tutorial/08/domain-configuration/car.yaml</div>
 
@@ -912,7 +912,7 @@ entity:
           eval: faker.date.future()
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
@@ -988,7 +988,7 @@ By looking at the schema you might see, the relationship between these two entit
 
 <table width="100%" style="font-size: 0.9em">
 <tr valign="top"> <td width="50%"> Request </td> <td width="50%"> Response </td> </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```graphql
 query { 
@@ -1005,7 +1005,7 @@ query {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {
@@ -1194,7 +1194,6 @@ Let's add the custom mutation which again is nearly identical to the standard `u
 We could add the add also directly to the `domainConfiguration` object but this would become confusing over time, so we follow the recommended structure and create a folder `query-muations` next to `domain-configuration`. Our custom queries and mutations will live there. For the `assignCar` mutation we create the following file. Please see the inline comments about how this could be implemented.
 
 <div style="text-align: right">./tutorial/11/query-mutations/assign-cars.mutation.ts</div>
-<div style="font-size:0.8em">
 
 ```typescript
 // usage of lodash is optional
@@ -1291,4 +1290,4 @@ const getDriver = async (rt:Runtime, id:any, validationViolations:ValidationViol
 }
 ```
 
-</div>
+

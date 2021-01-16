@@ -57,7 +57,7 @@ If you prefer not to store and serve files from the local filesystem but e.g. di
 <tr valign="top">
 <td width="30%"> YAML Configuration </td> <td width="70%"> Schema (excerpt) </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```yaml
 entity:
@@ -67,7 +67,7 @@ entity:
       image: File
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```graphql
 type Car {
@@ -110,7 +110,7 @@ You should declare a variable for each file upload and set in the "Add Files" se
 <tr valign="top">
 <td width="50%"> Request </td> <td width="50%"> Response </td>
 </tr>
-<tr valign="top"><td>
+<tr valign="top"><td markdown="block">
 
 ```graphql
 mutation($image: Upload) {
@@ -121,7 +121,7 @@ mutation($image: Upload) {
 }
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```json
 {

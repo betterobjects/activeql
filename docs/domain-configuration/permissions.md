@@ -54,11 +54,11 @@ These are possible values of the `roles` property - provided it as literals or a
 
 | Value     | Type | Description  |
 | --------- | ---- | ------------ |
-| _empty_   | `undefined` | same as no `principal` present  |
-| `true`    | boolean     | "superuser" - any query & mutation of any entity is allowed - regardless of assigned filter |
-| `false`   | boolean     | "looser user" - same as `undefined` - no action allowed if permissions are required | 
-| roleName  | string | any query & mutation of any entity requiring this role is allowed - if assigned filter match |
-| roleNames | string[] | any query & mutation of any entity requiring any of these roles is allowed - if assigned filter match |
+| _empty_   | `undefined` | same as no `principal` present
+| `true`    | boolean     | "superuser" - any query & mutation of any entity is allowed - regardless of assigned filter
+| `false`   | boolean     | "looser user" - same as `undefined` - no action allowed if permissions are required
+| roleName  | string | any query & mutation of any entity requiring this role is allowed - if assigned filter match
+| roleNames | string[] | any query & mutation of any entity requiring any of these roles is allowed - if assigned filter match
 
 <br/>
 
@@ -274,68 +274,54 @@ On the other hand if _any_ role provides an `expression` - the affected query or
 
 ## Effect of permission values on queries and mutations
 
-***types query***
-|             |   |  
+
+
+|             | ***types query***  |
 | ----------- | - | 
 | `true`      | query is resolved without any limitations                 |
 | `false`     | query is allowed but will return no items                 |
 | expression  | expressions are added to the filter of the query          |
 
-<br>
 
-***type query***
-|             |   | 
+|             |  ***type query*** |
 | ----------- | - | 
 | `true`      | query is resolved                                                               |
 | `false`     | an error is thrown always                                                       |
 | expression  | if `id` is not within the items that match the expressions an error is thrown   |
 
-<br>
 
-***create mutation***
-|             |   | 
+|             |  ***create mutation*** |
 | ----------- | - | 
 | `true`      | mutation is executed                                     |
 | `false`     | an error is thrown always                                |
 | expression  | if the item attempted to be created does not match the expressions - in other words: the resulting item would not allowed to be read by a type query - an error is thrown |
 
-<br>
 
-***update mutation***
-|             |   | 
+|             |  ***update mutation*** |
 | ----------- | - | 
 | `true`      | mutation is executed                                     |
 | `false`     | an error is thrown always                                |
 | expression  | if `id` is not within the items that match the expressions or the item attempted to be updated does not match the expressions - in other words: the resulting item would not allowed to be read by a type query - an error is thrown |
 
-<br>
-
-***delete mutation***
-|             |   | 
+|             |  ***delete mutation*** |
 | ----------- | - | 
 | `true`      | mutation is executed                                                          |
 | `false`     | an error is thrown always                                                     |
 | expression  | if `id` is not within the items that match the expressions an error is thrown |
 
-<br>
 
-***assocFrom relationship in query***
-|             |   |  
+|             |  ***assocFrom relationship in query*** |
 | ----------- | - | 
 | `true`      | all items from the `assocFrom` entity will be included                              |
 | `false`     | no item from the `assocFrom` entity will be included                                |
 | expression  | only items from the `asscoFrom` entity that match the expressions will be included  |
 
-<br>
 
-***assocTo relationship in query***
-|             |   |  
+|             |  ***assocTo relationship in query*** |
 | ----------- | - | 
 | `true`      | item from the `assocTo` entity will be included                                                 |
 | `false`     | item from the `assocTo` entity will not be included                                             |
 | expression  | item from the `assocTo` entity will be included if it matches the expression, `null` otherwise  |
-
-<br>
 
 
 ### Example
@@ -365,7 +351,6 @@ You might have realized that the `expression` is in the syntax of the current _d
 On one hand this gives you all the freedom and possibilities the underlying _datastore_ technology offers, like complex aggregations, joins, calculations etc. On the other hand is your domain configuration now coupled to a certain _datastore_ implementation. You can possibly avoid this by delegating the creation of the expression to the datastore itself and using the (of course limited) possibilities of the filter definition for this entity. Than the example above could've been written with filter syntax like so:
 
 ```typescript
-
 assistant: ({runtime}) => 
   runtime.dataStore.buildExpressionFromFilter( 
     runtime.entity('Car'), { brand: { in: ['VW', 'BMW', 'Opel'] } } )
@@ -642,4 +627,4 @@ const domainDefinition:DomainDefinition = {
   }
 }
 ```
-For more details look at [Resolver Hooks](./resolver-hooks.md).
+For more details look at [Resolver Hooks](./resolver-hooks).
