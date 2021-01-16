@@ -9,23 +9,25 @@ This is the server package for ActiveQL - a framework for building domain driven
 
 You can find the [full documentation and tutorial here](https://betterobjects.github.io/activeql).
 
-## Start Developing
+## Installation
 
 To start developing a GraphQL API you could embedd this library in your [Express](http://expressjs.com) application - but we recommend one the following methods that provides you with an instantly up-and-running environment. 
 
-### Application Generator (not yet fully functional)
+### Application Generator 
 
+The easiest way to start is the ActiveQL application generator at [https://github.com/betterobjects/activeql-generator](https://github.com/betterobjects/activeql-generator)
+
+You can create a new ActiveQL application in the folder `my-activeql` (or any other name) with the following command: 
 ```
-npx betterobjects/activeql-generator
+npx betterobjects/activeql-generator my-activeql
 ```
+
 
 <br>
 
 ### Starter-Application 
 
-You can clone the ActiveQL-Starter-Application and following the instructions there:
-
-[https://github.com/betterobjects/activeql-starter](https://github.com/betterobjects/activeql-starter)
+If you can't use `npx` you can also clone the ActiveQL-Starter-Application at [https://github.com/betterobjects/activeql-starter](https://github.com/betterobjects/activeql-starter)
 
 ```
 git clone https://github.com/betterobjects/activeql-starter
@@ -33,7 +35,19 @@ git clone https://github.com/betterobjects/activeql-starter
 
 <br>
 
-### Quick Example
+### Install dependencies 
+
+Please call `npm install` in the folder 
+
+```
+cd my-activeql/express
+npm install
+```
+
+The generated and starter application also include an [Angular](https://angular.io) Admin UI client. If you want to use this Admin UI you also have to call `npm install` in the folder `./my-activeql/angular`. 
+
+
+## Start developing
 
 In the folder `./express/activeql/domain-configuration` create a YAML file, e.g. `car.yml` with the following content: 
 
@@ -50,7 +64,7 @@ Start the server
 
 ```
 cd express
-npm run server:dev
+npm run server
 ```
 
 This will start a GraphqlAPI endpoint at `http://localhost:3000/graphql`. 
@@ -60,7 +74,7 @@ If you point your browser to this address you will find full fledged GraphQL API
 To create a car you could call the mutation: 
 
 ```graphql
-mutation{
+mutation {
   createCar( car: { licence: "HH AQ 2021" brand: "Mercedes", mileage: 10000 } ){
     car{ id licence brand mileage }
   }
