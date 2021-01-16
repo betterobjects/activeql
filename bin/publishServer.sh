@@ -17,5 +17,5 @@ npm i activeql-server@$VERSION
 
 sleep 2
 
-cp cd $ROOT/../activeql-starter/express/package.json $ROOT/../activeql-generator/express/package.json
-cp cd $ROOT/../activeql-starter/express/package-lock.json $ROOT/../activeql-generator/express/package-lock.json
+cp $ROOT/../activeql-starter/express/package.json $ROOT/../activeql-generator/starter-template/express/package.json
+cp $ROOT/../activeql-starter/express/package-lock.json $ROOT/../activeql-generator/starter-template/express/package-lock.json
