@@ -9,9 +9,6 @@ export const adminConfig:AdminConfig = {
     },
     User: {
       indication: 'username'
-    },
-    Driver: {
-      indication: ['firstname','lastname']
     }
   },
   resources: {
