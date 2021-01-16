@@ -75,3 +75,6 @@ npm run start
 ```
 
 If you point your browser to [http://localhost:4200](http://localhost:4200) you will see the Admin UI allowing you to create, read, update and delete entity items (Cars in this example).
+
+![Admin UI Example](http://www.activeql.io/img/adminui_cars.png)
+
