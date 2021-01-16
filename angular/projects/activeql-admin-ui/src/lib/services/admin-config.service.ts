@@ -419,7 +419,7 @@ export class AdminConfigService { 
       return this.decorateLink( display, link )
     });
     config.sortValue = config.sortValue || ((item:any)=>
-      this.getIndication( _.get( item, assocEntity.typeQueryName ), assocEntity.name ) );
+      this.getIndication( _.get( item, assocEntity.typeQueryName ), assocEntity.path ) );
     config.query = config.query || (() => {
       const assocViewType = this.getEntityViewByName( assocEntity.name );
       return assocViewType.asItem.query({});
