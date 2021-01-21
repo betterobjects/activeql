@@ -33,6 +33,9 @@ github_username:  thorek
 theme: just-the-docs
 remote_theme: pmarsceill/just-the-docs
 
+ga_tracking: G-BS0ZXE9JQP
+ga_tracking_anonymize_ip: false # Use GDPR compliant Google Analytics settings (true by default)
+
 plugins:
   - jekyll-feed
 
