@@ -6,7 +6,7 @@ import { domainConfiguration } from './domain-configuration';
 import { addJwtLogin, useJwtLogin } from './impl/jwt-login';
 import { addPrincipalFromHeader } from './impl/principal-from-header';
 
-// some default values
+/* some default values */
 const UPLOAD_DIR = '/uploads';
 const UPLOAD_PATH = '/files';
 const GRAPHQL_URL = '/graphql';
@@ -17,14 +17,14 @@ const DOMAIN_CONFIGURATION_FOLDER = __dirname + '/domain-configuration';
 // load domain configuration from yaml files in folder ./domain-configuration
 const domainDefinition:DomainDefinition = new DomainDefinition( DOMAIN_CONFIGURATION_FOLDER );
 
-// add configuration from ./domain-configuration.ts
+/* add configuration from ./domain-configuration.ts */
 domainDefinition.add( domainConfiguration );
 
-// add custom code
+/* add custom code */
 // addPrincipalFromHeader( domainDefinition );
 addJwtLogin( domainDefinition );
 
-// another datastore implementation
+/* another datastore implementation */
 // const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONGODB_DBNAME });
 
 export const activeqlServer = async( app: any ) => {

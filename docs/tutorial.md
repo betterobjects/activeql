@@ -1082,7 +1082,6 @@ We add our validation to the car entity - since it should prevent assigning a ca
 
 We still want to use all the existing configuration (in YAML) and only add the new functionalaty to the _domain definition_. Currently in your `./domainDefinition.ts` you have something like the following. 
 
-<div style="font-size: 0.9em">
 
 <div style="text-align: right">./tutorial/09/domain-definition.ts</div>
 
@@ -1101,13 +1100,11 @@ domainDefinition.add( domainConfiguration );
 export {domainDefinition};
 ```
 
-</div>
 
 The `domainDefinition` is currently parsing the contents of the folder `./domain-configuration` and adds a configuration object of the type `DomainConfiguration`. The content of the latter is currently empty - but we will add our custom validations, queries and mutations here. You can organize this differently but for now the default structure is suitable for our needs.
 
 We add the required validation to the `domain-definition`
 
-<div style="font-size:0.89em">
 
 ```typescript
 const domainConfiguration:DomainConfiguration = {
@@ -1127,7 +1124,6 @@ const domainConfiguration:DomainConfiguration = {
 }
 ```
 
-</div>
 
 You see we use the same domain configuration type here as in our yaml files. At the end every definition from every configuration file and configuration object is merged together. We could have configured the whole entity (its attributes, associations, seeds etc.) also in this configuration object. On the other hand, since we now add functions we can no longer put this is YAML but have to add it in this way.
 
@@ -1140,33 +1136,23 @@ So fare you are happy with your API. Every known business requirement is covered
 
 ActiveQL creates a lot of types, queries and mutations by convention but does not know of course about these requirements, so you have to add this as a _custom query and mutation_.
 
-Let's start with the query. We still want to use the existing configuration (in YAML) and only add the new functionalaty to the _domain definition_. Currently in your `./domainDefinition.ts` you have something like the following. 
+Let's start with the query. We still want to use the existing configuration (in YAML) and only add the new functionality to the _domain configuration object_. The default file for that `./express/activeql/domain-configuration.ts` looks something like the following. 
 
-<div style="font-size: 0.9em">
-
-<div style="text-align: right">./tutorial/10/domain-definition.ts</div>
+<div style="text-align: right">./tutorial/10/domain-configuration.ts</div>
 
 ```typescript
-import { DomainConfiguration, DomainDefinition } from "activeql-server";
-
-// load all definition in yaml files here
-const domainConfigurationFolder = `${__dirname}/domain-configuration`;
+import _ from 'lodash';
+import { DomainConfiguration } from "activeql-server";
 
 // you can add object based configuration here
-const domainConfiguration:DomainConfiguration = {};
-
-const domainDefinition:DomainDefinition = new DomainDefinition( domainConfigurationFolder );
-domainDefinition.add( domainConfiguration );
-
-export {domainDefinition};
+export const domainConfiguration:DomainConfiguration = {
+}
 ```
 
-</div>
-
-The `domainDefinition` is currently parsing the contents of the folder `./domain-configuration` and adds a configuration object of the type `DomainConfiguration`. The content of the latter is currently empty - but we will add our custom query and mutation here shortly. You can organize this differently but for now the default structure is suitable for our needs.
+Let's add our non-standard functions here - you could well split functionality between different typescript files, but for simple scenarios having everything in this file in this file is sufficient.
 
 ```typescript
-const domainConfiguration:DomainConfiguration = {
+export const domainConfiguration:DomainConfiguration = {
   query: {
     unassignedCars: (rt:Runtime) => ({
       type: '[Car]',
