@@ -1138,8 +1138,6 @@ ActiveQL creates a lot of types, queries and mutations by convention but does no
 
 Let's start with the query. We still want to use the existing configuration (in YAML) and only add the new functionality to the _domain configuration object_. The default file for that `./express/activeql/domain-configuration.ts` looks something like the following. 
 
-<div style="text-align: right">./tutorial/10/domain-configuration.ts</div>
-
 ```typescript
 import _ from 'lodash';
 import { DomainConfiguration } from "activeql-server";
@@ -1152,13 +1150,15 @@ export const domainConfiguration:DomainConfiguration = {
 Let's add our non-standard functions here - you could well split functionality between different typescript files, but for simple scenarios having everything in this file in this file is sufficient.
 
 ```typescript
+import { DomainConfiguration, Runtime } from "activeql-server";
+
 export const domainConfiguration:DomainConfiguration = {
   query: {
     unassignedCars: (rt:Runtime) => ({
       type: '[Car]',
       args: {
-        sort: { type: 'CarSort' },
-        paging: { type: 'EntityPaging' }
+        sort: 'CarSort',
+        paging: 'EntityPaging'
       },
       resolve: async ( root:any, args:any, context:any ) => {
         args.filter = { driverId: { exist: false } };
@@ -1175,61 +1175,68 @@ A _custom query_ configuration is always a function that returns an object of ty
 
 In the _resolver_ we obtain a reference to a certain _entity_ `Car` and use its `resolveTypes` function to return a list of cars, since we added our custom filter to `args` we can use the default resolver without further effort, for it this looks just as a client would have requested this filter regularely.
 
-Let's add the custom mutation which again is nearly identical to the standard `updateCar` but will take to explicit `args`, performs the save to the datastore and return the update (or assigned) car.
-
-We could add the add also directly to the `domainConfiguration` object but this would become confusing over time, so we follow the recommended structure and create a folder `query-muations` next to `domain-configuration`. Our custom queries and mutations will live there. For the `assignCar` mutation we create the following file. Please see the inline comments about how this could be implemented.
-
-<div style="text-align: right">./tutorial/11/query-mutations/assign-cars.mutation.ts</div>
+Let's add the custom mutation which again is nearly identical to the standard `updateCar` but will take two explicit `args`, performs the save to the datastore and return the update (or assigned) car.
 
 ```typescript
-// usage of lodash is optional
 import _ from 'lodash';
+import { DomainConfiguration, Runtime, ValidationViolation } from "activeql-server";
 
-// we import some basic types from the activeql-server library
-import { Runtime, ValidationViolation } from "activeql-server";
-
-// this is the definition of our mutation, we will later assign it to our "domain-definition"
-// it's a function that returns the config for the mutation
-export const assignCarMutation = ( rt:Runtime ) => ({
-  type: returnType( rt ) && 'AssignCarReturnType',      // define custom type for return type and use it rightaway 
-  args: {
-    carId: { type: 'ID!' },                             // two arg paramaters, carId and
-    driverId: { type: 'ID!' }                           // driverId - both required
+export const domainConfiguration:DomainConfiguration = {
+  query: {
+    unassignedCars: (rt:Runtime) => ({
+      type: '[Car]',
+      args: {
+        sort: 'CarSort',
+        paging: 'EntityPaging'
+      },
+      resolve: async ( root:any, args:any, context:any ) => {
+        args.filter = { driverId: { exist: false } };
+        return rt.entity( 'Car' ).resolver.resolveTypes( { root, args, context } )
+      }
+    })
   },
-  resolve: (root:any, args:any ) => resolver( rt, args ) // delegate resolve function to our function
-});
+  mutation: {
+    assignCar: ( rt:Runtime ) => ({
+      type: assignCarReturnType( rt ),      // define custom type for return type and use it rightaway
+      args: {
+        carId: 'ID!',                       // two arg paramaters, carId and
+        driverId: 'ID!'                     // driverId - both required
+      },
+      resolve: (root:any, args:any ) => resolver( rt, args ) // delegate to our resolve function
+    })
+  }
+}
+
 
 // this creates a GraphQLObjectType with the given fields
 // see how we use the ActiveQL type (ValidationViolation) and one of our configured types (Car)
-// this is the return type of the mutation - meaning in our resolver we have to proivde an object 
-// with the properties "car" and "validationValidations" - bot could be null
-const returnType = (rt:Runtime) => rt.type('AssignCarReturnType', {
+// this is the return type of the mutation - meaning in our resolver we have to proivde an object
+// with the properties "car" and "validationValidations" - both could be null
+const assignCarReturnType = (rt:Runtime) => rt.type('AssignCarReturnType', {
   fields: () => ({
-    car: { type: 'Car' },
-    validationViolations: { type: '[ValidationViolation]' }
+    car: 'Car',
+    validationViolations: '[ValidationViolation]'
   })
-});
+}).name;  // we simply return the name "AssignCarReturnType" so we can use it in our mutation
 
-// the actual resolver that is called when our mutation is requested
 const resolver = async ( rt:Runtime, args:any ) => {
 
-  // we want to collect violations 
   let validationViolations:ValidationViolation[] = [];
 
-  // obtain an instance of a car EntityItem 
+  // obtain an instance of a car EntityItem
   const car = await getCar( rt, args.carId, validationViolations );
 
-  // obtain an instance of a driver EntityItem 
+  // obtain an instance of a driver EntityItem
   const driver = await getDriver( rt, args.driverId, validationViolations );
-  
+
   // if either car or driver is null or there is any other ValidationValidation we do not proceed
   // but return the validationValidations rightaway
   if( ! car || ! driver || ! _.isEmpty( validationViolations ) ) return { validationViolations };
 
-  // this is the assignment - notice that car is an instance of EntityItem  
+  // this is the assignment - notice that car is an instance of EntityItem
   // the actual attribut values are in car.item
   car.item.driverId = driver.id
-  
+
   // should there are any validationValidations with the current item it would throw an error when saving -
   // we don't want that - thats why we validate first
   validationViolations = await car.validate();
@@ -1237,20 +1244,20 @@ const resolver = async ( rt:Runtime, args:any ) => {
   // only if all validations passes we actually save our car item
   // since we already validated the entity item in the previous step, we can skip validations here
   if( _.isEmpty( validationViolations ) ) await car.save( true );
-  
+
   // and return the car (item!) and possible validationValidations
   return { car: car.item, validationViolations };
 }
 
 // the implementation to get a car entity item - with validation
 const getCar = async (rt:Runtime, id:any, validationViolations:ValidationViolation[] ) => {
-  
+
   // the runtime gives us access to the car entity - which allows us to find car entity item(s)
   // we could have used findById( id ) - but that method would throw an error if no such id exists
   const car = await rt.entity('Car').findOneByAttribute( { id } );
 
   // if a car with the given ID couldn't be found - add a message to validationValidations
-  _.isUndefined( car ) && validationViolations.push( 
+  _.isUndefined( car ) && validationViolations.push(
     { attribute: 'carId', message: `cannot be found` }  );
 
   // if the car already has a driver assigen (a non-null driverId) we also add a validation message
@@ -1263,10 +1270,10 @@ const getCar = async (rt:Runtime, id:any, validationViolations:ValidationViolati
 
 // the implementation to get a driver entity item - with validation
 const getDriver = async (rt:Runtime, id:any, validationViolations:ValidationViolation[] ) => {
-  
+
   // find a driver entity item via its entity
   const driver = await rt.entity('Driver').findOneByAttribute( { id } );
-  
+
   // if a driver with the given ID couldn't be found - add a message to validationValidations
   _.isUndefined( driver ) && validationViolations.push(
     {attribute: 'driverId', message: `cannot be found` }  );
@@ -1276,4 +1283,4 @@ const getDriver = async (rt:Runtime, id:any, validationViolations:ValidationViol
 }
 ```
 
-
+You probably realized that the generated type `AssignCarReturnType` looks exactly the same as the default mutation return type `CarSaveResult`. So you could have used that instead. But this example shows how you could easily create your own types on-the-fly. 
