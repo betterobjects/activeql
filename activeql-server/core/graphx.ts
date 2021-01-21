@@ -63,6 +63,7 @@ export class GraphX {
   private fieldsFromArray( fields:any[] ):() => any {
     return () => _.reduce( fields, (result, fields) => {
         fields = _.isFunction( fields ) ? fields() : fields;
+        fields = _.mapValues( fields, field => _.isString( field ) ? { type: field } : field );
         fields = _.mapValues( fields, field =>
           _.isString( fields ) ? {type: this.type(fields)} : field );
         fields = _.mapValues( fields, field =>
