@@ -6,8 +6,9 @@
     "clean": "rimraf dist",
     "build": "rimraf dist && tsc",
     "watch:build": "tsc --watch",
-    "start": "concurrently -n express,angular \"npm:server\" \"cd ../angular; ng serve\"",
+    "start": "node ./start.js",
     "server": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --no-notify --inspect --watch ./activeql -- ./app.ts",
+    "client": "cd ../angular; ng serve",
     "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/seed.ts",
     "test": "jest --watch --detectOpenHandles"
   },
