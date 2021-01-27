@@ -6,7 +6,6 @@ import _ from 'lodash';
 import {
   Action,
   AdminConfig,
-  AsReferenceType,
   EntityViewType,
   FieldConfig,
   FieldList,
@@ -90,24 +89,22 @@ export class AdminConfigService { 
 
   private resolveViewType( path:string, entity:EntityType ):EntityViewType {
     return { name: entity.name, path, entity,
-      indication: this.resolveIndication( entity.name ),
+      indication: this.resolveIndication( entity ),
       listTitle: this.resolveListTitle( path ),
       itemTitle: this.resolveItemTitle( path ),
-      itemName: this.resolveItemName( entity.name ),
+      itemName: this.resolveItemName( entity ),
       index: this.resolveEntityConfigIndex( path, entity ),
       show: this.resolveEntityConfigShow( path, entity ),
       create: this.resolveEntityConfigCreate( path, entity ),
-      edit: this.resolveEntityConfigEdit( path, entity ),
-      asParent: this.resolveAsParent( path, entity ),
-      asItem: this.resolveAsItem( path, entity ),
-      asLookup: this.resolveAsLookup( path, entity )
+      edit: this.resolveEntityConfigEdit( path, entity )
     }
   }
 
-  private resolveIndication( entity:string ){
-    const indication = _.get(this.adminConfig, ['entities', entity, 'indication' ] );
-    if( ! indication ) return undefined;
-    return _.isArray( indication ) ? indication : [indication];
+  private resolveIndication( entity:EntityType ){
+    let indication = _.get(this.adminConfig, ['entities', entity.name, 'indication' ] );
+    if( ! indication ) indication = guessCandidates;
+    if( ! _.isArray( indication ) ) indication = [indication];
+    return _.intersection( indication, _.keys(entity.attributes) );
   }
 
   private resolveListTitle( entity:string ){
@@ -124,13 +121,10 @@ export class AdminConfigService { 
     return () => inflection.humanize( inflection.singularize( entity ) );
   }
 
-  private resolveItemName( entity:string ){
-    const nameFn = _.get(this.adminConfig, ['entities', entity, 'itemName' ] );
+  private resolveItemName( entity:EntityType ){
+    const nameFn = _.get(this.adminConfig, ['entities', entity.name, 'itemName' ] );
     if( _.isFunction( nameFn ) ) return nameFn;
-    return (item:any) => {
-      const viewType = this.getEntityViewByName( entity );
-      return viewType.asItem.render( item );
-    }
+    return (item:any) => this.getIndication( item, entity.path );
   }
 
   private resolveEntityConfigIndex( path:string, entity:EntityType ){
@@ -140,49 +134,6 @@ export class AdminConfigService { 
       query: config.query || this.indexQuery( path, entity ),
       search: config.search
     };
-  }
-
-  private resolveAsParent( path:string, entity:EntityType ):AsReferenceType {
-    const config = _.get(this.adminConfig, ['entities', entity.name, 'asParent' ], {} );
-    const defaultImpl = {
-      query: ({id}) => {
-        if( entity.typeQuery === false ) return;
-        const query = { query: {} };
-        const fields = this.getIndicationQueryFields( entity );
-        _.set( fields, '__args', {id} );
-        return _.set( query, ['query', entity.typeQueryName], fields );
-      },
-      render: (item:any) => this.getIndication( item, path )
-    };
-    return _.defaults( config, defaultImpl );
-  }
-
-  private resolveAsItem( path:string, entity:EntityType ):AsReferenceType {
-    const config = _.get(this.adminConfig, ['entities', entity.name, 'asItem' ], {} );
-    const defaultImpl = {
-      query: () => {
-        if( entity.typesQuery === false ) return;
-        const query = {};
-        const fields = this.getIndicationQueryFields( entity );
-        return _.set( query, [entity.typeQueryName], fields );
-      },
-      render: (item:any) => this.getIndication( item, path )
-    };
-    return _.defaults( config, defaultImpl );
-  }
-
-  private resolveAsLookup( path:string, entity:EntityType ):AsReferenceType {
-    const config = _.get(this.adminConfig, ['entities', entity.name, 'asLookup' ], {} );
-    const defaultImpl = {
-      query: () => {
-        if( entity.typesQuery === false ) return;
-        const query = {};
-        const fields = this.getIndicationQueryFields( entity );
-        return _.set( query, [entity.typesQueryName], fields );
-      },
-      render: (item:any) => this.getIndication( item, path )
-    };
-    return _.defaults( config, defaultImpl );
   }
 
   private resolveEntityConfigShow( path:string, entity:EntityType ){
@@ -242,14 +193,7 @@ export class AdminConfigService { 
       if( entity.createMutation === false ) return;
       const query = { query: {} };
       if( parent ) this.setParentQuery( parent, query );
-      _.forEach( entity.assocTo, assocTo => {
-        const config = this.getEntityViewByName( assocTo.type );
-        _.merge( query.query, config.asLookup.query({}) );
-      });
-      _.forEach( entity.assocToMany, assocToMany => {
-        const config = this.getEntityViewByName( assocToMany.type );
-        _.merge( query.query, config.asLookup.query({}) );
-      });
+      this.addLookupQueriesForAssocs( entity, query );
       return query;
     }
   }
@@ -264,16 +208,26 @@ export class AdminConfigService { 
       const fields = this.fieldListToQueryFields( fieldList );
       _.set( fields, '__args', {id} );
       _.set( query, ['query', entity.typeQueryName], fields );
-      _.forEach( entity.assocTo, assocTo => {
-        const config = this.getEntityViewByName( assocTo.type );
-        _.merge( query.query, config.asLookup.query({}) );
-      });
-      _.forEach( entity.assocToMany, assocToMany => {
-        const config = this.getEntityViewByName( assocToMany.type );
-        _.merge( query.query, config.asLookup.query({}) );
-      });
+      this.addLookupQueriesForAssocs( entity, query );
       return query;
     }
+  }
+
+  private addLookupQueriesForAssocs( entity:EntityType, query:any ){
+    _.forEach( entity.assocTo, assocTo => {
+      const config = this.getEntityViewByName( assocTo.type );
+      if( config.entity.typesQuery === false ) return;
+      _.set( query.query, config.entity.typesQueryName, { id: true } );
+      _.forEach( config.indication, indication =>
+        _.set( query.query, [config.entity.typesQueryName, indication], true ) );
+    });
+    _.forEach( entity.assocToMany, assocToMany => {
+      const config = this.getEntityViewByName( assocToMany.type );
+      if( config.entity.typesQuery === false ) return;
+      _.set( query.query, config.entity.typesQueryName, { id: true } );
+      _.forEach( config.indication, indication =>
+        _.set( query.query, [config.entity.typesQueryName, indication], true ) );
+    });
   }
 
   private fieldListToQueryFields( fieldList:FieldList ) {
@@ -281,12 +235,11 @@ export class AdminConfigService { 
   }
 
   private setParentQuery( parent:ParentType, query:any, entity?:EntityType ):void {
-    const path = this.getPathForEntity( parent.viewType.entity );
-    const config = this.getEntityView( path );
-    const asParent = config.asParent;
-    if( ! asParent ) return;
-    _.merge( query, asParent.query({ id: parent.id } ) );
-    if( ! entity ) return query;
+    if( parent.viewType.entity.typeQuery === false ) return;
+    const fields = this.getIndicationQueryFields( parent.viewType );
+    _.set( fields, '__args', {id: parent.id } );
+    _.set( query, ['query', parent.viewType.entity.typeQueryName], fields );
+    if( ! entity ) return;
     const isAsscoToOne = _.find( entity.assocTo, assocTo => assocTo.type === parent.viewType.entity.name );
     const foreignKey = isAsscoToOne ? parent.viewType.entity.foreignKey : parent.viewType.entity.foreignKeys;
     const filterCond = isAsscoToOne ? 'is' : 'isIn';
@@ -412,9 +365,9 @@ export class AdminConfigService { 
     config.value = config.value || ((item:any) => _.get( item, [assocEntity.typeQueryName, 'id'] ) );
     config.render = config.render || (( item:any ) => {
       const assocViewType = this.getEntityViewByName( assocEntity.name );
-        const value = _.get( item, assocEntity.typeQueryName );
+      const value = _.get( item, assocEntity.typeQueryName );
       if( ! value ) return undefined;
-      const display = assocViewType.asLookup.render(value);
+      const display = assocViewType.itemName(value);
       const link = this.itemLink( assocEntity, value );
       return this.decorateLink( display, link )
     });
@@ -422,7 +375,10 @@ export class AdminConfigService { 
       this.getIndication( _.get( item, assocEntity.typeQueryName ), assocEntity.path ) );
     config.query = config.query || (() => {
       const assocViewType = this.getEntityViewByName( assocEntity.name );
-      return assocViewType.asItem.query({});
+      if( assocViewType.entity.typeQuery === false ) return {};
+      const query = {};
+      const fields = this.getIndicationQueryFields( assocViewType );
+      return _.set( query, [assocEntity.typeQueryName], fields );
     });
     config.control = 'select';
     config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
@@ -438,11 +394,11 @@ export class AdminConfigService { 
     config.required = config.required || assocToMany.required;
     config.render = config.render || (( item:any ) => {
       const assocViewType = this.getEntityViewByName( assocEntity.name );
-      let values = _.get( item, assocEntity.typesQueryName );
+      let values = _.get( item, assocEntity.typeQueryName );
       if( ! values ) return undefined;
       if( ! _.isArray( values ) ) values = [values];
       values = _.map( values, value => {
-        const display = assocViewType.asLookup.render(value);
+        const display = assocViewType.itemName(value);
         return this.decorateLink( display, this.itemLink( assocEntity, value ) )
       });
       return _.join( values, ', ' );
@@ -461,7 +417,10 @@ export class AdminConfigService { 
     });
     config.query = config.query || (() => {
       const assocViewType = this.getEntityViewByName( assocEntity.name );
-      return _.set( {}, assocEntity.typesQueryName, assocViewType.asLookup.query({}) );
+      if( assocViewType.entity.typeQuery === false ) return {};
+      const query = {};
+      const fields = this.getIndicationQueryFields( assocViewType );
+      return _.set( query, [assocEntity.typeQueryName], fields );
     });
     config.options = config.options || this.defaultAssocOptionsMethod( assocEntity );
     config.control = 'multiple';
@@ -472,7 +431,7 @@ export class AdminConfigService { 
     return (data:any) => {
       const assocView = this.getEntityViewByName( assocEntity.name );
       const values = _.get( data, assocEntity.typesQueryName );
-      return _.map( values, value => ({ value: value.id, label: assocView.asLookup.render( value ) } ) );
+      return _.map( values, value => ({ value: value.id, label: assocView.itemName( value ) } ) );
     };
   }
 
@@ -534,22 +493,13 @@ export class AdminConfigService { 
   private getIndication( item:any, path:string ):string {
     if( ! item ) return '[null]';
     const viewType = this.getEntityView(path);
-    if( viewType.indication ) return _.join( _.map( viewType.indication, indication => _.get( item, indication ) ), ' ' );
-    const firstname = _.find( firstNameCandidates, candidate => _.has( item, candidate ));
-    const lastname = _.find( lastNameCandidates, candidate => _.has( item, candidate ));
-    if( firstname && lastname ) return `${item[firstname]} ${item[lastname]}`;
-    if( firstname ) return item[firstname];
-    if( lastname ) return item[lastname];
-    const name = _.find( _.concat( nameCandidates, keyCandidates), candidate => _.has( item, candidate ));
-    if( name ) return item[name];
-    return _.get( item, 'id', _.toString( item )) ;
+    if( _.isEmpty( viewType.indication ) ) return _.get( item, 'id', _.toString( item )) ;
+    return _.join( _.map( viewType.indication, indication => _.get( item, indication ) ), ' ' );
   }
 
-  private getIndicationQueryFields( entity:EntityType ){
-    const viewType = this.getEntityViewByName( entity.name );
-    const fields = viewType.indication || guessCandidates;
-    return _.reduce( _.intersection( fields, _.keys(entity.attributes) ), (result, field) =>
-      _.set( result, field, true), { id: true } );
+  private getIndicationQueryFields( viewType:EntityViewType ){
+    const fields = viewType.indication;
+    return _.reduce( fields, (result, field) => _.set( result, field, true), { id: true } );
   }
 
 }

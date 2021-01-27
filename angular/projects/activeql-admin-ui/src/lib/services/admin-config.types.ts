@@ -20,19 +20,12 @@ export type EntityViewConfig = {
   itemName?: (item:any) => string
   indication?:string|string[]
   path?:string
-  asParent?:AsReferenceType
-  asItem?:AsReferenceType
-  asLookup?:AsReferenceType
   index?: UiConfig
   show?: UiShowConfig
   create?: UiConfig
   edit?: UiConfig
 }
 
-export type AsReferenceType = {
-  query?: QueryFn
-  render?: (item:any) => string
-}
 
 export type UiConfig = {
   fields?: FieldListConfig
@@ -73,9 +66,6 @@ export type EntityViewType = {
   itemTitle: () => string
   itemName: (item:any) => string
   indication?:string[]
-  asParent:AsReferenceType
-  asItem:AsReferenceType
-  asLookup:AsReferenceType
   index: {
     fields: FieldList
     query: QueryFn

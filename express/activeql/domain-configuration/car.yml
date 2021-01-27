@@ -14,6 +14,7 @@ entity:
       color: String
       mileage: Int
     assocTo: Driver
+    assocFrom: Lease
     seeds:
       50:
         vin:

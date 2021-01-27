@@ -1,0 +1,7 @@
+entity:
+  Lease:
+    attributes:
+      start: Date!
+      ende: Date
+      notes: String
+    assocTo: Car

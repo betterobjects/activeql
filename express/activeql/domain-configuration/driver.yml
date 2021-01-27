@@ -9,6 +9,10 @@ entity:
       licenceValid: Date!
     assocFrom: Car
     seeds:
+      thomas:
+        firstname: Thomas
+        lastname: Rekittke
+        licenceValid: 2021-12-02
       30:
         firstname:
           faker: name.firstName

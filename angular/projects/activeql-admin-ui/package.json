@@ -1,6 +1,35 @@
 {
   "name": "activeql-admin-ui",
-  "version": "0.0.14",
+  "description": "",
+  "keywords": [
+    "graphql",
+    "GraphQL",
+    "API",
+    "GraphQL on rails",
+    "Simple GraphQL",
+    "GraphQL Start",
+    "GraphQL Easy",
+    "generate",
+    "generator",
+    "customizable",
+    "simple",
+    "easy",
+    "admin ui",
+    "ui",
+    "graphql ui",
+    "graphql admin ui",
+    "domain",
+    "angular"
+  ],
+  "homepage": "https://activeql.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/betterobjects/activeql.git"
+  },
+  "bugs": {
+    "url": "https://github.com/betterobjects/activeql/issues"
+  },
+  "version": "0.0.16",
   "peerDependencies": {
     "@angular/common": "^9.1.11",
     "@angular/core": "^9.1.11",

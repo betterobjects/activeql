@@ -18,7 +18,7 @@ Implementing a GraphQL API can be a cumbersome task though. You need to decide h
 
 **ActiveQL** supports this development with a highly oppionated generation of a GraphQL schema and resolvers. You can run a GraphQL API directly from the description of a business domain (mainly entities and its relations to each other). This gives you the the freedom to concentrate on the implementation of any non-default functionality on top of that. It does not restrict you in any way how implement your API, what libraries you prefer etc.
 
-## Terminologies
+### Terminologies
 
 We use the this terms in the following meaning throughout this documenatation.
 
@@ -35,9 +35,8 @@ We use the this terms in the following meaning throughout this documenatation.
 
 
 
-## Documentation / Tutorial
+### Documentation
 
-You will find extensive documentation here:
 
 | Topic | Documentation |
 | ----- | ------------- |
@@ -50,16 +49,56 @@ You will find extensive documentation here:
 | Architecture | Technology foundation
 
 
-## GraphQL API / Apollo Express
+## Technologies
+
+AciveQL is a NodeJS framework and uses
+
+### GraphQL API / Apollo Express
 
 The generated Schema and Resolvers can be made available as a GraphQL API using an [Express](http://expressjs.com)
 / [Apollo](https://www.apollographql.com) NodeJS application.
 
 This can be used by any GrapqhQL Client - restrictions in regards of accessing the API technical (e.g. API call limits, restriced client IPs) are out of concern of ActiveQL and should be handled on a custom level.
 
-## Angular Admin UI
+### Angular Admin UI
 
 You can access the basic CRUD operations of your domain data via a generich Admin UI (build in Angular). This follows also the _convention over configuration_ approach. You can use it right away but are able to customize nearly every aspect of it.
+
+## Installation
+
+Install from ActiveQL generator and dependencies
+
+```
+npx betterobjects/activeql-generator my-activeql
+
+cd ./my-activeql/express
+npm i
+
+cd ../my-activeql/angular
+npm i
+```
+
+or _alternatively_ you can fork and clone the ActiveQL starter application
+
+```
+git clone https://github.com/betterobjects/activeql-starter.git
+# or preferably your forked repository
+
+cd ./activeql-starter/express
+npm i
+
+cd ../activeql-starter/angular
+npm i
+```
+
+Run GraphQL API server and Admin UI
+
+```
+cd ./express
+npm run start
+```
+
+To see how to embed the ActiveQL libraries in your Expess / Angular applications and more options to run the server and client, please refer to [Installation and Run](./installation)
 
 ## Example
 

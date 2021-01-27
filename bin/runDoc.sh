@@ -1,4 +1,5 @@
 #!/bin/bash
 
-rvm use ruby-2.6.3
+cd docs
+
 bundle exec jekyll serve
