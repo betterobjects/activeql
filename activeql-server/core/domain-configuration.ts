@@ -9,6 +9,7 @@ export type DomainConfiguration = {
   enum?:{[name:string]:EnumConfig},
   query?:{[name:string]:QueryConfigFn},
   mutation?:{[name:string]:MutationConfigFn},
+  subscription?:{[name:string]:SubscriptionConfigFn}
 }
 
 export type DomainConfigurationType = {
@@ -16,6 +17,7 @@ export type DomainConfigurationType = {
   enum:{[name:string]:EnumType}
   query:{[name:string]:QueryConfigFn}
   mutation:{[name:string]:MutationConfigFn}
+  subscription:{[name:string]:SubscriptionConfigFn}
 }
 
 export type EntityType = {
@@ -58,6 +60,8 @@ export type EntityType = {
   typeQueryName:string
   statsQueryName:string
 
+  subscriptions?:boolean
+  typeOnly?:boolean
   typeQuery?:false|EntityResolverFn
   typesQuery?:false|EntityResolverFn
   createMutation?:false|EntityResolverFn
@@ -127,6 +131,8 @@ export type EntityConfig = {
   typeQueryName?:string
   statsQueryName?:string
 
+  subscriptions?:boolean
+  typeOnly?:boolean
   typeQuery?:false|EntityResolverFn
   typesQuery?:false|EntityResolverFn
   createMutation?:false|EntityResolverFn
@@ -170,8 +176,16 @@ export type QueryMutationConfig = {
   resolve?: (root:any, args:any, context:any ) => any
 }
 
+export type SubscriptionConfig = {
+  type: any
+  args?:{[name:string]:string | QueryMutationArgConfig }
+  subscribe: string|((root:any, args:any, context:any ) => any)
+  resolve?: (payload:any ) => any
+}
+
 export type MutationConfigFn = (runtime:Runtime) => QueryMutationConfig
 export type QueryConfigFn = (runtime:Runtime) => QueryMutationConfig
+export type SubscriptionConfigFn = (runtime:Runtime) => SubscriptionConfig
 
 /**
  *

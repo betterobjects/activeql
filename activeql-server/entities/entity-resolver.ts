@@ -21,7 +21,6 @@ export enum CRUD  {
   DELETE = 'delete'
 }
 
-
 //
 //
 export class EntityResolver extends EntityModule {

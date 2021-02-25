@@ -80,12 +80,13 @@ export class Entity {
   get validateFn() { return this.config.validation }
   get hooks() { return this.config.hooks }
   get permissions() { return this.config.permissions }
-  get typeQuery() { return this.config.typeQuery }
-  get typesQuery() { return this.config.typesQuery }
-  get statsQuery() { return this.config.statsQuery }
-  get createMutation() { return this.config.createMutation }
-  get updateMutation() { return this.config.updateMutation }
-  get deleteMutation() { return this.config.deleteMutation }
+  get typeQuery() { return this.config.typeOnly ? false : this.config.typeQuery }
+  get typesQuery() { return this.config.typeOnly ? false : this.config.typesQuery }
+  get statsQuery() { return this.config.typeOnly ? false : this.config.statsQuery }
+  get createMutation() { return this.config.typeOnly ? false : this.config.createMutation }
+  get updateMutation() { return this.config.typeOnly ? false : this.config.updateMutation }
+  get deleteMutation() { return this.config.typeOnly ? false : this.config.deleteMutation }
+  get subscriptions() { return this.config.subscriptions === true }
 
   get entities() {
     if( this.isInterface ) return _.filter( this.runtime.entities, entity => entity.implementsEntityInterface( this ) );

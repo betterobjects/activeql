@@ -2,8 +2,6 @@ import { ApolloServer, ApolloServerExpressConfig } from 'apollo-server-express';
 import depthLimit from 'graphql-depth-limit';
 import _ from 'lodash';
 
-import { DomainConfiguration } from './core/domain-configuration';
-import { DomainDefinition } from './core/domain-definition';
 import { Runtime, RuntimeConfig } from './core/runtime';
 
 /**
@@ -12,8 +10,8 @@ import { Runtime, RuntimeConfig } from './core/runtime';
  */
 export class ActiveQLServer {
 
-  static async create( runtimeConfig:RuntimeConfig|DomainDefinition|DomainConfiguration|string, apolloConfig?:ApolloServerExpressConfig ):Promise<ApolloServer> {
-    if( ! apolloConfig ) apolloConfig = { validationRules: [depthLimit(7)] }
+  static async create( runtimeConfig:RuntimeConfig, apolloConfig:ApolloServerExpressConfig = {} ):Promise<ApolloServer> {
+    _.defaults( apolloConfig, { validationRules: [depthLimit(7)] } );
     const runtime = await Runtime.create( runtimeConfig );
     apolloConfig.schema = runtime.schema;
     apolloConfig.context = async (expressContext:any) => {

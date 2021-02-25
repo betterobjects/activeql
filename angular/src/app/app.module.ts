@@ -58,7 +58,7 @@ registerLocaleData(en);
     LoginComponent
   ],
   imports: [
-    GraphQLModule.forRoot({uri: 'http://localhost:3000/graphql'}),
+    GraphQLModule.forRoot({uri: 'http://localhost:4000/graphql'}),
     ActiveQLAdminUIModule.forRoot( adminConfig ),
     BrowserModule,
     FlexLayoutModule,

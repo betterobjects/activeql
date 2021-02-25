@@ -1,3 +1,4 @@
+import { PubSub } from 'apollo-server-express';
 import { GraphQLSchema } from 'graphql';
 import _ from 'lodash';
 
@@ -20,6 +21,7 @@ import { Seeder } from './seeder';
 
 export type RuntimeConfig = {
   name?:string
+  pubsub?:PubSub
   dataStore?:(name?:string) => Promise<DataStore>
   validator?:(entity:Entity) => Validator
   entityResolver?:(entity:Entity) => EntityResolver
@@ -42,6 +44,8 @@ export class Runtime {
   readonly enums:string[] = [];
   readonly filterTypes:{[name:string]:FilterType} = {};
 
+  get pubsub():PubSub { if( this.config.pubsub ) return this.config.pubsub; throw 'no pubsub in runtime!' }
+
   private constructor( public readonly config:RuntimeConfig ){ }
 
   /**
@@ -57,6 +61,7 @@ export class Runtime {
   private static getDefaultConfig():RuntimeConfig {
     return {
       name: 'ActiveQL',
+      pubsub: new PubSub(),
       dataStore: ( name?:string ) => NedbDataStore.create({ filePath: 'db' }),
       validator: ( entity:Entity ) => new ValidateJs( entity ),
       entityResolver: ( entity:Entity ) => new EntityResolver( entity ),

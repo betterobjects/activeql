@@ -80,11 +80,11 @@ export class ActiveQLSchemaTypes {
       })
     });
 
-    this.graphx.type( 'EntityEnum', {
-      from: GraphQLTypes.GraphQLEnumType,
-      fields: () => _.reduce( this.runtime.entities, (values, entity) =>
-        _.set( values, _.toUpper( entity.typeName ), { value: entity.typeName} ), {} )
-    });
+    // this.graphx.type( 'EntityEnum', {
+    //   from: GraphQLTypes.GraphQLEnumType,
+    //   fields: () => _.reduce( this.runtime.entities, (values, entity) =>
+    //     _.set( values, _.toUpper( entity.typeName ), { value: entity.typeName} ), {} )
+    // });
 
     this.graphx.type('EntityRole', {
       fields: () => ({

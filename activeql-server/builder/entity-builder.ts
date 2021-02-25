@@ -71,6 +71,7 @@ export class EntityBuilder extends TypeBuilder {
     this.addReferences();
     this.addQueries();
     this.addMutations();
+    this.addSubscriptions();
   }
 
   //
@@ -147,6 +148,37 @@ export class EntityBuilder extends TypeBuilder {
     this.addTypesQuery();
     this.addByQueries();
     this.addStatsQuery();
+  }
+
+  protected addSubscriptions(){
+    if( ! this.entity.subscriptions ) return;
+    this.addSaveSubscription('create');
+    this.addSaveSubscription('update');
+    this.addDeleteSubscription();
+  }
+
+  private addSaveSubscription(action:'create'|'update') {
+    const name = `${action}${this.entity.typeName}`;
+    this.graphx.type( 'subscription' ).extendFields( () => {
+      const subscription = {
+        type: this.graphx.type( this.entity.typeName ),
+        subscribe: () => this.runtime.pubsub.asyncIterator( name ),
+        resolve: (payload:any) => payload
+      }
+      return _.set( {}, name, subscription );
+    });
+  }
+
+  private addDeleteSubscription() {
+    const name = `delete${this.entity.typeName}`;
+    this.graphx.type( 'subscription' ).extendFields( () => {
+      const subscription = {
+        type: this.graphx.type( 'ID' ),
+        subscribe: () => this.runtime.pubsub.asyncIterator( name ),
+        resolve: (payload:any) => payload
+      }
+      return _.set( {}, name, subscription );
+    });
   }
 
   //

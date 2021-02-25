@@ -6,11 +6,11 @@ import { EnumBuilder, EnumConfigBuilder } from '../builder/enum-builder';
 import { MutationBuilder, MutationConfigBuilder } from '../builder/mutation-builder';
 import { QueryBuilder, QueryConfigBuilder } from '../builder/query-builder';
 import { SchemaBuilder } from '../builder/schema-builder';
+import { SubscriptionBuilder, SubscriptionConfigBuilder } from '../builder/subscription-builder';
 import { Entity } from '../entities/entity';
 import { ActiveQLSchemaTypes } from './activeql-schema-types';
-import { EntityType, EnumType, MutationConfigFn, QueryConfigFn } from './domain-configuration';
+import { EntityType, EnumType, MutationConfigFn, QueryConfigFn, SubscriptionConfig, SubscriptionConfigFn } from './domain-configuration';
 import { Runtime } from './runtime';
-
 
 export class SchemaFactory {
 
@@ -74,6 +74,8 @@ export class SchemaFactory {
       (config, name) => this.createQueryBuilder( name, config ) ) ) );
     builder.push( ... _.compact( _.map( configuration.mutation,
       (config, name) => this.createMutationBuilder( name, config ) ) ) );
+    builder.push( ... _.compact( _.map( configuration.subscription,
+      (config, name) => this.createSubscriptionBuilder( name, config ) ) ) );
 
     return builder;
   }
@@ -110,6 +112,15 @@ export class SchemaFactory {
       return MutationConfigBuilder.create( name, config );
     } catch (error) {
       console.log( `Error building mutation [${name}]`, error );
+    }
+  }
+
+  private createSubscriptionBuilder( name:string, configFn:SubscriptionConfigFn ):undefined|SubscriptionBuilder{
+    try {
+      const config = configFn( this.runtime );
+      return SubscriptionConfigBuilder.create( name, config );
+    } catch (error) {
+      console.log( `Error building subscription [${name}]`, error );
     }
   }
 

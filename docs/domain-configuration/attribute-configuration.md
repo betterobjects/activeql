@@ -41,7 +41,8 @@ All configuration options are documented in detail further below:
 | [validation](#validation)     | object            | configure business validation using extensive ValidateJS syntax |
 | [resolve](#resolve)           | Function          | callback to determine custom value for a field that will be send to a client |
 | [virtual](#virtual)           | boolean           | non-persistant value; value is never written or read from datastore |
-| mediatype                     |  string           | only used as metadata for UI clients, e.g. ActiveQL Admin UI |
+| objectType                    | boolean           | should this attribute be part of the type itself (or only mutations) |
+| mediatype                     | string            | only used as metadata for UI clients, e.g. ActiveQL Admin UI |
 
  <br>
 

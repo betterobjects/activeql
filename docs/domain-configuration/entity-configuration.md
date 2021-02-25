@@ -33,6 +33,8 @@ export type EntityConfig = {
   interface?:boolean
   implements?:string|string[]
 
+  subscriptions?:boolean
+  typeOnly?:boolean
   typeQuery?:false|EntityResolverFn
   typesQuery?:false|EntityResolverFn
   createMutation?:false|EntityResolverFn
@@ -81,6 +83,8 @@ From the definition of an _entity_ a lot of GraphQL schema types, queries and mu
 | [union](#union ) |  defines a a union relationship between entities
 | [interface](#interface ) | defines a common interface other entities can implement
 | [implements](#implements ) |  defines the implementation of an interface entity
+| [subscriptions](#subscriptions) | add subscriptions for create, update, delete of items |
+| [typeOnly](#typeOnly) | if `true` skip all queries and resolvers and only add type to the schema |
 | [typeQuery](#typeQuery) | skip or replace default type query resolver with custom resolver |
 | [typesQuery](#typesQuery) | skip or replace default types query resolver with custom resolver |
 | [createMutation](#createMutation) | skip or replace default create mutation resolver with custom resolver |
@@ -678,6 +682,73 @@ Role based declaration of permssions to access this entity's
 ```
 
 You can allow/disallow access to any query and mutation (via CRUD actions) based on the role(s) of a [Principal](../activeql-principal.md) and even filter allowed entity items via _expressions_. For details see [Permissions](./permissions.md).
+
+## subscriptions
+
+If set to `true` the following subscriptions will be added the schema and triggered when the action occurs. 
+
+| subscription | type | |
+|-|-|-|
+| `create`TypeName | entityType | triggered when a new item was successfully created |
+| `update`TypeName | entityType | triggered when an item was successfully updated |
+| `delete`TypeName | ID | triggered when an item was successfully deleted |
+
+
+### Example 
+
+<table width="100%" style="font-size: 0.9em"><tr valign="top">
+<td width="50%">Configuration</td><td width="50%">Schema</td></tr>
+<tr valign="top"><td markdown="block">
+
+```yaml
+entity:
+  Car:
+    attributes:
+      licence: Key
+    subscriptions: true
+```
+
+</td><td markdown="block">
+
+```graphql
+type Subscription {
+  createCar: Car
+  updateCar: Car
+  deleteCar: ID
+}
+```
+
+</td></tr></table>
+
+<table width="100%" style="font-size: 0.9em"><tr valign="top">
+<td width="50%">Subscription</td><td width="50%">When create triggered</td></tr>
+<tr valign="top"><td markdown="block">
+
+```graphql
+subscription {
+  createCar {
+    id
+    licence
+  }
+}
+```
+
+</td><td markdown="block">
+
+```json
+{
+  "data": {
+    "createCar": {
+      "id": "5fa87cc40dd707984e939524",
+      "licence": "HH-TM 2021"
+    }
+  }
+}
+```
+
+</td></tr></table>
+
+
 
 ## typeName
 

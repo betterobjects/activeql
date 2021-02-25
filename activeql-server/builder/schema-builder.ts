@@ -1,7 +1,6 @@
 import { GraphQLType } from 'graphql';
 import _ from 'lodash';
 
-import { AttributeType } from '../core/domain-configuration';
 import { Runtime } from '../core/runtime';
 
 

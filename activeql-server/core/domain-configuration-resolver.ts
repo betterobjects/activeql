@@ -23,7 +23,7 @@ export class DomainConfigurationResolver {
 
   get resolvedConfiguration() { return this.configuration }
 
-  private configuration:DomainConfigurationType = { entity: {}, enum: {}, query: {}, mutation: {} };
+  private configuration:DomainConfigurationType = { entity: {}, enum: {}, query: {}, mutation: {}, subscription: {} };
 
   constructor( private input:DomainConfiguration = {}, private seeds = true, private customQueriesMutations:boolean|'src' ){}
 
@@ -42,6 +42,12 @@ export class DomainConfigurationResolver {
         this.customQueriesMutations === true ? mutation :
         this.customQueriesMutations === 'src' ?  mutation.toString() :
         null : '[CustomFn]' ));
+    _.forEach( this.input.subscription, (subscription, name) =>
+      _.set(this.configuration.subscription, name, this.customQueriesMutations ?
+        this.customQueriesMutations === true ? subscription :
+        this.customQueriesMutations === 'src' ?  subscription.toString() :
+        null : '[CustomFn]' ));
+
   }
 
   private resolveEnum( enumConfig:EnumConfig ):EnumType {
@@ -50,8 +56,9 @@ export class DomainConfigurationResolver {
   }
 
   private resolveEntity( name:string, entity:EntityConfig ):EntityType {
+    if( ! _.has( entity, 'attributes') ) entity = _.set( {}, 'attributes', entity );
     const resolved:any = _.merge( { name }, _.pick( entity,
-      'description', 'validation', 'hooks', 'typeQuery', 'typesQuery', 'statsQuery', 'permissions',
+      'description', 'validation', 'hooks', 'typeOnly', 'subscriptions', 'typeQuery', 'typesQuery', 'statsQuery', 'permissions',
       'createMutation', 'updateMutation', 'deleteMutation'));
     resolved.typeName = _.get( entity, 'typeName', name );
     resolved.attributes = this.resolveAttributes( entity );
@@ -148,7 +155,7 @@ export class DomainConfigurationResolver {
     if( mediaType ) config.type = 'File';
 
     config.type = this.resolveType( config.type );
-    config.required == config.required || required || requiredInside;
+    config.required = config.required || required || requiredInside;
     config.list = config.list || list;
     config.mediaType = config.mediaType || mediaType;
     return config;

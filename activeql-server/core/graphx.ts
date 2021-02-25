@@ -77,6 +77,7 @@ export class GraphX {
   init( runtime:Runtime ){
     this.createQueryType();
     this.createMutationType( runtime );
+    this.createSubscriptionType( runtime );
   }
 
   /**
@@ -92,6 +93,15 @@ export class GraphX {
           resolve: ( root:any, args:any ) => `pong, ${args.some}!`
         }
       })
+    });
+  }
+
+/**
+   *
+   */
+  private createSubscriptionType( runtime:Runtime ):void {
+    this.createType( 'subscription', {
+      name: 'Subscription'
     });
   }
 
@@ -179,7 +189,8 @@ export class GraphX {
     this.generateTypes();
     return new GraphQLSchema({
       query: this.type('query'),
-      mutation: this.type('mutation')
+      mutation: this.type('mutation'),
+      subscription: this.type('subscription')
     });
   }
 

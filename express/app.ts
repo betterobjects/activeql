@@ -5,16 +5,20 @@ import { createServer } from 'http';
 import { activeqlServer } from './activeql/activeql-app';
 
 require('dotenv').config();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 (async () => {
   const app = express();
   app.use('*', cors());
   app.use(compression());
-  app.set('port', port );
+  app.set('port', PORT );
 
-  await activeqlServer( app );
+  const server = await activeqlServer( app );
   const httpServer = createServer( app );
+  server.installSubscriptionHandlers( httpServer );
 
-  httpServer.listen({port}, () => console.log(`🚀 GraphQL is running on http://localhost:${port}/graphql`));
+  httpServer.listen({port: PORT}, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+    console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+  });
 })();

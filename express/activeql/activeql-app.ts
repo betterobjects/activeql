@@ -5,6 +5,8 @@ import express from 'express';
 import { domainConfiguration } from './domain-configuration';
 import { addJwtLogin, useJwtLogin } from './impl/jwt-login';
 import { addPrincipalFromHeader } from './impl/principal-from-header';
+import { ApolloServerExpressConfig } from 'apollo-server-express';
+
 
 /* some default values */
 const UPLOAD_DIR = '/uploads';
@@ -32,6 +34,7 @@ export const activeqlServer = async( app: any ) => {
   app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
   const server = await ActiveQLServer.create( { domainDefinition } );
   server.applyMiddleware({ app, path: GRAPHQL_URL });
+  return server;
 }
 
 export const activeqlSeeed = async (truncate:boolean) => {

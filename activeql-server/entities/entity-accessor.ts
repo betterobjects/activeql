@@ -64,7 +64,7 @@ export class EntityAccessor extends EntityModule {
       if( _.size( validationViolations ) ) return validationViolations;
     }
     const item = _.has( attributes, 'id') ?
-      await this.dataStore.update( this.entity, attributes ) :
+      await this.update( attributes ) :
       await this.create( attributes );
     return EntityItem.create( this.entity, item );
   }
@@ -74,7 +74,19 @@ export class EntityAccessor extends EntityModule {
    */
   private async create( attributes:any ){
     for( const assocTo of this.entity.assocToInput ) await this.createInlineInput( assocTo, attributes );
-    return this.dataStore.create( this.entity, attributes );
+    const item = await this.dataStore.create( this.entity, attributes );
+    if( this.entity.subscriptions ) this.runtime.pubsub.publish(`create${this.entity.typeName}`, item );
+    return item;
+  }
+
+
+  /**
+   *
+   */
+  private async update( attributes:any ){
+    const item = await this.dataStore.update( this.entity, attributes );
+    if( this.entity.subscriptions ) this.runtime.pubsub.publish(`update${this.entity.typeName}`, item );
+    return item;
   }
 
   /**
@@ -82,7 +94,9 @@ export class EntityAccessor extends EntityModule {
    */
   async delete( id:any ):Promise<boolean> {
     await this.deleter.deleteAssocFrom( id );
-    return this.dataStore.delete( this.entity, id );
+    const result = await this.dataStore.delete( this.entity, id );
+    if( this.entity.subscriptions ) this.runtime.pubsub.publish(`delete${this.entity.typeName}`, id );
+    return result;
   }
 
   /**
