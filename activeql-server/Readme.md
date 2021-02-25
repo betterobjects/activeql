@@ -67,7 +67,7 @@ cd express
 npm run server
 ```
 
-This will start a GraphqlAPI endpoint at `http://localhost:3000/graphql`. 
+This will start a GraphqlAPI endpoint at `http://localhost:4000/graphql`. 
 
 If you point your browser to this address you will find full fledged GraphQL API whith many queries and mutations you can interact with. For reading / storing data an embedded MongoDB-like database [NeDB](https://github.com/louischatriot/nedb) is used per default. You can change the used database of course.
 

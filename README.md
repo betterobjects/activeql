@@ -82,8 +82,8 @@ You have to run `npm install` in this folders:
 
 | application | in folder | command  |   |
 | - | - | - | - |
-| Express & Angular | `./express` | `npm run start`  | starts both the Express (port 3000) <br> and Angular (port 4200) application |
-| Express           | `./express` | `npm run server` | starts only the ActiveQL Express server on port 3000 |
+| Express & Angular | `./express` | `npm run start`  | starts both the Express (port 4000) <br> and Angular (port 4200) application |
+| Express           | `./express` | `npm run server` | starts only the ActiveQL Express server on port 4000 |
 | Angular           | `./angular` | `ng serve`       | starts only the Angular Admin UI application  on port 4200 |
 
 
