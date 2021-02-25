@@ -29,7 +29,7 @@
   "bugs": {
     "url": "https://github.com/betterobjects/activeql/issues"
   },
-  "version": "1.0.16",
+  "version": "1.0.17",
   "peerDependencies": {
     "@angular/common": "^9.1.11",
     "@angular/core": "^9.1.11",
