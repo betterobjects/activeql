@@ -36,11 +36,11 @@ You start your express application
 ```
 $ npm run start
 
-      🚀 GraphQL is now running on http://localhost:3000/graphql
+      🚀 GraphQL is now running on http://localhost:4000/graphql
       Uploads in /Projects/activeql.d/activeql/express/uploads
 ```
 
-You start your browser and point it to the GraphQL playground at `http://localhost:3000/graphql` and check the generated schema.
+You start your browser and point it to the GraphQL playground at `http://localhost:4000/graphql` and check the generated schema.
 
 ![Schema](./img/chrome-schema1.png)
 

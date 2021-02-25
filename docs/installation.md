@@ -50,9 +50,9 @@ These are the commands from the generator and starter application
 
 | folder | command | |
 |-|-|-|
-| `./express` | `npm run start` | starts ActiveQL Server (Express, port `4200`) and Admin UI (Angular, port `3000`) in debug mode |
-| `./express` | `npm run server` | starts only the ActiveQL Server (Express, port `4200`) in debug mode |
-| `./angular` | `ng serve` | starts only the Admin UI (Angular, port `3000`) in debug mode |
+| `./express` | `npm run start` | starts ActiveQL Server (Express, port `400`) and Admin UI (Angular, port `4200`) in debug mode |
+| `./express` | `npm run server` | starts only the ActiveQL Server (Express, port `4000`) in debug mode |
+| `./angular` | `ng serve` | starts only the Admin UI (Angular, port `4200`) in debug mode |
 
 
 # Embedd libraries in your applications 
@@ -69,22 +69,25 @@ npm i activeql-server
 
 ### Add as Express middleware
 
-in your `app.js` add the ActiveQL server as middleware. `DOMAIN_CONFIGURATION_FOLDER` should point to a folder with your domain-configuration files. 
-
 ```typescript
 (async () => {
   const app = express();
   app.use('*', cors());
-  app.set('port', 3000 );
+  app.set('port', 4000 );
 
-  const domainDefinition:DomainDefinition = new DomainDefinition( DOMAIN_CONFIGURATION_FOLDER );  
   const server = await ActiveQLServer.create( { domainDefinition } );
-  server.applyMiddleware({ app, path: '/graphql' });
+  server.applyMiddleware({ app, path: GRAPHQL_URL });
+
+  app.use( UPLOAD_PATH, express.static( path.join(__dirname, UPLOAD_DIR ) ) );
 
   const httpServer = createServer( app );
+  server.installSubscriptionHandlers( httpServer );
 
-  httpServer.listen({port}, () => console.log(
-    `🚀 GraphQL is running on http://localhost:3000/graphql`));
+  httpServer.listen({port: PORT}, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+    console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+  });
+
 })();
 ```
 
@@ -109,7 +112,7 @@ import { adminConfig } from './config/admin.config';
     AppComponent,
   ],
   imports: [
-    GraphQLModule.forRoot({uri: 'http://localhost:3000/graphql'}),
+    GraphQLModule.forRoot({uri: 'http://localhost:4000/graphql'}),
     ActiveQLAdminUIModule.forRoot( adminConfig ),
   ],
   bootstrap: [AppComponent]
