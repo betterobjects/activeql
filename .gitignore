@@ -5,6 +5,8 @@
 /express/uploads/*
 express/db
 
+*.plantuml
+
 # compiled output
 /**/dist
 /tmp

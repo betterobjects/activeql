@@ -2,7 +2,7 @@ import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
-import { activeqlServer } from './activeql/activeql-app';
+import { activeqlServer } from './activeql/bin/activeql-app';
 
 require('dotenv').config();
 const PORT = process.env.PORT || 4000;

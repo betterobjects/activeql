@@ -34,3 +34,5 @@ export * from './mongodb-datastore/filter/string-filter-type';
 export * from './validation/validator';
 export * from './validation/validate-js';
 export * from './validation/validator-js';
+
+export * from './plantuml/pu-generator';

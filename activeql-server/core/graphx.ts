@@ -86,11 +86,14 @@ export class GraphX {
   private createMutationType( runtime:Runtime ):void {
     this.createType( 'mutation', {
       name: 'Mutation',
-      fields: () => ( {
+      fields: () => ({
         ping: {
           type: GraphQLString,
           args: { some: { type: GraphQLString } },
-          resolve: ( root:any, args:any ) => `pong, ${args.some}!`
+          resolve: ( root:any, args:any ) => {
+            runtime.pubsub.publish('pong', args.some );
+            return `pong, ${args.some}!`
+          }
         }
       })
     });
@@ -101,7 +104,14 @@ export class GraphX {
    */
   private createSubscriptionType( runtime:Runtime ):void {
     this.createType( 'subscription', {
-      name: 'Subscription'
+      name: 'Subscription',
+      fields: () => ({
+        ping: {
+          type: GraphQLString,
+          subscribe: runtime.pubsub.asyncIterator( 'pong' ),
+          resolve: (payload:any) => payload
+        }
+      })
     });
   }
 
