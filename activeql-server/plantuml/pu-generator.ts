@@ -33,8 +33,10 @@ export class PuGenerator {
     _.forEach( entity.union, unionType => this.addSuperType( unionType, name ) );
   }
 
-  private addAttribute( name:string, attribute:AttributeType ){
-    this.result.push(`  ${name}: ${attribute.type}` );
+  private addAttribute( name:string, attribute:AttributeType ) {
+    const required = attribute.required ? '**' : '';
+    const list = attribute.list ? '[]' : ''
+    this.result.push(`  ${required}${name}: ${attribute.type}${list}${required}` );
   }
 
   private addAssocTo( name:string, assocTo:AssocToType ){
