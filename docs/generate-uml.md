@@ -56,39 +56,4 @@ class User {
 
 If you use any ot the visualisation tools offered by PlantUML (e.g. the VSCode plugin) you will get the following UML class diagram: 
 
-```plantuml
-@startuml domain
-
-class Car {
-  **vin: String**
-  **licence: String**
-  **brand: String**
-  color: String
-  mileage: Int
-}
-
-Car -- "0..1" Driver
-
-class Driver {
-  **firstname: String**
-  **lastname: String**
-  birthdate: Date
-  **licenceValid: Date**
-}
-
-class Lease {
-  **start: Date**
-  ende: Date
-  notes: String
-}
-
-Lease -- "0..1" Car
-
-class User {
-  **username: String**
-  **roles: String[]**
-  **password: String**
-}
-
-@enduml
-```
+![Schema](./img/plantuml.png)
