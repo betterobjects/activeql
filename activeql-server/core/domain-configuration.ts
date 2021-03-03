@@ -176,10 +176,10 @@ export type QueryMutationConfig = {
   resolve?: (root:any, args:any, context:any ) => any
 }
 
-export type SubscriptionConfig = {
+export type SubscriptionConfig = string|{
   type: any
   args?:{[name:string]:string | QueryMutationArgConfig }
-  subscribe: string|((root:any, args:any, context:any ) => any)
+  subscribe?: string|((root:any, args:any, context:any ) => any)
   resolve?: (payload:any ) => any
 }
 

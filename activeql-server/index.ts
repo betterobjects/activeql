@@ -3,6 +3,7 @@ export * from './activeql-server';
 export * from './core/data-store';
 export * from './core/domain-definition';
 export * from './core/domain-configuration';
+export * from './core/domain-implementation';
 export * from './core/runtime';
 export * from './core/graphx';
 

@@ -1,0 +1,23 @@
+entity:
+  Round:
+    attributes:
+      start: DateTime!
+    assocTo:
+      - Game!
+      - Flight!
+
+
+  SolutionSubmition:
+    attributes:
+      solution: JSON!
+    assocTo:
+      - Player!
+      - Round!
+
+  SubmitionEvaluation:
+    attributes:
+      solutionTime: Int!
+      solution: JSON!
+      alive: Boolean!
+      position: Int!
+    assocTo: SolutionSubmition!

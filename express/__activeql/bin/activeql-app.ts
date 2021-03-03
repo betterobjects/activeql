@@ -5,8 +5,6 @@ import express from 'express';
 import { domainConfiguration } from '../domain-configuration';
 import { addJwtLogin, useJwtLogin } from '../impl/jwt-login';
 import { addPrincipalFromHeader } from '../impl/principal-from-header';
-import { addArena } from '../impl/arena';
-
 
 /* some default values */
 const UPLOAD_DIR = '/uploads';
@@ -25,8 +23,6 @@ domainDefinition.add( domainConfiguration );
 /* add custom code */
 // addPrincipalFromHeader( domainDefinition );
 addJwtLogin( domainDefinition );
-
-addArena( domainDefinition );
 
 /* another datastore implementation */
 // const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONGODB_DBNAME });

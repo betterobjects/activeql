@@ -7,11 +7,13 @@ export abstract class SubscriptionBuilder extends SchemaBuilder {
 
   build(){
     this.graphx.type( 'subscription' ).extendFields( () => {
-      const subscription = this.subscription();
+      let subscription = this.subscription();
+      if( _.isString( subscription ) ) subscription = { type: subscription };
       _.isString( subscription.type ) && ( subscription.type = this.graphx.type( subscription.type ) );
       subscription.args = _.mapValues( subscription.args, arg => _.isString( arg ) ? {type: this.graphx.type(arg)} : arg );
       subscription.args = _.mapValues( subscription.args, arg => ! _.isString(arg) && _.isString( arg.type ) ? {type: this.graphx.type(arg.type)} : arg );
 
+      if( _.isNil( subscription.subscribe ) ) subscription.subscribe = this.name();
       if( _.isString( subscription.subscribe) ) {
         const topic = subscription.subscribe;
         subscription.subscribe = () => this.runtime.pubsub.asyncIterator( topic )  ;

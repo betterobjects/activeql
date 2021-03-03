@@ -1,0 +1,14 @@
+enum:
+  FlightStatus:
+    - open
+    - started
+    - finished
+
+entity:
+  Flight:
+    attributes:
+      status: FlightStatus!
+      locale: Locale!
+      playerToStart: Int!
+      latestStart: DateTime!
+    assocToMany: Player!

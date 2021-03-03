@@ -1,0 +1,95 @@
+entity:
+
+  Game:
+    interface: true
+    attributes:
+      name: Key
+      playTime: Int!
+      level: Int!
+
+  OneOfNGame:
+    implements: Game
+    subscriptions: true
+    attributes:
+      question_de: String!
+      question_en: String!
+      options_de: '[String]!'
+      options_en: '[String]!'
+      solution: Int!
+    seeds:
+      - name: Cat on Latin
+        playTime: 3000
+        level: 2
+        question_de: Wie heißt Katze auf Lateinisch?
+        question_en: What is the latin word for cat?
+        options_de:
+          - Canine
+          - Feline
+          - Sabine
+          - Janine
+        options_en:
+          - Canine
+          - Feline
+          - Sabin
+          - Jane
+        solution: 1
+
+      - name: Dog on Latin
+        playTime: 3000
+        level: 2
+        question_de: Wie heißt Hund auf Lateinisch?
+        question_en: What is the latin word for dog?
+        options_de:
+          - Canine
+          - Feline
+          - Robert
+          - Hans
+        options_en:
+          - Canine
+          - Feline
+          - Rob
+          - Charles
+        solution: 0
+
+  AnswerTextGame:
+    implements: Game
+    attributes:
+      question_de: String!
+      question_en: String!
+      solution_de: String!
+      solution_en: String!
+    seeds:
+      - name: Capital Ghana
+        level: 2
+        playTime: 4000
+        question_de: Was ist die Hauptstadt von Ghana?
+        question_en: What is the capital of Ghana?
+        solution_de: Accra
+        solution_en: Accra
+
+      - name: Capital Holland
+        level: 2
+        playTime: 4000
+        question_de: Was ist die Hauptstadt von Holland?
+        question_en: What is the capital of the Netherlands?
+        solution_de: Den Haag
+        solution_en: The Hague
+
+  MagGuessGame:
+    implements: Game
+    attributes:
+      task_de: String!
+      task_en: String!
+      mapUrl: String!
+      solution_lat: Float!
+      solution_long: Float!
+    seeds:
+      - name: Brasilia on a Map
+        level: 4
+        playTime: 3000
+        task_de: Setze den Pin auf die Position der Hauptstadt von Brasilien!
+        task_en: Set the pin where the capital of Brasil is!
+        mapUrl: https://my-bucket.s3.us-west-2.amazonaws.com/america.svg
+        solution_lat: -15.793889
+        solution_long: -47.882778
+

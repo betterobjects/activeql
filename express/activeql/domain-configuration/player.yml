@@ -1,0 +1,22 @@
+entity:
+
+  Player:
+    attributes:
+      name: String!
+      locale: Locale!
+    seeds:
+      - name: Thomas
+        locale: de
+      - name: Rudi
+        locale: de
+      - name: Hans
+        locale: de
+      - name: Franz
+        locale: de
+      - name: Max
+        locale: en
+      - name: Jena
+        locale: en
+
+
+
