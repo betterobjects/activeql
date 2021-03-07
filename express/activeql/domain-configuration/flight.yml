@@ -12,3 +12,4 @@ entity:
       playerToStart: Int!
       latestStart: DateTime!
     assocToMany: Player!
+    assocFrom: Round

@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import { Seeder } from '../core/seeder';
 import { Runtime } from '../core/runtime';
+import { EntityItem } from 'entities/entity-item';
 
 
 describe('Seeder', () => {
@@ -92,10 +93,10 @@ describe('Seeder', () => {
     if( ! alpha2 ) return expect( alpha2 ).toBeDefined();
     if( ! beta1 ) return expect( beta1 ).toBeDefined();
 
-    expect( alpha1.item ).toMatchObject({ name: 'alpha1' } )
-    expect( alpha1.item.number ).toBeUndefined()
-    expect( alpha2.item ).toMatchObject({ name: 'alpha2', number: 2 } )
-    expect( beta1.item ).toMatchObject({ name: 'beta1', af: 'sin' } )
+    expect( alpha1 ).toMatchObject({ name: 'alpha1' } )
+    expect( alpha1.number ).toBeUndefined()
+    expect( alpha2 ).toMatchObject({ name: 'alpha2', number: 2 } )
+    expect( beta1 ).toMatchObject({ name: 'beta1', af: 'sin' } )
   });
 
   it( 'should seed assocTo References', async ()=> {
@@ -121,9 +122,9 @@ describe('Seeder', () => {
   it( 'should seed assocToMany References', async ()=> {
     const delta = runtime.entities['Delta'];
 
-    const delta1 = await delta.findOneByAttribute( {name: 'delta1'} );
-    const delta2 = await delta.findOneByAttribute( {name: 'delta2'} );
-    const delta3 = await delta.findOneByAttribute( {name: 'delta3'} );
+    const delta1 = new EntityItem( delta, await delta.findOneByAttribute( {name: 'delta1'} ));
+    const delta2 = new EntityItem( delta, await delta.findOneByAttribute( {name: 'delta2'} ) );
+    const delta3 = new EntityItem( delta, await delta.findOneByAttribute( {name: 'delta3'} ) );
 
     if( ! delta1 ) return expect( delta1 ).toBeDefined();
     if( ! delta2 ) return expect( delta2 ).toBeDefined();

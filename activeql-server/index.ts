@@ -36,4 +36,5 @@ export * from './validation/validator';
 export * from './validation/validate-js';
 export * from './validation/validator-js';
 
-export * from './plantuml/pu-generator';
+export * from './generate/plantuml-generator';
+export * from './generate/types-generator';

@@ -1,23 +1,31 @@
 entity:
   Round:
+    typeOnly: true
     attributes:
       start: DateTime!
+      level: Int!
+      closed: Boolean!
     assocTo:
       - Game!
       - Flight!
 
 
+  RoundResult:
+    typeOnly: true
+    attributes:
+      solutionTime: Int!
+      alive: Boolean!
+      position: Int!
+    assocTo:
+      - Round!
+      - Player!
+
+foo:
   SolutionSubmition:
+    typeOnly: typeOnly
     attributes:
       solution: JSON!
     assocTo:
       - Player!
       - Round!
 
-  SubmitionEvaluation:
-    attributes:
-      solutionTime: Int!
-      solution: JSON!
-      alive: Boolean!
-      position: Int!
-    assocTo: SolutionSubmition!

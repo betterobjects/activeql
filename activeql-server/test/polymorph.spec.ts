@@ -96,13 +96,13 @@ describe('Ploymorph Types', () => {
     if( ! delta1 ) return expect( delta1 ).toBeDefined();
     const ab1 = await delta1.assocTo('AlphaBeta');
     if( ! ab1 ) return expect( ab1 ).toBeDefined();
-    expect( ab1.item ).toMatchObject({name: 'alpha1'})
+    expect( ab1 ).toMatchObject({name: 'alpha1'})
 
     const delta3 = await delta.findOneByAttribute( {name: 'delta3' } );
     if( ! delta3 ) return expect( delta3 ).toBeDefined();
     const ab3 = await delta3.assocTo('AlphaBeta')
     if( ! ab3 ) return expect( ab3 ).toBeDefined();
-    expect( ab3.item ).toMatchObject({name: 'beta1'})
+    expect( ab3 ).toMatchObject({name: 'beta1'})
   })
 
   xit( 'should resolve polymorph assocFrom', async () => {

@@ -1,13 +1,5 @@
 import { GraphQLUpload } from 'apollo-server-express';
-import {
-  GraphQLID,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLString,
-  GraphQLType,
-} from 'graphql';
+import { GraphQLID, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString, GraphQLType } from 'graphql';
 import _ from 'lodash';
 
 import { AssocToType, AssocType, AttributeType } from '../core/domain-configuration';
@@ -15,14 +7,12 @@ import { GraphQLTypes } from '../core/graphx';
 import { Runtime } from '../core/runtime';
 import { Entity } from '../entities/entity';
 import { FilterType } from './filter-type';
-import { TypeBuilder } from './schema-builder';
+import { TypeBuilder, AttributePurpose } from './schema-builder';
 
 type AttrFieldConfig = {
   type:GraphQLType
   description?:string
 }
-
-type AttributePurpose = 'createInput'|'updateInput'|'filter'|'type';
 
 export class EntityBuilder extends TypeBuilder {
 
@@ -587,40 +577,6 @@ export class EntityBuilder extends TypeBuilder {
         resolve: (root:any, args:any, context:any ) => this.resolver.deleteType( {root, args, context} )
       });
     });
-  }
-
-  /**
-   *
-   */
-  private getGraphQLTypeDecorated( attr:AttributeType, addNonNull:boolean, purpose:AttributePurpose ):GraphQLType {
-    let type = this.getGraphQLType( attr, purpose );
-    if( addNonNull ) type = new GraphQLNonNull( type ) ;
-    if( attr.list ) type = new GraphQLList( type );
-    return type;
-  }
-
-  /**
-   *
-   */
-  private getGraphQLType( attr:AttributeType, purpose:AttributePurpose ):GraphQLType {
-    const type = this.getScalarType( attr.type, purpose );
-    if( type ) return type;
-    try {
-      return this.graphx.type(attr.type);
-    } catch (error) {
-      console.error(`no such graphqlType:`, attr.type, ` - using GraphQLString instead` );
-    }
-    return GraphQLString;
-  }
-
-  /**
-   *
-   */
-  private getScalarType( name:string, purpose:AttributePurpose ):GraphQLScalarType | undefined {
-    name = _.toLower(name)
-    if( name === 'File' && _.includes(['createInput', 'updateInput'], purpose) ) return GraphQLUpload as GraphQLScalarType;
-    // const type = this.graphx.scalarTypes[name];
-    // if( type ) return type;
   }
 
   /**

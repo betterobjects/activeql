@@ -11,7 +11,6 @@ import {
 } from '../core/domain-configuration';
 import { Entity } from './entity';
 import { FileInfo } from './entity-file-save';
-import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 
 export enum CRUD  {
@@ -34,8 +33,8 @@ export class EntityResolver extends EntityModule {
     const impl = async (resolverCtx:ResolverContext) => {
       const id = _.get( resolverCtx.args, 'id' );
       this.permissions.ensureTypeRead( id, resolverCtx );
-      const enit = await this.accessor.findById( id );
-      return this.resolve( enit, resolverCtx );
+      const item = await this.accessor.findById( id );
+      return this.resolve( item, resolverCtx );
     };
     return this.callWithHooks( impl, resolverCtx, this.hooks?.preTypeQuery, this.hooks?.afterTypeQuery );
   }
@@ -47,8 +46,8 @@ export class EntityResolver extends EntityModule {
       const filter = _.get( resolverCtx.args, 'filter');
       const sort = this.getSort( _.get( resolverCtx.args, 'sort') );
       const paging = _.get( resolverCtx.args, 'paging');
-      const enits = await this.accessor.findByFilter( filter, sort, paging );
-      return this.resolve( enits, resolverCtx );
+      const items = await this.accessor.findByFilter( filter, sort, paging );
+      return this.resolve( items, resolverCtx );
     };
     return this.callWithHooks( impl, resolverCtx, this.hooks?.preTypesQuery, this.hooks?.afterTypesQuery );
   }
@@ -60,8 +59,8 @@ export class EntityResolver extends EntityModule {
       _.set( filter, name, _.get( resolverCtx.args, name) );
       const sort = this.getSort( _.get( resolverCtx.args, 'sort') );
       const paging = _.get( resolverCtx.args, 'paging');
-      const enits = await this.accessor.findByFilter( filter, sort, paging );
-      return this.resolve( attribute.unique === true ? _.first(enits) : enits, resolverCtx );
+      const items = await this.accessor.findByFilter( filter, sort, paging );
+      return this.resolve( attribute.unique === true ? _.first(items) : items, resolverCtx );
     };
 
     return attribute.unique === true ?
@@ -77,13 +76,11 @@ export class EntityResolver extends EntityModule {
       await this.permissions.ensureSave( resolverCtx );
       const attributes = _.get( resolverCtx.args, this.entity.singular );
       const fileInfos = await this.setFileValuesAndGetFileInfos( resolverCtx.args, attributes );
-      const enit = await this.accessor.save( attributes );
-      if( enit instanceof EntityItem ) {
-        const item = await this.resolve( enit, resolverCtx );
-        this.saveFiles( item.id, fileInfos );
-        return _.set( {validationViolations: []}, this.entity.singular, item );
-      }
-      return { validationViolations: enit };
+      let item = await this.accessor.save( attributes );
+      if( _.isArray( item ) ) return { validationViolations: item };
+      item = await this.resolve( item, resolverCtx );
+      this.saveFiles( item.id, fileInfos );
+      return _.set( {validationViolations: []}, this.entity.singular, item );
     };
     return this.callWithHooks( impl, resolverCtx, this.hooks?.preSave, this.hooks?.afterSave );
   }
@@ -128,11 +125,11 @@ export class EntityResolver extends EntityModule {
     if( _.isFunction( this.entity.statsQuery ) ) return this.entity.statsQuery( resolverCtx, this.runtime );
     await this.permissions.ensureTypesRead( resolverCtx );
     const filter = _.get( resolverCtx.args, 'filter');
-    const enits = await this.accessor.findByFilter( filter );
-    const createdFirst = _.get( _.minBy( enits, enit => enit.item['createdAt'] ), 'item.createdAt' );
-    const createdLast = _.get( _.maxBy( enits, enit => enit.item['createdAt'] ), 'item.createdAt' );
-    const updatedLast = _.get( _.maxBy( enits, enit => enit.item['updatedAt'] ), 'item.updatedAt' );
-    return { count: _.size( enits ), createdFirst, createdLast, updatedLast };
+    const items = await this.accessor.findByFilter( filter );
+    const createdFirst = _.get( _.minBy( items, item => item['createdAt'] ), 'createdAt' );
+    const createdLast = _.get( _.maxBy( items, item => item['createdAt'] ), 'createdAt' );
+    const updatedLast = _.get( _.maxBy( items, item => item['updatedAt'] ), 'updatedAt' );
+    return { count: _.size( items ), createdFirst, createdLast, updatedLast };
   }
 
   private async callWithHooks(
@@ -163,19 +160,6 @@ export class EntityResolver extends EntityModule {
     const direction = _.last( parts ) as 'ASC'|'DESC';
     if( _.includes( ['ASC', 'DESC'], direction) ) return { field, direction };
     this.warn(`invalid direction '${direction}'`, undefined);
-  }
-
-  /**
-   * leave it here - to refernce not used anymore - am not about it though
-   */
-  private async resolvePolymorphTypes( filter:any, sort?:Sort ):Promise<any[]> {
-    const result = [];
-    for( const entity of this.entity.entities ){
-      const enits = await entity.accessor.findByFilter( filter );
-      _.forEach( enits, enit => _.set(enit.item, '__typename', entity.typeName ) );
-      result.push( enits );
-    }
-    return _(result).flatten().compact().map( enit => enit.item ).value();
   }
 
   private async resolvePolymorphAssocTo( refEntity:Entity, resolverCtx:ResolverContext, id:any ):Promise<any> {
@@ -230,11 +214,11 @@ export class EntityResolver extends EntityModule {
     for( const fileInfo of fileInfos ) await this.entity.fileSave.saveFile( id, fileInfo );
   }
 
-  private async resolve( enits:undefined|EntityItem|EntityItem[], resolverCtx:ResolverContext, entity = this.entity  ):Promise<any|any[]> {
-    if( enits === undefined ) return null;
-    const items = _.isArray( enits ) ? _.map( enits, enit => enit.item) : [enits.item];
+  private async resolve( itemOrItems:undefined|any|any[], resolverCtx:ResolverContext, entity = this.entity  ):Promise<any|any[]> {
+    if( itemOrItems === undefined ) return null;
+    const items:any[] = _.isArray( itemOrItems ) ? itemOrItems : [itemOrItems];
     for( const item of items ) await this.applyAttributeResolver( entity, item, resolverCtx );
-    return _.isArray( enits ) ? items : _.first( items );
+    return _.isArray( itemOrItems ) ? items : _.first( items );
   }
 
   private async applyAttributeResolver( entity:Entity, item:any, resolverCtx:ResolverContext ){

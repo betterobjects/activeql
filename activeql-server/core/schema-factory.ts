@@ -3,13 +3,21 @@ import _ from 'lodash';
 
 import { EntityBuilder } from '../builder/entity-builder';
 import { EnumBuilder, EnumConfigBuilder } from '../builder/enum-builder';
+import { GraphQLTypeBuilder, GraphQLTypeConfigBuilder } from '../builder/graphql-type-builder';
 import { MutationBuilder, MutationConfigBuilder } from '../builder/mutation-builder';
 import { QueryBuilder, QueryConfigBuilder } from '../builder/query-builder';
 import { SchemaBuilder } from '../builder/schema-builder';
 import { SubscriptionBuilder, SubscriptionConfigBuilder } from '../builder/subscription-builder';
 import { Entity } from '../entities/entity';
 import { ActiveQLSchemaTypes } from './activeql-schema-types';
-import { EntityType, EnumType, MutationConfigFn, QueryConfigFn, SubscriptionConfig, SubscriptionConfigFn } from './domain-configuration';
+import {
+  EntityType,
+  EnumType,
+  MutationConfigFn,
+  QueryConfigFn,
+  SubscriptionConfigFn,
+  TypeType,
+} from './domain-configuration';
 import { Runtime } from './runtime';
 
 export class SchemaFactory {
@@ -76,8 +84,10 @@ export class SchemaFactory {
       (config, name) => this.createMutationBuilder( name, config ) ) ) );
     builder.push( ... _.compact( _.map( configuration.subscription,
       (config, name) => this.createSubscriptionBuilder( name, config ) ) ) );
+    builder.push( ... _.compact( _.map( configuration.type,
+      (config, name) => this.createTypeBuilder( name, config ) ) ) );
 
-    return builder;
+      return builder;
   }
 
   private createEntityBuilder( name:string, config:EntityType ):undefined|EntityBuilder {
@@ -121,6 +131,14 @@ export class SchemaFactory {
       return SubscriptionConfigBuilder.create( name, config );
     } catch (error) {
       console.log( `Error building subscription [${name}]`, error );
+    }
+  }
+
+  private createTypeBuilder( name:string, config:TypeType ):undefined|GraphQLTypeBuilder{
+    try {
+      return GraphQLTypeConfigBuilder.create( name, config );
+    } catch (error) {
+      console.log( `Error building type [${name}]`, error );
     }
   }
 

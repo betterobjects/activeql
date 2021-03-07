@@ -11,6 +11,7 @@
     "client": "cd ../angular; ng serve",
     "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/seed.ts",
     "uml": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/uml.ts",
+    "types": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate-types.ts",
     "test": "jest --watch --detectOpenHandles"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.43",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "node-plantuml": "^0.9.0"
   }
 }

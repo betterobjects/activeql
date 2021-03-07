@@ -8,7 +8,7 @@ import {
   EntityType,
 } from '../core/domain-configuration';
 
-export class PuGenerator {
+export class PlantUMLGenerator {
 
   private result:string[] = [];
 

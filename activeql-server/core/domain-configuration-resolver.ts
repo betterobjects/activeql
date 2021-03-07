@@ -1,7 +1,7 @@
 import inflection from 'inflection';
 import _ from 'lodash';
+import { Type } from 'yaml/util';
 
-import { FilterType } from '../builder/filter-type';
 import { TypeBuilder } from '../builder/schema-builder';
 import {
   AssocFromType,
@@ -15,6 +15,8 @@ import {
   EntityType,
   EnumConfig,
   EnumType,
+  TypeConfig,
+  TypeType,
 } from './domain-configuration';
 import { scalarTypes } from './graphx';
 
@@ -23,7 +25,7 @@ export class DomainConfigurationResolver {
 
   get resolvedConfiguration() { return this.configuration }
 
-  private configuration:DomainConfigurationType = { entity: {}, enum: {}, query: {}, mutation: {}, subscription: {} };
+  private configuration:DomainConfigurationType = { entity: {}, enum: {}, query: {}, mutation: {}, subscription: {}, type: {} };
 
   constructor( private input:DomainConfiguration = {}, private seeds = true, private customQueriesMutations:boolean|'src' ){}
 
@@ -47,7 +49,15 @@ export class DomainConfigurationResolver {
         this.customQueriesMutations === true ? subscription :
         this.customQueriesMutations === 'src' ?  subscription.toString() :
         null : '[CustomFn]' ));
+    _.forEach( this.input.type, (typeConfig, name) =>
+      _.set( this.configuration.type, name, this.resolveType( name, typeConfig ) ) );
+  }
 
+  private resolveType( name:string, typeConfig:TypeConfig ):TypeType {
+    const resolved:any = {};
+    resolved.typeName = _.get(typeConfig, 'typeName', name );
+    resolved.fields = this.resolveAttributes( typeConfig.fields );
+    return resolved;
   }
 
   private resolveEnum( enumConfig:EnumConfig ):EnumType {
@@ -61,7 +71,7 @@ export class DomainConfigurationResolver {
       'description', 'validation', 'hooks', 'typeOnly', 'subscriptions', 'typeQuery', 'typesQuery', 'statsQuery', 'permissions',
       'createMutation', 'updateMutation', 'deleteMutation'));
     resolved.typeName = _.get( entity, 'typeName', name );
-    resolved.attributes = this.resolveAttributes( entity );
+    resolved.attributes = this.resolveAttributes( entity.attributes );
     resolved.assocTo = this.resolveAssocTo( entity );
     resolved.assocToMany = this.resolveAssocToMany( entity );
     resolved.assocFrom = this.resolveAssocFrom( entity );
@@ -91,12 +101,12 @@ export class DomainConfigurationResolver {
     return resolved;
   }
 
-  private resolveAttributes( entity: EntityConfig ): any {
-    const attributes:{[name:string]:AttributeType} = {};
-    _.forEach( entity.attributes, (attribute, name) => {
-      _.set( attributes, name, this.resolveAttribute( name, attribute ) );
+  private resolveAttributes( attributes:any ): any {
+    const resolvedAttributes:{[name:string]:AttributeType} = {};
+    _.forEach( attributes, (attribute, name) => {
+      _.set( resolvedAttributes, name, this.resolveAttribute( name, attribute ) );
     });
-    return attributes;
+    return resolvedAttributes;
   }
 
   private resolveAttribute( name:string, config:string|AttributeConfig ):AttributeType {
@@ -154,14 +164,14 @@ export class DomainConfigurationResolver {
     }
     if( mediaType ) config.type = 'File';
 
-    config.type = this.resolveType( config.type );
+    config.type = this.resolveAttrType( config.type );
     config.required = config.required || required || requiredInside;
     config.list = config.list || list;
     config.mediaType = config.mediaType || mediaType;
     return config;
   }
 
-  private resolveType( name:string ):string {
+  private resolveAttrType( name:string ):string {
     if( _.toLower( name ) === 'id') console.warn( 'You should not use ID in attributes!' );
     const couldBeScalar = inflection.capitalize( name );
     return scalarTypes[couldBeScalar] ? couldBeScalar : name;

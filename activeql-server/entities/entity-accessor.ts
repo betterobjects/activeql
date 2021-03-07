@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { Paging, Sort } from '../core/data-store';
 import { AssocType, AttributeType } from '../core/domain-configuration';
 import { EntityDeleter } from './entity-deleter';
-import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 import { ValidationViolation } from './entity-validation';
 import { parseActiveQLScalarDate } from '../core/activeql-schema-types'
@@ -18,44 +17,42 @@ export class EntityAccessor extends EntityModule {
   /**
    *
    */
-  async findById( id:any ):Promise<EntityItem> {
+  async findById( id:any ):Promise<any> {
     if( ! id ) throw new Error( `[${this.entity.name}].findById - no id provided` );
     const item = await this.dataStore.findById( this.entity, id );
     if( ! item ) throw new Error( `[${this.entity.name}] with id '${id}' does not exist`);
-    return EntityItem.create( this.entity, item );
+    return item;
   }
 
   /**
    *
    */
-  async findByIds( ids:any[] ):Promise<EntityItem[]> {
-    const items = await this.dataStore.findByIds( this.entity, ids );
-    return Promise.all( _.map( items, item => EntityItem.create( this.entity, item ) ) );
+  async findByIds( ids:any[] ):Promise<any[]> {
+    return this.dataStore.findByIds( this.entity, ids );
   }
 
   /**
    *
    */
-  async findByAttribute( attrValue:{[name:string]:any} ):Promise<EntityItem[]>{
-    const items = await this.dataStore.findByAttribute( this.entity, attrValue );
-    return Promise.all( _.map( items, item => EntityItem.create( this.entity, item ) ) );
+  async findByAttribute( attrValue:{[name:string]:any} ):Promise<any[]>{
+    return this.dataStore.findByAttribute( this.entity, attrValue );
   }
 
   /**
    *
    * @param filter as it comes from the graphql request
    */
-  async findByFilter( filter:any, sort?:Sort, paging?:Paging ):Promise<EntityItem[]> {
+  async findByFilter( filter:any, sort?:Sort, paging?:Paging ):Promise<any[]> {
     const items = this.entity.isPolymorph ?
       await this.dataStore.findByFilter( this.entity.getThisOrAllNestedEntities(), filter, sort, paging ) :
       await this.dataStore.findByFilter( this.entity, filter, sort, paging );
-    return Promise.all( _.map( items, item => EntityItem.create( this.entity, item ) ) );
+    return items;
   }
 
   /**
    *
    */
-  async save( attributes:any, skipValidation = false ):Promise<EntityItem|ValidationViolation[]> {
+  async save( attributes:any, skipValidation = false ):Promise<any|ValidationViolation[]> {
     await this.setDefaultValues( attributes );
     this.setTimestamps( attributes );
     this.sanitizeValues( attributes );
@@ -66,13 +63,13 @@ export class EntityAccessor extends EntityModule {
     const item = _.has( attributes, 'id') ?
       await this.update( attributes ) :
       await this.create( attributes );
-    return EntityItem.create( this.entity, item );
+    return item;
   }
 
   /**
    *
    */
-  private async create( attributes:any ){
+  private async create( attributes:any ):Promise<any> {
     for( const assocTo of this.entity.assocToInput ) await this.createInlineInput( assocTo, attributes );
     const item = await this.dataStore.create( this.entity, attributes );
     if( this.entity.subscriptions ) this.runtime.pubsub.publish(`create${this.entity.typeName}`, item );
@@ -83,7 +80,7 @@ export class EntityAccessor extends EntityModule {
   /**
    *
    */
-  private async update( attributes:any ){
+  private async update( attributes:any ):Promise<any> {
     const item = await this.dataStore.update( this.entity, attributes );
     if( this.entity.subscriptions ) this.runtime.pubsub.publish(`update${this.entity.typeName}`, item );
     return item;

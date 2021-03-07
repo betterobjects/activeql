@@ -5,7 +5,6 @@ import { AttributeType, EntityType } from '../core/domain-configuration';
 import { Runtime } from '../core/runtime';
 import { EntityAccessor } from './entity-accessor';
 import { EntityFileSave } from './entity-file-save';
-import { EntityItem } from './entity-item';
 import { EntityPermissions } from './entity-permissions';
 import { EntityResolver } from './entity-resolver';
 import { EntitySeeder } from './entity-seeder';
@@ -189,35 +188,35 @@ export class Entity {
   /**
    *
    */
-  async findById( id:any ):Promise<EntityItem> {
+  async findById( id:any ):Promise<any> {
     return this.accessor.findById( id );
   }
 
   /**
    *
    */
-  async findByIds( ids:any[] ):Promise<EntityItem[]> {
+  async findByIds( ids:any[] ):Promise<any[]> {
     return this.accessor.findByIds( ids );
   }
 
   /**
    *
    */
-  async findAll():Promise<EntityItem[]> {
+  async findAll():Promise<any[]> {
     return this.accessor.findByFilter( {} );
   }
 
   /**
    *
    */
-  async findByAttribute( attrValue:{[name:string]:any} ):Promise<EntityItem[]> {
+  async findByAttribute( attrValue:{[name:string]:any} ):Promise<any[]> {
     return this.accessor.findByAttribute( attrValue );
   }
 
   /**
    *
    */
-  async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<EntityItem|undefined> {
+  async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<any|undefined> {
     return _.first( await this.accessor.findByAttribute( attrValue ) );
   }
 

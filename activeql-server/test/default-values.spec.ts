@@ -71,13 +71,13 @@ describe('Default Values', () => {
     const beta1 = await beta.findOneByAttribute( {name: 'beta1'} );
     const beta2 = await beta.findOneByAttribute( {name: 'beta2'} );
 
-    expect( alpha1?.item.number ).toEqual( 23 );
-    expect( alpha2?.item.number ).toEqual( 42 );
-    expect( alpha3?.item.number ).toEqual( 0 );
-    expect( alpha4?.item.number == null ).toBeTruthy();
+    expect( alpha1?.number ).toEqual( 23 );
+    expect( alpha2?.number ).toEqual( 42 );
+    expect( alpha3?.number ).toEqual( 0 );
+    expect( alpha4?.number == null ).toBeTruthy();
 
-    expect( beta1?.item.af ).toEqual('sin');
-    expect( beta2?.item.af ).toEqual('tan');
+    expect( beta1?.af ).toEqual('sin');
+    expect( beta2?.af ).toEqual('tan');
   });
 
   //
@@ -86,16 +86,13 @@ describe('Default Values', () => {
     const alpha = runtime.entities['Alpha'];
 
     let alpha5 = await alpha.accessor.save( {name: 'alpha5' } );
-    if( ! (alpha5 instanceof EntityItem) ) return expect( false ).toBeTruthy();
-    expect( alpha5?.item.number ).toEqual( 23 );
+    expect( alpha5?.number ).toEqual( 23 );
 
     alpha5 = await alpha.accessor.save( {id: alpha5.id, number: null } );
-    if( ! (alpha5 instanceof EntityItem) ) return expect( false ).toBeTruthy();
-    expect( alpha5?.item.number ).toBeNull();
+    expect( alpha5?.number ).toBeNull();
 
     let alpha6 = await alpha.accessor.save( {name: 'alpha6', number: 42 } );
-    if( ! (alpha6 instanceof EntityItem) ) return expect( false ).toBeTruthy();
-    expect( alpha6?.item.number ).toEqual( 42 );
+    expect( alpha6?.number ).toEqual( 42 );
 
   });
 

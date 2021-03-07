@@ -10,6 +10,7 @@ export type DomainConfiguration = {
   query?:{[name:string]:QueryConfigFn},
   mutation?:{[name:string]:MutationConfigFn},
   subscription?:{[name:string]:SubscriptionConfigFn}
+  type?:{[name:string]:TypeConfig}
 }
 
 export type DomainConfigurationType = {
@@ -18,6 +19,7 @@ export type DomainConfigurationType = {
   query:{[name:string]:QueryConfigFn}
   mutation:{[name:string]:MutationConfigFn}
   subscription:{[name:string]:SubscriptionConfigFn}
+  type:{[name:string]:TypeType}
 }
 
 export type EntityType = {
@@ -92,6 +94,20 @@ export type AttributeType = {
 export type EnumType = {
   [key:string]:string|number|boolean
 }
+
+export type TypeConfig = {
+  typeName?:string;
+  fields?:{[name:string]:string|TypeAttributeConfig};
+  description?:string
+}
+
+export type TypeType = {
+  name:string
+  typeName:string
+  fields:{[name:string]:AttributeType}
+  description?:string
+}
+
 
 export type EntityConfig = {
   typeName?:string;
@@ -187,15 +203,15 @@ export type MutationConfigFn = (runtime:Runtime) => QueryMutationConfig
 export type QueryConfigFn = (runtime:Runtime) => QueryMutationConfig
 export type SubscriptionConfigFn = (runtime:Runtime) => SubscriptionConfig
 
-/**
- *
- */
-export type AttributeConfig = {
+export type TypeAttributeConfig = {
   type?:string;
   required?:boolean
-  unique?:boolean|string
   description?:string
   list?:boolean
+}
+
+export type AttributeConfig = TypeAttributeConfig & {
+  unique?:boolean|string
   defaultValue?:any|(( attributes:any, runtime:Runtime)=>any|Promise<any>)
   filterType?:string|false
   validation?:object

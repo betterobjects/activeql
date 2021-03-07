@@ -3,6 +3,7 @@ import _ from 'lodash';
 
 import { Seeder } from '../core/seeder';
 import { Runtime } from '../core/runtime';
+import { EntityItem } from '../entities/entity-item';
 
 describe('Associations', () => {
 
@@ -69,8 +70,8 @@ describe('Associations', () => {
     const alpha = runtime.entities['Alpha'];
     const beta = runtime.entities['Beta'];
 
-    const alpha1 = await alpha.findOneByAttribute( {name: 'alpha1'} );
-    const beta1 = await beta.findOneByAttribute( {name: 'beta1'} );
+    const alpha1 = new EntityItem( alpha, await alpha.findOneByAttribute( {name: 'alpha1'} ) );
+    const beta1 = new EntityItem( beta, await beta.findOneByAttribute( {name: 'beta1'} ) );
 
     expect( alpha1?.item ).toMatchObject({name: 'alpha1', betaId: beta1?.id })
     expect( await alpha1?.assocTo('Beta') ).toEqual( beta1 );
@@ -84,14 +85,14 @@ describe('Associations', () => {
   //
   it('should follow assocFrom', async ()=> {
     const beta = runtime.entities['Beta'];
-    const beta1 = await beta.findOneByAttribute( {name: 'beta1'} );
+    const beta1 = new EntityItem( beta, await beta.findOneByAttribute( {name: 'beta1'} ) );
     const alphas1 = await beta1?.assocFrom('Alpha');
     expect( alphas1 ).toHaveLength( 2 );
     expect( _.map( alphas1, alpha => alpha.item ) ).toEqual( expect.arrayContaining([
       expect.objectContaining( { name: 'alpha1' }),
       expect.objectContaining( { name: 'alpha2' })
     ]));
-    const beta3 = await beta.findOneByAttribute( {name: 'beta3'} );
+    const beta3 = new EntityItem( beta, await beta.findOneByAttribute( {name: 'beta3'} ) );
     const alphas3 = await beta3?.assocFrom('Alphas');
     expect( alphas3 ).toHaveLength( 0 );
   })
