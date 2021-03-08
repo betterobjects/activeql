@@ -1,10 +1,19 @@
 import { GeneratedTypeDecorator } from "./generated-type-decorator";
 import { ActiveQLServer, Entity, ValidationViolation } from "activeql-server";
 
+export enum FlightStatus {
+  OPEN = "open",
+  STARTED = "started",
+  FINISHED = "finished",
+}
+export enum Locale {
+  EN = "en",
+  DE = "de",
+}
 export class Flight {
   id:string = '';
-  status: string = '';
-  locale: string = '';
+  status: FlightStatus = FlightStatus.OPEN;
+  locale: Locale = Locale.EN;
   playerToStart: number = 0;
   latestStart: Date = new Date();
   playerIds: string[] = [];
@@ -23,15 +32,21 @@ export class Flight {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<Flight[]>{
+  static async findByFilter( query:any ):Promise<Flight[]>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
-    const items:Flight[] = await entity.findByAttribute( query );
+    const items:Flight[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<Flight>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Flight[]>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
-    const item:Flight = await entity.findOneByAttribute( query );
+    const items:Flight[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Flight>{
+    const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
+    const item:Flight = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -53,7 +68,7 @@ export class Flight {
 export class Player {
   id:string = '';
   name: string = '';
-  locale: string = '';
+  locale: Locale = Locale.EN;
 
   static async findById( id:string):Promise<Player>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
@@ -67,15 +82,21 @@ export class Player {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<Player[]>{
+  static async findByFilter( query:any ):Promise<Player[]>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const items:Player[] = await entity.findByAttribute( query );
+    const items:Player[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<Player>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Player[]>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const item:Player = await entity.findOneByAttribute( query );
+    const items:Player[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Player>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    const item:Player = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -112,15 +133,21 @@ export class Game {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<Game[]>{
+  static async findByFilter( query:any ):Promise<Game[]>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
-    const items:Game[] = await entity.findByAttribute( query );
+    const items:Game[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<Game>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Game[]>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
-    const item:Game = await entity.findOneByAttribute( query );
+    const items:Game[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Game>{
+    const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
+    const item:Game = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -162,15 +189,21 @@ export class OneOfNGame {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<OneOfNGame[]>{
+  static async findByFilter( query:any ):Promise<OneOfNGame[]>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
-    const items:OneOfNGame[] = await entity.findByAttribute( query );
+    const items:OneOfNGame[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<OneOfNGame>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<OneOfNGame[]>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
-    const item:OneOfNGame = await entity.findOneByAttribute( query );
+    const items:OneOfNGame[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<OneOfNGame>{
+    const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
+    const item:OneOfNGame = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -211,15 +244,21 @@ export class AnswerTextGame {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<AnswerTextGame[]>{
+  static async findByFilter( query:any ):Promise<AnswerTextGame[]>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
-    const items:AnswerTextGame[] = await entity.findByAttribute( query );
+    const items:AnswerTextGame[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<AnswerTextGame>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<AnswerTextGame[]>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
-    const item:AnswerTextGame = await entity.findOneByAttribute( query );
+    const items:AnswerTextGame[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<AnswerTextGame>{
+    const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
+    const item:AnswerTextGame = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -261,15 +300,21 @@ export class MagGuessGame {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<MagGuessGame[]>{
+  static async findByFilter( query:any ):Promise<MagGuessGame[]>{
     const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const items:MagGuessGame[] = await entity.findByAttribute( query );
+    const items:MagGuessGame[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<MagGuessGame>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<MagGuessGame[]>{
     const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const item:MagGuessGame = await entity.findOneByAttribute( query );
+    const items:MagGuessGame[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<MagGuessGame>{
+    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
+    const item:MagGuessGame = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -310,15 +355,21 @@ export class Round {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<Round[]>{
+  static async findByFilter( query:any ):Promise<Round[]>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
-    const items:Round[] = await entity.findByAttribute( query );
+    const items:Round[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<Round>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Round[]>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
-    const item:Round = await entity.findOneByAttribute( query );
+    const items:Round[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Round>{
+    const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
+    const item:Round = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -359,15 +410,21 @@ export class RoundResult {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<RoundResult[]>{
+  static async findByFilter( query:any ):Promise<RoundResult[]>{
     const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.findByAttribute( query );
+    const items:RoundResult[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<RoundResult>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult[]>{
     const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const item:RoundResult = await entity.findOneByAttribute( query );
+    const items:RoundResult[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const item:RoundResult = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
@@ -404,15 +461,21 @@ export class User {
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( query:any ):Promise<User[]>{
+  static async findByFilter( query:any ):Promise<User[]>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
-    const items:User[] = await entity.findByAttribute( query );
+    const items:User[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( query:any ):Promise<User>{
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<User[]>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
-    const item:User = await entity.findOneByAttribute( query );
+    const items:User[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<User>{
+    const entity = ActiveQLServer.runtime?.entity('User') as Entity;
+    const item:User = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 

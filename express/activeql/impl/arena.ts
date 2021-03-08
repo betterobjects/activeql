@@ -1,7 +1,7 @@
 import { DomainConfiguration, DomainDefinition, DomainImplementation, Runtime } from 'activeql-server';
 import _ from 'lodash';
 
-import { Flight, Player, Round, Game } from './activeql-types';
+import { Flight, Player, Round, Game, FlightStatus, Locale } from './activeql-types';
 
 export const addArena = (domainDefinition:DomainDefinition) => domainDefinition.add( domainConfiguration )
 
@@ -45,28 +45,33 @@ class Arena extends DomainImplementation {
   GRACE_TIME_TO_START = 3 * 1000;
 	TIME_TO_START = 200 * 1000;
 
+  // client asks to join a flight for an (existing) player
+  // if this player is currently in any other flight currently, we will remove her from that
+  // This call will return an open flight for the locale of the player (that doesnt start for at least 3 sec)
+  // or creates a new one.
+  // If this player makes the flight "full" it starts the flight right away (after 3 seconds)
 	async enrolPlayerToFlight( playerId:string ){
-    const player = await this.getPlayerAndMoveFromExistingFlight( playerId );
+    const player = await Player.findById( playerId );
+    await this.removePlayerFromExistingFlight( playerId );
 		const flight = await this.findOrCreateOpenFlight( player.locale );
-		flight['playerIds'] = _.compact( _.concat( flight['playerIds'], playerId ) );
+    flight.playerIds.push( playerId );
 		await flight.save();
     if( _.size( flight.playerIds ) >= flight.playerToStart ) setTimeout(
       () => this.startFlight( flight.id ), this.GRACE_TIME_TO_START );
 		return flight;
 	}
 
-  private async getPlayerAndMoveFromExistingFlight( playerId:string ){
-    const flights = await Flight.findByAttribute( { playerIds: {is: playerId } } );
+  private async removePlayerFromExistingFlight( playerId:string ){
+    const flights = await Flight.findByFilter( { status: 'open', playerIds: {is: playerId } } );
     for( let i = 0; i < flights.length; i++ ) {
       const flight = flights[i];
       _.remove( flight.playerIds, playerId );
       await flight.save();
     }
-    return Player.findById( playerId );
   }
 
-	private async findOrCreateOpenFlight(locale:String):Promise<any> {
-		const flight = await Flight.findOneByAttribute( { locale, status: 'open' });
+	private async findOrCreateOpenFlight(locale:Locale):Promise<Flight> {
+		const flight = await Flight.findOneByAttribute( { locale, status: FlightStatus.OPEN });
 		if( flight && flight.latestStart.getDate() - Date.now() > this.GRACE_TIME_TO_START ) return flight;
     const latestStart = new Date( Date.now() + this.TIME_TO_START );
 		const newFlight = await Flight.save( { locale, status: 'open', latestStart, playerToStart: 3 } ) as Flight;
@@ -76,8 +81,8 @@ class Arena extends DomainImplementation {
 
 	private async startFlight( flightId: string ){
 		const flight = await Flight.findById( flightId );
-		if( flight.status !== 'open' ) return;
-    // ???
+		if( flight.status !== FlightStatus.OPEN ) return;
+    flight.status = FlightStatus.STARTED;
 		await flight.save();
 		this.newRound( flight.id );
 	}

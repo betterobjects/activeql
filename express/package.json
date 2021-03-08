@@ -10,8 +10,9 @@
     "server": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --no-notify --inspect --watch ./activeql -- ./app.ts",
     "client": "cd ../angular; ng serve",
     "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/seed.ts",
-    "uml": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/uml.ts",
-    "types": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate-types.ts",
+    "generate": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.ts",
+    "uml": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.ts uml",
+    "types": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.ts types",
     "test": "jest --watch --detectOpenHandles"
   },
   "dependencies": {

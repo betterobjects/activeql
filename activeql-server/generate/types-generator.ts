@@ -16,8 +16,17 @@ export class TypesGenerator {
     this.result.push( 'import { ActiveQLServer, Entity, ValidationViolation } from "activeql-server";'  );
     this.result.push( ''  );
 
+    _.forEach( this.runtime.enums, enumName => this.addEnum( enumName ) );
     _.forEach( this.runtime.entities, (entity, name) => this.addThisEntity( name, entity) );
     return _.join( this.result, '\n' );
+  }
+
+  private addEnum( enumName:string ){
+    const config = _.get( this.runtime.domainDefinition.getResolvedConfiguration(), ['enum', enumName] );
+    if( ! config ) return;
+    this.result.push( `export enum ${enumName} {`  );
+    _.forEach( config, (value, name) => this.result.push( `  ${name} = "${value}",`) );
+    this.result.push( `}` );
   }
 
   private addThisEntity( name:string, entity:Entity ){
@@ -27,6 +36,7 @@ export class TypesGenerator {
     this.addEntity( entity );
     this.addFindById( entity.typeName );
     this.addFindByIds( entity.typeName );
+    this.addFindByFilter( entity.typeName );
     this.addFindByAttribute( entity.typeName );
     this.addFindOneByAttribute( entity.typeName );
     this.addSave( entity.typeName );
@@ -69,20 +79,29 @@ export class TypesGenerator {
     this.result.push( `  }`  );
   }
 
+  private addFindByFilter( typeName:string ){
+    this.result.push( ''  );
+    this.result.push( `  static async findByFilter( query:any ):Promise<${typeName}[]>{`  );
+    this.result.push( `    const entity = ActiveQLServer.runtime?.entity('${typeName}') as Entity;`);
+    this.result.push( `    const items:${typeName}[] = await entity.accessor.findByFilter( query );`);
+    this.result.push( `    return GeneratedTypeDecorator.decorateAssocs( entity, items );`);
+    this.result.push( `  }`  );
+  }
+
   private addFindByAttribute( typeName:string ){
     this.result.push( ''  );
-    this.result.push( `  static async findByAttribute( query:any ):Promise<${typeName}[]>{`  );
+    this.result.push( `  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<${typeName}[]>{`  );
     this.result.push( `    const entity = ActiveQLServer.runtime?.entity('${typeName}') as Entity;`);
-    this.result.push( `    const items:${typeName}[] = await entity.findByAttribute( query );`);
+    this.result.push( `    const items:${typeName}[] = await entity.findByAttribute( attrValue );`);
     this.result.push( `    return GeneratedTypeDecorator.decorateAssocs( entity, items );`);
     this.result.push( `  }`  );
   }
 
   private addFindOneByAttribute( typeName:string ){
     this.result.push( ''  );
-    this.result.push( `  static async findOneByAttribute( query:any ):Promise<${typeName}>{`  );
+    this.result.push( `  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<${typeName}>{`  );
     this.result.push( `    const entity = ActiveQLServer.runtime?.entity('${typeName}') as Entity;`);
-    this.result.push( `    const item:${typeName} = await entity.findOneByAttribute( query );`);
+    this.result.push( `    const item:${typeName} = await entity.findOneByAttribute( attrValue );`);
     this.result.push( `    return GeneratedTypeDecorator.decorateAssocs( entity, item );`);
     this.result.push( `  }`  );
   }
@@ -113,20 +132,21 @@ export class TypesGenerator {
   private getAttributeType( attribute:AttributeType ):string {
     const list = attribute.list;
     switch( attribute.type ){
+      case 'String': return list ? "string[]" : "string";
       case 'Int':
       case 'Float': return list ? 'number[]' : 'number';
       case 'Boolean': return list ? 'boolean[]' : 'boolean';
       case 'JSON': return list ? 'any[]' : 'any';
       case 'Date':
       case 'DateTime': return list ? 'Date[]' : 'Date';
-
     }
-    return list ? "string[]" : "string";
+    return list ? `${attribute.type}[]` : attribute.type;
   }
 
   private getAttributeInitial( attribute:AttributeType ):string {
     if( attribute.list ) return ' = []';
     switch( attribute.type ){
+      case 'String': return " = ''";
       case 'Int':
       case 'Float': return ' = 0';
       case 'Boolean': return ' = false';
@@ -134,7 +154,10 @@ export class TypesGenerator {
       case 'Date':
       case 'DateTime': return ` = new Date()`
     }
-    return " = ''";
+    const config = _.get( this.runtime.domainDefinition.getResolvedConfiguration(), ['enum', attribute.type] );
+    if( ! config ) return ` = null`;
+    const value = _.first( _.keys( config ) );
+    return ` = ${attribute.type}.${value}`;
   }
 
   private addAssocTo( assocTo:AssocToType ){
