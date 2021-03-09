@@ -1114,7 +1114,7 @@ const domainConfiguration:DomainConfiguration = {
         const driver = await rt.entity('Driver').findOneByAttribute( { id: item.driverId } );
         if( ! driver ) return;
         const ms30days = 30 * 24 * 60 * 60 * 1000;
-        if( driver.item.licenceValid - Date.now() > ms30days ) return;
+        if( driver.licenceValid - Date.now() > ms30days ) return;
         return { 
           attribute: 'driverId', 
           message: "Sorry, driver's licence must be at least 30 days valid" };
@@ -1233,9 +1233,8 @@ const resolver = async ( rt:Runtime, args:any ) => {
   // but return the validationValidations rightaway
   if( ! car || ! driver || ! _.isEmpty( validationViolations ) ) return { validationViolations };
 
-  // this is the assignment - notice that car is an instance of EntityItem
-  // the actual attribut values are in car.item
-  car.item.driverId = driver.id
+  // this is the assignment - notice that car is an instance 
+  car.driverId = driver.id
 
   // should there are any validationValidations with the current item it would throw an error when saving -
   // we don't want that - thats why we validate first
@@ -1246,7 +1245,7 @@ const resolver = async ( rt:Runtime, args:any ) => {
   if( _.isEmpty( validationViolations ) ) await car.save( true );
 
   // and return the car (item!) and possible validationValidations
-  return { car: car.item, validationViolations };
+  return { car, validationViolations };
 }
 
 // the implementation to get a car entity item - with validation

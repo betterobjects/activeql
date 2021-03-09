@@ -20,7 +20,7 @@ export abstract class DataStore {
 
   abstract findByIds( entity:Entity, id:any ):Promise<any>
 
-  abstract findByAttribute( entity:Entity, attrValue:{[name:string]:any} ):Promise<any[]>;
+  abstract findByAttribute( entity:Entity[], attrValue:{[name:string]:any} ):Promise<any[]>;
 
   /**
    *

@@ -1,0 +1,8 @@
+entity:
+  RoundResult:
+    typeOnly: true
+    attributes:
+      solutionTime: Int!
+      alive: Boolean!
+      position: Int!
+    assocTo: SolutionSubmition!

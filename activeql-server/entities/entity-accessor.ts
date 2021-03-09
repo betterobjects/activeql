@@ -35,7 +35,8 @@ export class EntityAccessor extends EntityModule {
    *
    */
   async findByAttribute( attrValue:{[name:string]:any} ):Promise<any[]>{
-    return this.dataStore.findByAttribute( this.entity, attrValue );
+    this.replaceAssocToItemWithForeignKey( attrValue );
+    return this.dataStore.findByAttribute( this.entity.getThisOrAllNestedEntities(), attrValue );
   }
 
   /**
@@ -164,6 +165,16 @@ export class EntityAccessor extends EntityModule {
       case 'datetime': return _.isDate( value ) ? value : new Date( value )
     }
     return value;
+  }
+
+  private replaceAssocToItemWithForeignKey(attrValue:{[name:string]:any}){
+    _.forEach( this.entity.assocTo, assocTo => {
+      const assocEntity = this.runtime.entity( assocTo.type );
+      const assocValue = _.get( attrValue, assocEntity.typeQueryName );
+      if( ! assocValue || ! _.has( assocValue, 'id' ) ) return;
+      _.set( attrValue, assocEntity.foreignKey, assocValue.id );
+      _.unset( attrValue, assocEntity.typeQueryName );
+    });
   }
 
 }

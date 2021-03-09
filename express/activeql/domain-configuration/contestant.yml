@@ -1,0 +1,7 @@
+entity:
+  Contestant:
+    attributes:
+      alive: Boolean!
+    assocTo:
+      - Player!
+      - Flight!

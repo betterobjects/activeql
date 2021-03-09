@@ -1,9 +1,3 @@
-enum:
-  FlightStatus:
-    - open
-    - started
-    - finished
-
 entity:
   Flight:
     attributes:
@@ -11,5 +5,6 @@ entity:
       locale: Locale!
       playerToStart: Int!
       latestStart: DateTime!
-    assocToMany: Player!
-    assocFrom: Round
+    assocFrom:
+      - Round
+      - Contestant

@@ -3,7 +3,6 @@ export * from './activeql-server';
 export * from './core/data-store';
 export * from './core/domain-definition';
 export * from './core/domain-configuration';
-export * from './core/domain-implementation';
 export * from './core/runtime';
 export * from './core/graphx';
 
@@ -38,3 +37,4 @@ export * from './validation/validator-js';
 
 export * from './generate/plantuml-generator';
 export * from './generate/types-generator';
+export * from './generate/generated-type-decorator';

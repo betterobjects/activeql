@@ -26,7 +26,7 @@ domainDefinition.add( domainConfiguration );
 // addPrincipalFromHeader( domainDefinition );
 addJwtLogin( domainDefinition );
 
-// addArena( domainDefinition );
+addArena( domainDefinition );
 
 /* another datastore implementation */
 // const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONGODB_DBNAME });

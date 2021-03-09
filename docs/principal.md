@@ -127,7 +127,7 @@ const login = async (runtime:Runtime, username:string, password:string) => {
 const findUser = async ( runtime:Runtime, username:string ) => {
   const entity = runtime.entity('User')
   const user = await entity.findOneByAttribute( { username } );
-  return user ? user.item : {};
+  return user ? user : {};
 }
 
 const generateToken = () => hash( _.toString(_.random(9999999) ) );

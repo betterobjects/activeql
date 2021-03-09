@@ -4,7 +4,6 @@ import _ from 'lodash';
 import bcrypt from 'bcryptjs';
 
 import { AssocToManyType, AssocToType, AssocType, AttributeType, SeedAttributeType, SeedType } from '../core/domain-configuration';
-import { EntityItem } from './entity-item';
 import { EntityModule } from './entity-module';
 import { RandomFormatString as _RandomFormatString } from '../util/random-format-string';
 
@@ -66,12 +65,12 @@ export class EntitySeeder extends EntityModule {
       for( const seedName of _.keys( entityMap ) ){
         try {
           const id = entityMap[seedName];
-          let ei = await entity.findOneByAttribute( {id} );
-          if( ! ei ) continue;
-          const violations = await entity.validate( ei.item );
+          let item = await entity.findOneByAttribute( {id} );
+          if( ! item ) continue;
+          const violations = await entity.validate( item );
           if( _.isEmpty( violations ) ) continue;
 
-          await entity.accessor.delete( ei.id ); // this id seems not to exist - parallel problem somewhere - scary
+          await entity.accessor.delete( item.id ); // this id seems not to exist - parallel problem somewhere - scary
           const result = _(violations).map( violation => `${violation.attribute} : ${violation.message} ` ).join(' , ');
           validationViolations.push( `${entityName}:${seedName} - ${result}` );
           _.unset( entityMap, seedName );
@@ -122,10 +121,8 @@ export class EntitySeeder extends EntityModule {
 
   private async seedInstanceAttributes( name:string, seed:any, ids:any ):Promise<any> {
     try {
-      let enit = await EntityItem.create( this.entity, seed );
-      enit = await enit.save( true );
-      if( ! enit ) throw `seed '${name}' could not be saved`;
-      const id = enit.item.id;
+      seed = await this.entity.accessor.save( seed, true );
+      const id = seed.id;
       if( ! id ) throw `seed '${name}' has no id`;
       _.set( ids, name, id );
     } catch (error) {
@@ -190,17 +187,17 @@ export class EntitySeeder extends EntityModule {
     const id = _.get( idsMap, [this.entity.typeName, name] );
     if( ! id ) return console.warn(
       `[${this.entity.name}] cannot update assocTo, no id for '${this.entity.name}'.${name}`);
-    const enit = await this.entity.findOneByAttribute( {id} );
-    if( ! enit ) return;
+    const item = await this.entity.findOneByAttribute( {id} );
+    if( ! item ) return;
     const refEntity = this.runtime.entity( assocToType );
     if( _.isArray( refId ) ){
       const refIds = _.map( refId, refId => _.toString( refId ) );
-      _.set( enit.item, refEntity.foreignKeys, refIds );
+      _.set( item, refEntity.foreignKeys, refIds );
     } else {
-      _.set( enit.item, refEntity.foreignKey, _.toString(refId) );
+      _.set( item, refEntity.foreignKey, _.toString(refId) );
     }
-    if( refType && refType !== assocToType ) _.set( enit.item, refEntity.typeField, refType );
-    await enit.save( true );
+    if( refType && refType !== assocToType ) _.set( item, refEntity.typeField, refType );
+    await this.entity.accessor.save( item, true );
   }
 
 

@@ -12,8 +12,7 @@ export class TypesGenerator {
 
   generate(){
     this.result = [];
-    this.result.push( 'import { GeneratedTypeDecorator } from "./generated-type-decorator";'  );
-    this.result.push( 'import { ActiveQLServer, Entity, ValidationViolation } from "activeql-server";'  );
+    this.result.push( 'import { GeneratedTypeDecorator, ActiveQLServer, Entity, ValidationViolation } from "activeql-server";'  );
     this.result.push( ''  );
 
     _.forEach( this.runtime.enums, enumName => this.addEnum( enumName ) );
@@ -117,7 +116,8 @@ export class TypesGenerator {
     this.result.push( ''  );
     this.result.push( `  static async save( item:any ):Promise<${typeName}|ValidationViolation[]>{`  );
     this.result.push( `    const entity = ActiveQLServer.runtime?.entity('${typeName}') as Entity;`);
-    this.result.push( `    return entity.accessor.save( item );`);
+    this.result.push( `    item = await entity.accessor.save( item );`);
+    this.result.push( `    return GeneratedTypeDecorator.decorateAssocs( entity, item );`);
     this.result.push( `  }`  );
   }
 

@@ -1,9 +1,11 @@
-import { ActiveQLServer, Entity } from "activeql-server";
+import { Entity } from '../entities/entity';
 import _ from 'lodash';
+import { ActiveQLServer } from '../activeql-server';
 
 export class GeneratedTypeDecorator { 
 
   static decorateAssocs( entity:Entity, items:any ){
+    if( _.isNil( items ) ) return undefined;
     const isArray = _.isArray( items );
     if( ! isArray ) items = [items];
 
@@ -26,7 +28,7 @@ export class GeneratedTypeDecorator { 
         _.set( item, assocEntity?.typesQueryName, () => assocEntity?.findByAttribute( query ));
       });
 
-      _.set( item, 'save', () => entity?.accessor.save( item ));
+      _.set( item, 'save', async () => this.decorateAssocs( entity, await entity.accessor.save( item )) );
     });
 
     return isArray ? items : _.first( items );

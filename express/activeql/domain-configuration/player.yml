@@ -1,5 +1,4 @@
 entity:
-
   Player:
     attributes:
       name: String!

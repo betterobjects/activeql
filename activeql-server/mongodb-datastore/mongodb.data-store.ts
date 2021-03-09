@@ -42,13 +42,18 @@ export class MongoDbDataStore extends DataStore {
     return _.map( items, item => this.buildOutItem( item ) );
   }
 
-  async findByAttribute( entity:Entity, attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
+  async findByAttribute( entity:Entity[], attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
-      _.set( attrValue, '_id', this.getObjectId( id, entity ) );
+      _.set( attrValue, '_id', id );
     }
-    return this.findByExpression( entity, attrValue, sort );
+    const result = [];
+    for( const e of entity ){
+      const items = await this.findByExpression( e, attrValue, sort );
+      result.push( ... _.map( items, item => _.set( item, '__typename', e.typeName ) ) );
+    }
+    return result;
   }
 
   async findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {

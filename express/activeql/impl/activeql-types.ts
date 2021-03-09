@@ -1,5 +1,4 @@
-import { GeneratedTypeDecorator } from "./generated-type-decorator";
-import { ActiveQLServer, Entity, ValidationViolation } from "activeql-server";
+import { GeneratedTypeDecorator, ActiveQLServer, Entity, ValidationViolation } from "activeql-server";
 
 export enum FlightStatus {
   OPEN = "open",
@@ -10,15 +9,68 @@ export enum Locale {
   EN = "en",
   DE = "de",
 }
+export class Contestant {
+  id:string = '';
+  alive: boolean = false;
+  playerId: string = '';
+  player: () => Promise<Player> = () => {throw 'will be decorated'};
+  flightId: string = '';
+  flight: () => Promise<Flight> = () => {throw 'will be decorated'};
+
+  static async findById( id:string):Promise<Contestant>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    const item:Contestant = await entity.findById( id );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  static async findByIds( ids:string[] ):Promise<Contestant[]>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    const items:Contestant[] = await entity.findByIds( ids );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findByFilter( query:any ):Promise<Contestant[]>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    const items:Contestant[] = await entity.accessor.findByFilter( query );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Contestant[]>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    const items:Contestant[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Contestant>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    const item:Contestant = await entity.findOneByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  static async save( item:any ):Promise<Contestant|ValidationViolation[]>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  async save():Promise<Contestant|ValidationViolation[]> {
+    throw 'will be decorated';
+  }
+
+  static async delete( id:string ):Promise<boolean>{
+    const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
+    return entity.accessor.delete( id );
+  }
+}
+
 export class Flight {
   id:string = '';
   status: FlightStatus = FlightStatus.OPEN;
   locale: Locale = Locale.EN;
   playerToStart: number = 0;
   latestStart: Date = new Date();
-  playerIds: string[] = [];
-  players: () => Promise<Player[]> = () => {throw 'will be decorated'};
   rounds: () => Promise<Round[]> = () => {throw 'will be decorated'};
+  contestants: () => Promise<Contestant[]> = () => {throw 'will be decorated'};
 
   static async findById( id:string):Promise<Flight>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
@@ -52,7 +104,8 @@ export class Flight {
 
   static async save( item:any ):Promise<Flight|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<Flight|ValidationViolation[]> {
@@ -61,56 +114,6 @@ export class Flight {
 
   static async delete( id:string ):Promise<boolean>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
-    return entity.accessor.delete( id );
-  }
-}
-
-export class Player {
-  id:string = '';
-  name: string = '';
-  locale: Locale = Locale.EN;
-
-  static async findById( id:string):Promise<Player>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const item:Player = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
-  }
-
-  static async findByIds( ids:string[] ):Promise<Player[]>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const items:Player[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
-  }
-
-  static async findByFilter( query:any ):Promise<Player[]>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const items:Player[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
-  }
-
-  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Player[]>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const items:Player[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
-  }
-
-  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Player>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    const item:Player = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
-  }
-
-  static async save( item:any ):Promise<Player|ValidationViolation[]>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    return entity.accessor.save( item );
-  }
-
-  async save():Promise<Player|ValidationViolation[]> {
-    throw 'will be decorated';
-  }
-
-  static async delete( id:string ):Promise<boolean>{
-    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     return entity.accessor.delete( id );
   }
 }
@@ -153,7 +156,8 @@ export class Game {
 
   static async save( item:any ):Promise<Game|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<Game|ValidationViolation[]> {
@@ -209,7 +213,8 @@ export class OneOfNGame {
 
   static async save( item:any ):Promise<OneOfNGame|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<OneOfNGame|ValidationViolation[]> {
@@ -264,7 +269,8 @@ export class AnswerTextGame {
 
   static async save( item:any ):Promise<AnswerTextGame|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<AnswerTextGame|ValidationViolation[]> {
@@ -320,7 +326,8 @@ export class MagGuessGame {
 
   static async save( item:any ):Promise<MagGuessGame|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<MagGuessGame|ValidationViolation[]> {
@@ -329,6 +336,111 @@ export class MagGuessGame {
 
   static async delete( id:string ):Promise<boolean>{
     const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
+    return entity.accessor.delete( id );
+  }
+}
+
+export class Player {
+  id:string = '';
+  name: string = '';
+  locale: Locale = Locale.EN;
+
+  static async findById( id:string):Promise<Player>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    const item:Player = await entity.findById( id );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  static async findByIds( ids:string[] ):Promise<Player[]>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    const items:Player[] = await entity.findByIds( ids );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findByFilter( query:any ):Promise<Player[]>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    const items:Player[] = await entity.accessor.findByFilter( query );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Player[]>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    const items:Player[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Player>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    const item:Player = await entity.findOneByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  static async save( item:any ):Promise<Player|ValidationViolation[]>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  async save():Promise<Player|ValidationViolation[]> {
+    throw 'will be decorated';
+  }
+
+  static async delete( id:string ):Promise<boolean>{
+    const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
+    return entity.accessor.delete( id );
+  }
+}
+
+export class RoundResult {
+  id:string = '';
+  solutionTime: number = 0;
+  alive: boolean = false;
+  position: number = 0;
+  solutionSubmitionId: string = '';
+  solutionSubmition: () => Promise<SolutionSubmition> = () => {throw 'will be decorated'};
+
+  static async findById( id:string):Promise<RoundResult>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const item:RoundResult = await entity.findById( id );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  static async findByIds( ids:string[] ):Promise<RoundResult[]>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const items:RoundResult[] = await entity.findByIds( ids );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findByFilter( query:any ):Promise<RoundResult[]>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const items:RoundResult[] = await entity.accessor.findByFilter( query );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult[]>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const items:RoundResult[] = await entity.findByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  }
+
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const item:RoundResult = await entity.findOneByAttribute( attrValue );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  static async save( item:any ):Promise<RoundResult|ValidationViolation[]>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  }
+
+  async save():Promise<RoundResult|ValidationViolation[]> {
+    throw 'will be decorated';
+  }
+
+  static async delete( id:string ):Promise<boolean>{
+    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
     return entity.accessor.delete( id );
   }
 }
@@ -375,7 +487,8 @@ export class Round {
 
   static async save( item:any ):Promise<Round|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<Round|ValidationViolation[]> {
@@ -388,57 +501,56 @@ export class Round {
   }
 }
 
-export class RoundResult {
+export class SolutionSubmition {
   id:string = '';
-  solutionTime: number = 0;
-  alive: boolean = false;
-  position: number = 0;
+  solution: any = {};
   roundId: string = '';
   round: () => Promise<Round> = () => {throw 'will be decorated'};
-  playerId: string = '';
-  player: () => Promise<Player> = () => {throw 'will be decorated'};
+  contestantId: string = '';
+  contestant: () => Promise<Contestant> = () => {throw 'will be decorated'};
 
-  static async findById( id:string):Promise<RoundResult>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const item:RoundResult = await entity.findById( id );
+  static async findById( id:string):Promise<SolutionSubmition>{
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    const item:SolutionSubmition = await entity.findById( id );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
-  static async findByIds( ids:string[] ):Promise<RoundResult[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.findByIds( ids );
+  static async findByIds( ids:string[] ):Promise<SolutionSubmition[]>{
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    const items:SolutionSubmition[] = await entity.findByIds( ids );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByFilter( query:any ):Promise<RoundResult[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.accessor.findByFilter( query );
+  static async findByFilter( query:any ):Promise<SolutionSubmition[]>{
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    const items:SolutionSubmition[] = await entity.accessor.findByFilter( query );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.findByAttribute( attrValue );
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<SolutionSubmition[]>{
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    const items:SolutionSubmition[] = await entity.findByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, items );
   }
 
-  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const item:RoundResult = await entity.findOneByAttribute( attrValue );
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<SolutionSubmition>{
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    const item:SolutionSubmition = await entity.findOneByAttribute( attrValue );
     return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
-  static async save( item:any ):Promise<RoundResult|ValidationViolation[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    return entity.accessor.save( item );
+  static async save( item:any ):Promise<SolutionSubmition|ValidationViolation[]>{
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
-  async save():Promise<RoundResult|ValidationViolation[]> {
+  async save():Promise<SolutionSubmition|ValidationViolation[]> {
     throw 'will be decorated';
   }
 
   static async delete( id:string ):Promise<boolean>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
+    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
     return entity.accessor.delete( id );
   }
 }
@@ -481,7 +593,8 @@ export class User {
 
   static async save( item:any ):Promise<User|ValidationViolation[]>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
-    return entity.accessor.save( item );
+    item = await entity.accessor.save( item );
+    return GeneratedTypeDecorator.decorateAssocs( entity, item );
   }
 
   async save():Promise<User|ValidationViolation[]> {

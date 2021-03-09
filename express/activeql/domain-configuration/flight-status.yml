@@ -1,0 +1,6 @@
+enum:
+  FlightStatus:
+    - open
+    - started
+    - finished
+

@@ -1,4 +1,4 @@
-import _, { result } from 'lodash';
+import _, { first, result } from 'lodash';
 import Nedb from 'nedb';
 import path, { resolve } from 'path';
 
@@ -44,13 +44,18 @@ export class NedbDataStore extends DataStore {
     });
   }
 
-  async findByAttribute( entity:Entity, attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
+  async findByAttribute( entity:Entity[], attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
       _.set( attrValue, '_id', id );
     }
-    return this.findByExpression( entity, attrValue, sort );
+    const result = [];
+    for( const e of entity ){
+      const items = await this.findByExpression( e, attrValue, sort );
+      result.push( ... _.map( items, item => _.set( item, '__typename', e.typeName ) ) );
+    }
+    return result;
   }
 
   async findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
