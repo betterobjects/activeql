@@ -37,4 +37,3 @@ export * from './validation/validator-js';
 
 export * from './generate/plantuml-generator';
 export * from './generate/types-generator';
-export * from './generate/generated-type-decorator';
