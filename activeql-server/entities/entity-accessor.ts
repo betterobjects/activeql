@@ -6,6 +6,7 @@ import { EntityDeleter } from './entity-deleter';
 import { EntityModule } from './entity-module';
 import { ValidationViolation } from './entity-validation';
 import { parseActiveQLScalarDate } from '../core/activeql-schema-types'
+import { Entity } from './entity';
 
 //
 //
@@ -55,6 +56,7 @@ export class EntityAccessor extends EntityModule {
    */
   async save( attributes:any, skipValidation = false ):Promise<any|ValidationViolation[]> {
     await this.setDefaultValues( attributes );
+    this.replaceAssocItemsWithIds( attributes );
     this.setTimestamps( attributes );
     this.sanitizeValues( attributes );
     if( ! skipValidation ){
@@ -104,6 +106,18 @@ export class EntityAccessor extends EntityModule {
     return this.dataStore.truncate( this.entity );
   }
 
+
+  private replaceAssocItemsWithIds( item:any ):any {
+    _.forEach( item, (value, key) => {
+      if( ! _.has( value, '__typename' ) ) return;
+      let entity:Entity|undefined = this.runtime.entity( value.__typename );
+      if( ! _.isEmpty( entity.implements ) ) entity = _.find( entity.implements, e => e.typeQueryName === key );
+      if( ! entity ) throw new Error(`cant find entity for '${key}'`);
+      _.set( item, entity.foreignKey, value.id );
+      if( entity.isPolymorph ) _.set( item, entity.typeField, value.__typename );
+      _.unset( item, key );
+    });
+  }
   /**
    *
    */
