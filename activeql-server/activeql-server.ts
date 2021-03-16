@@ -10,11 +10,13 @@ import { Runtime, RuntimeConfig } from './core/runtime';
  */
 export class ActiveQLServer {
 
-  static runtime?:Runtime;
+  private static _runtime?:Runtime;
+
+  static get runtime():Runtime { if( this._runtime) return this._runtime; throw `no runtime in ActiveQLServer` }
 
   static async create( runtimeConfig:RuntimeConfig, apolloConfig:ApolloServerExpressConfig = {} ):Promise<ApolloServer> {
     _.defaults( apolloConfig, { validationRules: [depthLimit(7)] } );
-    ActiveQLServer.runtime = await Runtime.create( runtimeConfig );
+    ActiveQLServer._runtime = await Runtime.create( runtimeConfig );
     apolloConfig.schema = ActiveQLServer.runtime.schema;
     apolloConfig.context = async (expressContext:any) => {
       const apolloContext = _.set( {}, 'runtime', ActiveQLServer.runtime );
