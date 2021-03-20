@@ -81,7 +81,7 @@ mutation {
 }
 ```
 
-with the answer from your GraphQL API
+with the submition from your GraphQL API
 
 ```json
 {

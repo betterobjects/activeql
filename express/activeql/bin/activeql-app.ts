@@ -24,7 +24,7 @@ domainDefinition.add( domainConfiguration );
 
 /* add custom code */
 // addPrincipalFromHeader( domainDefinition );
-addJwtLogin( domainDefinition );
+// addJwtLogin( domainDefinition );
 
 addArena( domainDefinition );
 

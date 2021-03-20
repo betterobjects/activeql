@@ -14,6 +14,7 @@ export class TypesGenerator {
   generate(){
     this.result = [];
     this.result.push( 'import { TypesGenerator, ActiveQLServer, Entity, ValidationViolation } from "activeql-server";' );
+    this.result.push( 'import _ from "lodash";' );
     this.result.push( ''  );
 
     _.forEach( this.runtime.enums, enumName => this.addEnum( enumName ) );
@@ -35,6 +36,7 @@ export class TypesGenerator {
     this.result.push( `  id:string = '';` );
     _.forEach( entity.implements, implEntity => this.addEntity( implEntity ) );
     this.addEntity( entity );
+    this.addConstructor( entity.typeName )
     this.addFindById( entity.typeName );
     this.addFindByIds( entity.typeName );
     this.addFindByFilter( entity.typeName );
@@ -45,6 +47,17 @@ export class TypesGenerator {
     this.addDelete( entity.typeName );
     this.result.push( `}`  );
     this.result.push( ``  );
+  }
+
+  private addConstructor( typeName:string ){
+    this.result.push( `` );
+    this.result.push( `  constructor( item?:any ){` );
+    this.result.push( `    if( ! item ) return;` );
+    this.result.push( `    _.merge( this, item);` );
+    this.result.push( `    const entity = ActiveQLServer.runtime.entity('${typeName}');`);
+    this.result.push( `    TypesGenerator.decorateItems( entity, this );`);
+    this.result.push( `  }`);
+    this.result.push( `` );
   }
 
   private addEntity( entity:Entity ){
@@ -117,6 +130,7 @@ export class TypesGenerator {
   private addSave( typeName:string ){
     this.result.push( ''  );
     this.result.push( `  static async save( item:any ):Promise<${typeName}|ValidationViolation[]>{`  );
+    this.result.push( `    if( item.id === '') _.unset( item, 'id');`);
     this.result.push( `    const entity = ActiveQLServer.runtime?.entity('${typeName}') as Entity;`);
     this.result.push( `    item = await entity.accessor.save( item );`);
     this.result.push( `    if( Array.isArray(item) ) return item;`);
@@ -182,7 +196,6 @@ export class TypesGenerator {
     this.result.push(`  ${entity.typesQueryName}: () => Promise<${assocFrom.type}[]> = () => {throw 'will be decorated'};`);
   }
 
-
   static decorateItems( entity:Entity, items:any ){
     if( _.isNil( items ) ) return undefined;
     return _.isArray( items ) ?
@@ -191,27 +204,36 @@ export class TypesGenerator {
   }
 
   private static decorateItem( entity:Entity, item:any ):any {
-    if( ! _.has( item, '__typename' ) ) _.set( item, '__typename', entity.typeName );
-
     _.forEach( entity.assocTo, assocTo => {
-      const assocEntity:Entity = ActiveQLServer.runtime?.entity( assocTo.type ) as Entity;
-      const foreignKey = _.get( item, assocEntity?.foreignKey );
-      _.set( item, assocEntity?.typeQueryName, () => assocEntity?.findById( foreignKey ));
+      const assocEntity:Entity = ActiveQLServer.runtime?.entity( assocTo.type );
+      const foreignKey = _.get( item, assocEntity.foreignKey );
+      _.set( item, assocEntity.typeQueryName, () => {
+        const entity =  assocEntity.isPolymorph ?
+          ActiveQLServer.runtime.entity( _.get(item, assocEntity.typeField ) ) :
+          assocEntity;
+        return entity.findById( foreignKey )
+      });
     });
 
     _.forEach( entity.assocToMany, assocToMany => {
-      const assocEntity:Entity = ActiveQLServer.runtime?.entity( assocToMany.type ) as Entity;
-      const foreignKeys = _.get( item, assocEntity?.foreignKeys );
-      _.set( item, assocEntity?.typesQueryName, () => assocEntity?.findByIds( foreignKeys ));
+      const assocEntity:Entity = ActiveQLServer.runtime.entity( assocToMany.type ) as Entity;
+      const foreignKeys = _.get( item, assocEntity.foreignKeys );
+      _.set( item, assocEntity?.typesQueryName, () => {
+        const entity =  assocEntity.isPolymorph ?
+          ActiveQLServer.runtime.entity( _.get(item, assocEntity.typeField ) ) :
+          assocEntity;
+        return entity.findByIds( foreignKeys )
+      });
     });
 
     _.forEach( entity.assocFrom, assocFrom => {
-      const assocEntity:Entity = ActiveQLServer.runtime?.entity( assocFrom.type ) as Entity;
+      const assocEntity:Entity = ActiveQLServer.runtime.entity( assocFrom.type ) as Entity;
       const query = _.set( {}, entity.foreignKey, item.id );
-      _.set( item, assocEntity?.typesQueryName, () => assocEntity?.findByAttribute( query ));
+      _.set( item, assocEntity.typesQueryName, () => assocEntity.findByAttribute( query ));
     });
 
     _.set( item, 'save', async () => {
+      if( item.id === '') _.unset( item, 'id');
       const result = await entity.accessor.save( item );
       if( _.isArray( result ) ) throw new Error( JSON.stringify(result) );
       _.merge( item, result );

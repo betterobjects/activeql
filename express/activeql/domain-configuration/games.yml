@@ -18,8 +18,8 @@ entity:
       solution: Int!
     seeds:
       - name: Cat on Latin
-        playTime: 3000
-        level: 2
+        playTime: 30
+        level: 1
         question_de: Wie heißt Katze auf Lateinisch?
         question_en: What is the latin word for cat?
         options_de:
@@ -35,8 +35,8 @@ entity:
         solution: 1
 
       - name: Dog on Latin
-        playTime: 3000
-        level: 2
+        playTime: 30
+        level: 1
         question_de: Wie heißt Hund auf Lateinisch?
         question_en: What is the latin word for dog?
         options_de:
@@ -61,21 +61,21 @@ entity:
     seeds:
       - name: Capital Ghana
         level: 2
-        playTime: 4000
+        playTime: 40
         question_de: Was ist die Hauptstadt von Ghana?
         question_en: What is the capital of Ghana?
         solution_de: Accra
         solution_en: Accra
 
       - name: Capital Holland
-        level: 2
+        level: 3
         playTime: 4000
         question_de: Was ist die Hauptstadt von Holland?
         question_en: What is the capital of the Netherlands?
         solution_de: Den Haag
         solution_en: The Hague
 
-  MagGuessGame:
+  MapGuessGame:
     implements: Game
     attributes:
       task_de: String!
@@ -85,8 +85,8 @@ entity:
       solution_long: Float!
     seeds:
       - name: Brasilia on a Map
-        level: 4
-        playTime: 3000
+        level: 3
+        playTime: 30
         task_de: Setze den Pin auf die Position der Hauptstadt von Brasilien!
         task_en: Set the pin where the capital of Brasil is!
         mapUrl: https://my-bucket.s3.us-west-2.amazonaws.com/america.svg

@@ -42,22 +42,16 @@ export class MongoDbDataStore extends DataStore {
     return _.map( items, item => this.buildOutItem( item ) );
   }
 
-  async findByAttribute( entity:Entity[], attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
+  async findByAttribute( entity:Entity, attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
       _.set( attrValue, '_id', id );
     }
-    const result = [];
-    for( const e of entity ){
-      const items = await this.findByExpression( e, attrValue, sort );
-      result.push( ... _.map( items, item => _.set( item, '__typename', e.typeName ) ) );
-    }
-    return result;
+    return this.findByExpression( entity, attrValue, sort );
   }
 
-  async findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
-    if( _.isArray( entity ) ) return this.aggregateFind( entity, filter, sort, paging );
+  async findByFilter( entity:Entity, filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
     const expression = await this.buildExpressionFromFilter( entity, filter );
     return this.findByExpression( entity, expression, sort, paging );
   }

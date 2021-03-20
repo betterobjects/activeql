@@ -20,16 +20,22 @@ export class EntityAccessor extends EntityModule {
    */
   async findById( id:any ):Promise<any> {
     if( ! id ) throw new Error( `[${this.entity.name}].findById - no id provided` );
-    const item = await this.dataStore.findById( this.entity, id );
-    if( ! item ) throw new Error( `[${this.entity.name}] with id '${id}' does not exist`);
-    return item;
+    for( const entity of this.entity.getThisOrAllNestedEntities() ){
+      const item = await this.dataStore.findById( entity, id );
+      if( item ) return item;
+    }
+    throw new Error( `[${this.entity.name}] with id '${id}' does not exist`);
   }
 
   /**
    *
    */
   async findByIds( ids:any[] ):Promise<any[]> {
-    return this.dataStore.findByIds( this.entity, ids );
+    const result = [];
+    for( const entity of this.entity.getThisOrAllNestedEntities() ){
+      result.push( ... await this.dataStore.findByIds( entity, ids ) );
+    }
+    return result;
   }
 
   /**
@@ -37,7 +43,11 @@ export class EntityAccessor extends EntityModule {
    */
   async findByAttribute( attrValue:{[name:string]:any} ):Promise<any[]>{
     this.replaceAssocToItemWithForeignKey( attrValue );
-    return this.dataStore.findByAttribute( this.entity.getThisOrAllNestedEntities(), attrValue );
+    const result = [];
+    for( const entity of this.entity.getThisOrAllNestedEntities() ){
+      result.push( ... await this.dataStore.findByAttribute( entity, attrValue ) );
+    }
+    return result;
   }
 
   /**
@@ -45,10 +55,11 @@ export class EntityAccessor extends EntityModule {
    * @param filter as it comes from the graphql request
    */
   async findByFilter( filter:any, sort?:Sort, paging?:Paging ):Promise<any[]> {
-    const items = this.entity.isPolymorph ?
-      await this.dataStore.findByFilter( this.entity.getThisOrAllNestedEntities(), filter, sort, paging ) :
-      await this.dataStore.findByFilter( this.entity, filter, sort, paging );
-    return items;
+    const result = [];
+    for( const entity of this.entity.getThisOrAllNestedEntities() ){
+      result.push( ... await this.dataStore.findByFilter( entity, filter, sort, paging ) );
+    }
+    return result;
   }
 
   /**
@@ -63,10 +74,7 @@ export class EntityAccessor extends EntityModule {
       const validationViolations = await this.entity.validate( attributes );
       if( _.size( validationViolations ) ) return validationViolations;
     }
-    const item = _.has( attributes, 'id') ?
-      await this.update( attributes ) :
-      await this.create( attributes );
-    return item;
+    return _.has( attributes, 'id') ? this.update( attributes ) : this.create( attributes );
   }
 
   /**

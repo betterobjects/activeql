@@ -1,4 +1,5 @@
-import { GeneratedTypeDecorator, ActiveQLServer, Entity, ValidationViolation } from "activeql-server";
+import { TypesGenerator, ActiveQLServer, Entity, ValidationViolation } from "activeql-server";
+import _ from "lodash";
 
 export enum FlightStatus {
   OPEN = "open",
@@ -9,7 +10,15 @@ export enum Locale {
   EN = "en",
   DE = "de",
 }
+export enum SubmitionResult {
+  CORRECT = "correct",
+  INCORRECT = "incorrect",
+  DISTANCE = "distance",
+  LATE = "late",
+  REPEATED = "repeated",
+}
 export class Contestant {
+  readonly __typename:string = 'Contestant';
   id:string = '';
   alive: boolean = false;
   playerId: string = '';
@@ -17,43 +26,53 @@ export class Contestant {
   flightId: string = '';
   flight: () => Promise<Flight> = () => {throw 'will be decorated'};
 
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('Contestant');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
+
   static async findById( id:string):Promise<Contestant>{
     const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
     const item:Contestant = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<Contestant[]>{
     const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
     const items:Contestant[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<Contestant[]>{
     const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
     const items:Contestant[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Contestant[]>{
     const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
     const items:Contestant[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Contestant>{
     const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
     const item:Contestant = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<Contestant|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('Contestant') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<Contestant|ValidationViolation[]> {
+  async save():Promise<Contestant> {
     throw 'will be decorated';
   }
 
@@ -64,6 +83,7 @@ export class Contestant {
 }
 
 export class Flight {
+  readonly __typename:string = 'Flight';
   id:string = '';
   status: FlightStatus = FlightStatus.OPEN;
   locale: Locale = Locale.EN;
@@ -72,43 +92,53 @@ export class Flight {
   rounds: () => Promise<Round[]> = () => {throw 'will be decorated'};
   contestants: () => Promise<Contestant[]> = () => {throw 'will be decorated'};
 
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('Flight');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
+
   static async findById( id:string):Promise<Flight>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
     const item:Flight = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<Flight[]>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
     const items:Flight[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<Flight[]>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
     const items:Flight[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Flight[]>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
     const items:Flight[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Flight>{
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
     const item:Flight = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<Flight|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('Flight') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<Flight|ValidationViolation[]> {
+  async save():Promise<Flight> {
     throw 'will be decorated';
   }
 
@@ -119,48 +149,59 @@ export class Flight {
 }
 
 export class Game {
+  readonly __typename:string = 'Game';
   id:string = '';
   name: string = '';
   playTime: number = 0;
   level: number = 0;
 
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('Game');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
+
   static async findById( id:string):Promise<Game>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
     const item:Game = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<Game[]>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
     const items:Game[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<Game[]>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
     const items:Game[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Game[]>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
     const items:Game[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Game>{
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
     const item:Game = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<Game|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('Game') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<Game|ValidationViolation[]> {
+  async save():Promise<Game> {
     throw 'will be decorated';
   }
 
@@ -171,6 +212,7 @@ export class Game {
 }
 
 export class OneOfNGame {
+  readonly __typename:string = 'OneOfNGame';
   id:string = '';
   name: string = '';
   playTime: number = 0;
@@ -181,43 +223,53 @@ export class OneOfNGame {
   options_en: string[] = [];
   solution: number = 0;
 
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('OneOfNGame');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
+
   static async findById( id:string):Promise<OneOfNGame>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
     const item:OneOfNGame = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<OneOfNGame[]>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
     const items:OneOfNGame[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<OneOfNGame[]>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
     const items:OneOfNGame[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<OneOfNGame[]>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
     const items:OneOfNGame[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<OneOfNGame>{
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
     const item:OneOfNGame = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<OneOfNGame|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('OneOfNGame') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<OneOfNGame|ValidationViolation[]> {
+  async save():Promise<OneOfNGame> {
     throw 'will be decorated';
   }
 
@@ -228,6 +280,7 @@ export class OneOfNGame {
 }
 
 export class AnswerTextGame {
+  readonly __typename:string = 'AnswerTextGame';
   id:string = '';
   name: string = '';
   playTime: number = 0;
@@ -237,43 +290,53 @@ export class AnswerTextGame {
   solution_de: string = '';
   solution_en: string = '';
 
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('AnswerTextGame');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
+
   static async findById( id:string):Promise<AnswerTextGame>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
     const item:AnswerTextGame = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<AnswerTextGame[]>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
     const items:AnswerTextGame[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<AnswerTextGame[]>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
     const items:AnswerTextGame[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<AnswerTextGame[]>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
     const items:AnswerTextGame[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<AnswerTextGame>{
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
     const item:AnswerTextGame = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<AnswerTextGame|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('AnswerTextGame') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<AnswerTextGame|ValidationViolation[]> {
+  async save():Promise<AnswerTextGame> {
     throw 'will be decorated';
   }
 
@@ -283,7 +346,8 @@ export class AnswerTextGame {
   }
 }
 
-export class MagGuessGame {
+export class MapGuessGame {
+  readonly __typename:string = 'MapGuessGame';
   id:string = '';
   name: string = '';
   playTime: number = 0;
@@ -294,204 +358,182 @@ export class MagGuessGame {
   solution_lat: number = 0;
   solution_long: number = 0;
 
-  static async findById( id:string):Promise<MagGuessGame>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const item:MagGuessGame = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('MapGuessGame');
+    TypesGenerator.decorateItems( entity, this );
   }
 
-  static async findByIds( ids:string[] ):Promise<MagGuessGame[]>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const items:MagGuessGame[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+
+  static async findById( id:string):Promise<MapGuessGame>{
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
+    const item:MapGuessGame = await entity.findById( id );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  static async findByFilter( query:any ):Promise<MagGuessGame[]>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const items:MagGuessGame[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  static async findByIds( ids:string[] ):Promise<MapGuessGame[]>{
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
+    const items:MapGuessGame[] = await entity.findByIds( ids );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
-  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<MagGuessGame[]>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const items:MagGuessGame[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  static async findByFilter( query:any ):Promise<MapGuessGame[]>{
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
+    const items:MapGuessGame[] = await entity.accessor.findByFilter( query );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
-  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<MagGuessGame>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
-    const item:MagGuessGame = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<MapGuessGame[]>{
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
+    const items:MapGuessGame[] = await entity.findByAttribute( attrValue );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
-  static async save( item:any ):Promise<MagGuessGame|ValidationViolation[]>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<MapGuessGame>{
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
+    const item:MapGuessGame = await entity.findOneByAttribute( attrValue );
+    return TypesGenerator.decorateItems( entity, item );
+  }
+
+  static async save( item:any ):Promise<MapGuessGame|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<MagGuessGame|ValidationViolation[]> {
+  async save():Promise<MapGuessGame> {
     throw 'will be decorated';
   }
 
   static async delete( id:string ):Promise<boolean>{
-    const entity = ActiveQLServer.runtime?.entity('MagGuessGame') as Entity;
+    const entity = ActiveQLServer.runtime?.entity('MapGuessGame') as Entity;
     return entity.accessor.delete( id );
   }
 }
 
 export class Player {
+  readonly __typename:string = 'Player';
   id:string = '';
   name: string = '';
   locale: Locale = Locale.EN;
 
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('Player');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
+
   static async findById( id:string):Promise<Player>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     const item:Player = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<Player[]>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     const items:Player[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<Player[]>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     const items:Player[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Player[]>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     const items:Player[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Player>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     const item:Player = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<Player|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<Player|ValidationViolation[]> {
+  async save():Promise<Player> {
     throw 'will be decorated';
   }
 
   static async delete( id:string ):Promise<boolean>{
     const entity = ActiveQLServer.runtime?.entity('Player') as Entity;
-    return entity.accessor.delete( id );
-  }
-}
-
-export class RoundResult {
-  id:string = '';
-  solutionTime: number = 0;
-  alive: boolean = false;
-  position: number = 0;
-  solutionSubmitionId: string = '';
-  solutionSubmition: () => Promise<SolutionSubmition> = () => {throw 'will be decorated'};
-
-  static async findById( id:string):Promise<RoundResult>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const item:RoundResult = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
-  }
-
-  static async findByIds( ids:string[] ):Promise<RoundResult[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
-  }
-
-  static async findByFilter( query:any ):Promise<RoundResult[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
-  }
-
-  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const items:RoundResult[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
-  }
-
-  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<RoundResult>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    const item:RoundResult = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
-  }
-
-  static async save( item:any ):Promise<RoundResult|ValidationViolation[]>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
-    item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
-  }
-
-  async save():Promise<RoundResult|ValidationViolation[]> {
-    throw 'will be decorated';
-  }
-
-  static async delete( id:string ):Promise<boolean>{
-    const entity = ActiveQLServer.runtime?.entity('RoundResult') as Entity;
     return entity.accessor.delete( id );
   }
 }
 
 export class Round {
+  readonly __typename:string = 'Round';
   id:string = '';
-  start: Date = new Date();
   level: number = 0;
-  closed: boolean = false;
+  closed?: boolean;
   gameId: string = '';
   game: () => Promise<Game> = () => {throw 'will be decorated'};
   flightId: string = '';
   flight: () => Promise<Flight> = () => {throw 'will be decorated'};
+  submitions: () => Promise<Submition[]> = () => {throw 'will be decorated'};
+
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('Round');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
 
   static async findById( id:string):Promise<Round>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
     const item:Round = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<Round[]>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
     const items:Round[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<Round[]>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
     const items:Round[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Round[]>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
     const items:Round[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Round>{
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
     const item:Round = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<Round|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('Round') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<Round|ValidationViolation[]> {
+  async save():Promise<Round> {
     throw 'will be decorated';
   }
 
@@ -501,103 +543,125 @@ export class Round {
   }
 }
 
-export class SolutionSubmition {
+export class Submition {
+  readonly __typename:string = 'Submition';
   id:string = '';
-  solution: any = {};
+  answer: any = {};
+  result: SubmitionResult = SubmitionResult.CORRECT;
+  distance?: number;
   roundId: string = '';
   round: () => Promise<Round> = () => {throw 'will be decorated'};
   contestantId: string = '';
   contestant: () => Promise<Contestant> = () => {throw 'will be decorated'};
 
-  static async findById( id:string):Promise<SolutionSubmition>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
-    const item:SolutionSubmition = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('Submition');
+    TypesGenerator.decorateItems( entity, this );
   }
 
-  static async findByIds( ids:string[] ):Promise<SolutionSubmition[]>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
-    const items:SolutionSubmition[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+
+  static async findById( id:string):Promise<Submition>{
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
+    const item:Submition = await entity.findById( id );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  static async findByFilter( query:any ):Promise<SolutionSubmition[]>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
-    const items:SolutionSubmition[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  static async findByIds( ids:string[] ):Promise<Submition[]>{
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
+    const items:Submition[] = await entity.findByIds( ids );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
-  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<SolutionSubmition[]>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
-    const items:SolutionSubmition[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+  static async findByFilter( query:any ):Promise<Submition[]>{
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
+    const items:Submition[] = await entity.accessor.findByFilter( query );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
-  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<SolutionSubmition>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
-    const item:SolutionSubmition = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+  static async findByAttribute( attrValue:{[name:string]:any} ):Promise<Submition[]>{
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
+    const items:Submition[] = await entity.findByAttribute( attrValue );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
-  static async save( item:any ):Promise<SolutionSubmition|ValidationViolation[]>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+  static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<Submition>{
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
+    const item:Submition = await entity.findOneByAttribute( attrValue );
+    return TypesGenerator.decorateItems( entity, item );
+  }
+
+  static async save( item:any ):Promise<Submition|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<SolutionSubmition|ValidationViolation[]> {
+  async save():Promise<Submition> {
     throw 'will be decorated';
   }
 
   static async delete( id:string ):Promise<boolean>{
-    const entity = ActiveQLServer.runtime?.entity('SolutionSubmition') as Entity;
+    const entity = ActiveQLServer.runtime?.entity('Submition') as Entity;
     return entity.accessor.delete( id );
   }
 }
 
 export class User {
+  readonly __typename:string = 'User';
   id:string = '';
-  username: string = '';
-  roles: string[] = [];
-  password: string = '';
+  seeds?: string;
+
+  constructor( item?:any ){
+    if( ! item ) return;
+    _.merge( this, item);
+    const entity = ActiveQLServer.runtime.entity('User');
+    TypesGenerator.decorateItems( entity, this );
+  }
+
 
   static async findById( id:string):Promise<User>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
     const item:User = await entity.findById( id );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async findByIds( ids:string[] ):Promise<User[]>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
     const items:User[] = await entity.findByIds( ids );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByFilter( query:any ):Promise<User[]>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
     const items:User[] = await entity.accessor.findByFilter( query );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findByAttribute( attrValue:{[name:string]:any} ):Promise<User[]>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
     const items:User[] = await entity.findByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, items );
+    return TypesGenerator.decorateItems( entity, items );
   }
 
   static async findOneByAttribute( attrValue:{[name:string]:any} ):Promise<User>{
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
     const item:User = await entity.findOneByAttribute( attrValue );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    return TypesGenerator.decorateItems( entity, item );
   }
 
   static async save( item:any ):Promise<User|ValidationViolation[]>{
+    if( item.id === '') _.unset( item, 'id');
     const entity = ActiveQLServer.runtime?.entity('User') as Entity;
     item = await entity.accessor.save( item );
-    return GeneratedTypeDecorator.decorateAssocs( entity, item );
+    if( Array.isArray(item) ) return item;
+    return TypesGenerator.decorateItems( entity, item );
   }
 
-  async save():Promise<User|ValidationViolation[]> {
+  async save():Promise<User> {
     throw 'will be decorated';
   }
 

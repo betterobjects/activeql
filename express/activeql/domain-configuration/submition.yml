@@ -1,0 +1,18 @@
+enum:
+  SubmitionResult:
+    - correct
+    - incorrect
+    - distance
+    - late
+    - repeated
+
+entity:
+  Submition:
+    typeOnly: true
+    attributes:
+      answer: JSON!
+      result: SubmitionResult!
+      distance: Int
+    assocTo:
+      - Round!
+      - Contestant!

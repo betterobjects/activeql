@@ -1,7 +1,0 @@
-entity:
-  SolutionSubmition:
-    attributes:
-      solution: JSON!
-    assocTo:
-      - Round!
-      - Contestant!

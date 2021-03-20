@@ -1,11 +1,10 @@
 entity:
   Round:
-    typeOnly: true
     attributes:
-      start: DateTime!
       level: Int!
-      closed: Boolean!
+      closed: Boolean
     assocTo:
       - Game!
       - Flight!
+    assocFrom: Submition
 

@@ -1,4 +1,4 @@
-import _, { first, result } from 'lodash';
+import _ from 'lodash';
 import Nedb from 'nedb';
 import path, { resolve } from 'path';
 
@@ -29,7 +29,7 @@ export class NedbDataStore extends DataStore {
     return new Promise( (resolve, reject) => {
       collection.findOne({ _id: id }, (error:any, item:any) => {
         if( error ) return reject( error );
-        resolve( this.buildOutItem( item ) );
+        resolve( this.buildOutItem( item, entity ) );
       })
     });
   }
@@ -39,39 +39,24 @@ export class NedbDataStore extends DataStore {
     return new Promise( (resolve, reject) => {
       collection.find({ _id: { $in: ids }}, (error:any, items:any) => {
         if( error ) return reject( error );
-        resolve( _.map( items, item => this.buildOutItem( item ) ) );
+        resolve( _.map( items, item => this.buildOutItem( item, entity ) ) );
       })
     });
   }
 
-  async findByAttribute( entity:Entity[], attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
+  async findByAttribute( entity:Entity, attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
       _.set( attrValue, '_id', id );
     }
-    const result = [];
-    for( const e of entity ){
-      const items = await this.findByExpression( e, attrValue, sort );
-      result.push( ... _.map( items, item => _.set( item, '__typename', e.typeName ) ) );
-    }
-    return result;
+    return this.findByExpression( entity, attrValue, sort );
   }
 
-  async findByFilter( entity:Entity|Entity[], filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
-    if( _.isArray( entity ) ) {
-      const result:any[] = [];
-      for( const e of entity ){
-        const items = await this.findByFilter( e, filter, sort, paging );
-        result.push( ... _.map( items, item => _.set( item, '__typename', e.typeName ) ) );
-      }
-      return result;
-    }
+  async findByFilter( entity:Entity, filter:any|any[], sort?:Sort, paging?:Paging ):Promise<any[]> {
     const expression = await this.buildExpressionFromFilter( entity, filter );
     return this.findByExpression( entity, expression, sort, paging );
   }
-
-
 
   async create( entity:Entity, attrs:any ):Promise<any> {
     const collection = this.getCollection( entity );
@@ -79,7 +64,7 @@ export class NedbDataStore extends DataStore {
     return new Promise((resolve, reject) => {
       collection.insert( attrs, (error:any, item:any) => {
         if( error ) return reject( error );
-        resolve( this.buildOutItem( item ) );
+        resolve( this.buildOutItem( item, entity ) );
       });
     });
   }
@@ -171,7 +156,7 @@ export class NedbDataStore extends DataStore {
     return new Promise( (resolve, reject) => {
       collection.find( expression ).sort( sortStage ).skip( sl.skip ).limit( sl.limit ).exec( (error, items) =>{
         if( error ) return reject( error );
-        resolve( _.map( items, item => this.buildOutItem( item ) ) );
+        resolve( _.map( items, item => this.buildOutItem( item, entity ) ) );
       });
     });
   }
@@ -184,11 +169,12 @@ export class NedbDataStore extends DataStore {
     return this.collections[entity.collection];
   }
 
-  protected buildOutItem( entity:any ):any {
-    if( ! _.has( entity, '_id' ) ) return null;
-    _.set( entity, 'id', entity._id );
-    _.unset( entity, '_id' );
-    return entity;
+  protected buildOutItem( item:any, entity:Entity ):any {
+    if( ! _.has( item, '_id' ) ) return null;
+    _.set( item, 'id', item._id );
+    _.unset( item, '_id' );
+    _.set( item, '__typename', entity.typeName );
+    return item;
 	}
 
   protected async collectionExist( name:string ):Promise<boolean> {
