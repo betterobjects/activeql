@@ -1,6 +1,5 @@
 import { ActiveQLServer, DomainConfiguration, DomainDefinition, Runtime } from 'activeql-server';
 import _ from 'lodash';
-import { withFilter } from 'apollo-server-express';
 
 import {
   AnswerTextGame,
@@ -142,7 +141,7 @@ const publishNextRound = async ( flight:Flight, nextRound:Round, lastRound?:Roun
     const result = await getRoundResult( lastRound, contestant );
     _.set( results, contestant.id, result );
   }
-  const aliveContestants = _.countBy( results, result => result.alive );
+  const aliveContestants = _.size( _.filter( results, result => result.alive ) );
   _.forEach( contestants, contestant => {
     const lastRoundResult = _.get( results, contestant.id);
     if( lastRoundResult ) lastRoundResult.liveContestants = aliveContestants;
@@ -195,7 +194,7 @@ const isDoubleAnswer = async (contestantId:string, roundId:string) => {
 
 // checks if all alive contestants of a flight submitted a solution for this round and ends the round then
 const endRoundIfLastSubmition = async ( round:Round ) => {
-  const aliveContestants = await Contestant.findByAttribute({alive: true});
+  const aliveContestants = await Contestant.findByAttribute({ flightId: round.flightId, alive: true});
   const Submitions = await Submition.findByAttribute( { round } );
   if ( _.size( Submitions ) < _.size( aliveContestants ) ) return;
   setTimeout(() => endRound( round ), GRACE_TIME_AFTER_LAST_SUBMITION );
@@ -251,8 +250,8 @@ const evaluateSubmitionResultAnswerTextGame = ( game:AnswerTextGame, answer:any 
   return answer.solution === correctSolution ? SubmitionResult.CORRECT : SubmitionResult.INCORRECT;
 }
 
-const evaluateSubmitionResultMapGuessGame = (game:MapGuessGame, submition:any ) => {
-  return getDistanceFromLatLonInKm( game.solution_lat, game.solution_long, submition.lat, submition.long );
+const evaluateSubmitionResultMapGuessGame = (game:MapGuessGame, answer:any ) => {
+  return getDistanceFromLatLonInKm( game.solution_lat, game.solution_long, answer.lat, answer.long );
 }
 
 const getDistanceFromLatLonInKm = (lat1:number,lon1:number,lat2:number,lon2:number) => {

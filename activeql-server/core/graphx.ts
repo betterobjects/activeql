@@ -111,7 +111,8 @@ export class GraphX {
         ping: {
           type: GraphQLString,
           subscribe: () => {
-            if( ! pingTimeout ) pingTimeout = setInterval( () => runtime.pubsub.publish('pong', _.toString(new Date()) ), 2000 );
+            if( ! pingTimeout ) pingTimeout = setInterval( () =>
+              runtime.pubsub.publish('pong', _.toString(new Date()) ), 2000 );
             return runtime.pubsub.asyncIterator( 'pong' );
           },
           resolve: (payload:any) => payload

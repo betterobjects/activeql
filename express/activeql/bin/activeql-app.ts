@@ -5,7 +5,7 @@ import express from 'express';
 import { domainConfiguration } from '../domain-configuration';
 import { addJwtLogin, useJwtLogin } from '../impl/jwt-login';
 import { addPrincipalFromHeader } from '../impl/principal-from-header';
-import { addArena } from '../impl/arena';
+import { addArena } from '../impl/arena.server';
 
 
 /* some default values */

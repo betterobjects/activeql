@@ -1,5 +1,20 @@
-entity:
+type:
+  OneOfNGameAnswer:
+    fields:
+      solution: Int!
 
+  AnswerTextGameAnswer:
+    fields:
+      solution: String!
+      locale: String!
+
+  MapGuessGameAnswer:
+    fields:
+      lat: Float!
+      long: Float!
+
+
+entity:
   Game:
     interface: true
     attributes:
@@ -85,7 +100,7 @@ entity:
       solution_long: Float!
     seeds:
       - name: Brasilia on a Map
-        level: 3
+        level: 4
         playTime: 30
         task_de: Setze den Pin auf die Position der Hauptstadt von Brasilien!
         task_en: Set the pin where the capital of Brasil is!
