@@ -19,3 +19,8 @@ sleep 2
 
 cp $ROOT/../activeql-starter/express/package.json $ROOT/../activeql-generator/starter-template/express/package.json
 cp $ROOT/../activeql-starter/express/package-lock.json $ROOT/../activeql-generator/starter-template/express/package-lock.json
+
+sleep 2
+
+cd $ROOT/../iq-arena/express
+npm i activeql-server@$VERSION

@@ -1,5 +1,6 @@
 import { ActiveQLServer, DomainConfiguration, DomainDefinition, Runtime } from 'activeql-server';
 import _ from 'lodash';
+import { withFilter } from 'apollo-server-express';
 
 import {
   AnswerTextGame,
@@ -30,8 +31,8 @@ const domainConfiguration:DomainConfiguration = {
     submitAnswer: () => ({
       type: 'SubmitionResponse',
       args: {
-        contestantId: 'String!',
-        roundId: 'String!',
+        contestantId: 'ID!',
+        roundId: 'ID!',
         answer: 'JSON!'
       },
       resolve: (root:any, { contestantId, roundId, answer}) => submitAnswer( contestantId, roundId, answer )
@@ -65,13 +66,12 @@ const domainConfiguration:DomainConfiguration = {
 		flight: (rt:Runtime) => ({
       type: 'ContestantSubscriptionData',
       args: { contestantId: 'ID!' },
-      subscribe: (root:any, { contestantId }) =>
-        rt.pubsub.asyncIterator( `flight-for-contestant-${contestantId}` )
+      subscribe: (root:any, { contestantId }) => rt.pubsub.asyncIterator( `flight-for-contestant-${contestantId}` )
     })
 	}
 }
 
-const GRACE_TIME_TO_START = 6 * 1000;
+const GRACE_TIME_TO_START = 2 * 1000;
 const GRACE_TIME_AFTER_LAST_SUBMITION = 3 * 1000;
 const MAX_TIME_TO_START = 200 * 1000;
 const PLAYER_TO_START = 1;
