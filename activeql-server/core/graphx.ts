@@ -54,6 +54,8 @@ export const scalarTypes:{[scalar:string]:GraphQLScalarType} = {
   Boolean: GraphQLBoolean
 }
 
+let pingTimeout:NodeJS.Timeout;
+
 //
 //
 export class GraphX {
@@ -99,7 +101,7 @@ export class GraphX {
     });
   }
 
-/**
+  /**
    *
    */
   private createSubscriptionType( runtime:Runtime ):void {
@@ -108,7 +110,10 @@ export class GraphX {
       fields: () => ({
         ping: {
           type: GraphQLString,
-          subscribe: runtime.pubsub.asyncIterator( 'pong' ),
+          subscribe: () => {
+            if( ! pingTimeout ) pingTimeout = setInterval( () => runtime.pubsub.publish('pong', _.toString(new Date()) ), 2000 );
+            return runtime.pubsub.asyncIterator( 'pong' );
+          },
           resolve: (payload:any) => payload
         }
       })
