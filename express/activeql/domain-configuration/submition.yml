@@ -5,6 +5,7 @@ enum:
     - distance
     - late
     - repeated
+    - zombie
 
 entity:
   Submition:
