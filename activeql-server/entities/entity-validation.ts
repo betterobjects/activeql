@@ -48,7 +48,7 @@ export class EntityValidation  {
     const id = _.get( item, 'id' );
     if( ! id ) return item;
     const current = await this.entity.findById( id );
-    return _.defaultsDeep( _.cloneDeep(item), current.item );
+    return _.defaultsDeep( _.cloneDeep(item), current );
   }
 
   /**
