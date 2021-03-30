@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { ActiveQLServer } from '../activeql-server';
-import { AssocFromType, AssocToManyType, AssocToType, AttributeType } from '../core/domain-configuration';
+import { AssocFromType, AssocToManyType, AssocToType, AttributeType, TypeType } from '../core/domain-configuration';
 import { Runtime } from '../core/runtime';
 import { Entity } from '../entities/entity';
 
@@ -19,6 +19,9 @@ export class TypesGenerator {
 
     _.forEach( this.runtime.enums, enumName => this.addEnum( enumName ) );
     _.forEach( this.runtime.entities, (entity, name) => this.addThisEntity( name, entity) );
+    _.forEach( this.runtime.domainDefinition.getResolvedConfiguration().type, (aType, name) => {
+      this.addType( name, aType );
+    });
     return _.join( this.result, '\n' );
   }
 
@@ -28,6 +31,13 @@ export class TypesGenerator {
     this.result.push( `export enum ${enumName} {`  );
     _.forEach( config, (value, name) => this.result.push( `  ${name} = "${value}",`) );
     this.result.push( `}` );
+  }
+
+  private addType( name:string, aType:TypeType ){
+    this.result.push( `export class ${name} {`  );
+    _.forEach( aType.fields, (attribute, attributeName) => this.addAttribute( attributeName, attribute ));
+    this.result.push( `}`  );
+    this.result.push( ``  );
   }
 
   private addThisEntity( name:string, entity:Entity ){
