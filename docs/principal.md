@@ -168,7 +168,7 @@ mutation {
 }
 ```
 
-The client would probably store this token in a session context or similar to use it in later requests. Let's assume the client wants to get a list of all user items. The token must be provided as http Authorization header. In the GraphQL playground you find the section "HTTP HEADERS" in the lower left corner of the window where you could enter the token.
+The client would probably store this token in a session context or similar to use it in later requests. Let's assume the client wants to get a list of all user items. The token must be provided as http Authorization header. In the GraphQL playground you find the section "HTTP HEADERS" in the lower left corner of the window where you could enter the token. Observe the correct format `Bearer xxxx` as the header value.
 
 *request*
 ```graphql
@@ -178,7 +178,7 @@ query {
 ```
 ```json
 {
-  "Authorization": "$2a$10$h2lh8L0bblS4JYIFqbBIXOHwMGuQLnltY4MlPo19J7U4SXPEhFXCu"
+  "Authorization": "Bearer $2a$10$h2lh8L0bblS4JYIFqbBIXOHwMGuQLnltY4MlPo19J7U4SXPEhFXCu"
 }
 ```
 
