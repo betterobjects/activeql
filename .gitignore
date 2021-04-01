@@ -1,5 +1,7 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+**/*/test
+
 # keep them clean in the repo
 /express/domain-configuration/*
 /express/uploads/*
