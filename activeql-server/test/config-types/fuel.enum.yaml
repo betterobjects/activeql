@@ -1,6 +1,0 @@
-enum:
-  Fuel:
-    DIESEL: diesel
-    GAS: gas
-    HYBRID: hybrid
-    E: electro
