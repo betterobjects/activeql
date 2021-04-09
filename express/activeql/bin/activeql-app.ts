@@ -23,7 +23,7 @@ domainDefinition.add( domainConfiguration );
 
 /* add custom code */
 // addPrincipalFromHeader( domainDefinition );
-addJwtLogin( domainDefinition );
+// addJwtLogin( domainDefinition );
 
 /* another datastore implementation */
 // const dataStore = () => MongoDbDataStore.create({ url: MONGODB_URL, dbName: MONGODB_DBNAME });
