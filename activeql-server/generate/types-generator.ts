@@ -5,6 +5,7 @@ import { AssocFromType, AssocToManyType, AssocToType, AttributeType, TypeType } 
 import { Runtime } from '../core/runtime';
 import { Entity } from '../entities/entity';
 
+// generate typed classes to programmatically use entities and types
 export class TypesGenerator {
 
   private result:string[] = [];
@@ -189,8 +190,8 @@ export class TypesGenerator {
 
   private addAssocTo( assocTo:AssocToType ){
     const entity = this.runtime.entity( assocTo.type );
-    const mayBeUndefined = assocTo.required ? '' : '?';
-    this.result.push(`  ${entity.foreignKey}${mayBeUndefined}: string${mayBeUndefined ? '' : " = ''"};` );
+    const mayBeUndefined = assocTo.required ? '' : '|undefined';
+    this.result.push(`  ${entity.foreignKey}: string${assocTo.required ? " = ''" : mayBeUndefined };` );
     this.result.push(`  ${entity.typeQueryName}: () => Promise<${assocTo.type}${mayBeUndefined}> = () => {throw 'will be decorated'};`);
   }
 

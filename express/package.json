@@ -10,9 +10,10 @@
     "server": "./node_modules/.bin/ts-node-dev -P ./tsconfig.json --no-notify --inspect --watch ./activeql -- ./app.ts",
     "client": "cd ../angular; ng serve",
     "seed": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/seed.ts",
-    "generate": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.ts",
-    "uml": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.ts uml",
-    "types": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.ts types",
+    "types": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.types.ts",
+    "uml": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/bin/generate.uml.ts",
+    "generate": "npm run types; npm run uml",
+    "arena": "./node_modules/.bin/ts-node -P ./tsconfig.json -- ./activeql/impl/arena.client.ts",
     "test": "jest --watch --detectOpenHandles"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "dotenv": "^8.2.0",
     "es6-template-strings": "^2.0.1",
     "express-jwt": "^6.0.0",
+    "graphql-subscriptions-client": "^0.16.0",
     "faker": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",

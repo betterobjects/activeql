@@ -43,7 +43,7 @@ export class IdFilterType extends AttributeFilterType {
       case 'isNot': return { $ne : operand };
       case 'isIn': return { $in : operand };
       case 'notIn': return { $nin : operand };
-      case 'exist': return operand === false ? { $eq: null } : { $ne: null };
+      case 'exist': return { $exists: operand };
     }
     console.warn(`IDFilter unknown operator '${operator}' `);
   }

@@ -24,13 +24,13 @@ export class IdFilterType extends AttributeFilterType {
     if( _.isString( condition) ) condition = _.set( {}, 'is', condition );
     if( _.isArray( condition ) ) condition = _.set( {}, 'isIn', condition );
     const e = this.getFilterExpression( condition, field );
-    if( ! e ) return;
+    if( _.isUndefined( e ) ) return;
     _.set( expression, field, e );
   } 
 
   getFilterExpression( condition:any, field:string ):any {
     if( _.has( condition, 'is' ) ) return _.get( condition, 'is' );
-    if( _.has( condition, 'exist' ) ) return _.get( condition, 'exist' ) ? { $e: null } : null;
+    if( _.isArray( condition ) ) condition = _.set( {}, 'isIn', condition );
     return _.merge( {}, ... _.compact( _.map( condition, (operand, operator) =>
       this.getOperation( operator, operand, field ) ) ) );
   }
@@ -44,6 +44,7 @@ export class IdFilterType extends AttributeFilterType {
       case 'isNot': return { $ne : operand };
       case 'isIn': return { $in : operand };
       case 'notIn': return { $nin : operand };
+      case 'exist': return { $exists: operand };
     }
     console.warn(`IDFilter unknown operator '${operator}' `);
   }
