@@ -32,21 +32,21 @@ export class MongoDbDataStore extends DataStore {
     if( ! (id instanceof ObjectId) ) id = this.getObjectId( id, entity );
     const collection = this.getCollection( entity );
     const item = await collection.findOne( id );
-    return this.buildOutItem( item );
+    return this.buildOutItem( item, entity );
   }
 
   async findByIds( entity:Entity, ids:(ObjectId|string)[] ):Promise<any> {
     ids = _.map( ids, id => this.getObjectId( id, entity ) );
     const collection = this.getCollection( entity );
     const items = await collection.find( {_id: { $in: ids }} ).toArray();
-    return _.map( items, item => this.buildOutItem( item ) );
+    return _.map( items, item => this.buildOutItem( item, entity ) );
   }
 
   async findByAttribute( entity:Entity, attrValue:{[name:string]:any}, sort?:Sort ):Promise<any[]> {
     const id = _.get(attrValue, 'id' );
     if( id  ) {
       _.unset( attrValue, 'id' );
-      _.set( attrValue, '_id', id );
+      _.set( attrValue, '_id', this.getObjectId( id, entity ) );
     }
     return this.findByExpression( entity, attrValue, sort );
   }
@@ -183,18 +183,19 @@ export class MongoDbDataStore extends DataStore {
     const sortStage = this.getSort( sort );
     const sl = this.getSkipLimit( paging );
     const items = await collection.find( expression ).sort( sortStage ).skip( sl.skip ).limit( sl.limit ).toArray();
-    return _.map( items, item => this.buildOutItem( item ) );
+    return _.map( items, item => this.buildOutItem( item, entity ) );
   }
 
   protected getCollection( entity:Entity ):Collection {
     return this.db.collection( entity.collection  );
   }
 
-  protected buildOutItem( entity:any ):any {
-    if( ! _.has( entity, '_id' ) ) return null;
-    _.set( entity, 'id', entity._id );
-    _.unset( entity, '_id' );
-    return entity;
+  protected buildOutItem( item:any, entity?:Entity ):any {
+    if( ! _.has( item, '_id' ) ) return null;
+    _.set( item, 'id', _.toString(item._id) );
+    _.unset( item, '_id' );
+    if( entity ) _.set( item, '__typename', entity.typeName );
+    return item;
 	}
 
   protected async collectionExist( name:string ):Promise<boolean> {
