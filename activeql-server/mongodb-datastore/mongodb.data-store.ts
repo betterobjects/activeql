@@ -154,19 +154,23 @@ export class MongoDbDataStore extends DataStore {
   // dont like the implementation but ran out if ideas
   async itemMatchesExpression( item:any, expression:any ):Promise<boolean> {
     const session = this.client.startSession();
+    let value = false;
     try {
       session.withTransaction( async () => {
         const collection = this.db.collection('__itemMatchesExpression');
         const result = await collection.insertOne( item, { session } );
         const found = await collection.findOneAndDelete(
           { $and: [ { _id: result.insertedId }, expression ]}, { session } );
-        if( found ) return true;
+        if( found ) {
+          value = true;
+          return;
+        }
         await collection.deleteOne( { _id : result.insertedId }, { session } );
       });
     } finally {
       session.endSession();
     }
-    return false;
+    return value;
   }
 
   protected getObjectId( id:any, entity:Entity ):ObjectId {

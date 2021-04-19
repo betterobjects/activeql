@@ -196,6 +196,7 @@ export type SubscriptionConfig = string|{
   type: any
   args?:{[name:string]:string | QueryMutationArgConfig }
   subscribe?: string|((root:any, args:any, context:any ) => any)
+  filter?:(payload:any, variables:any) => boolean
   resolve?: (payload:any ) => any
 }
 

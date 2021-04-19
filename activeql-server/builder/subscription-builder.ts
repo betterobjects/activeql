@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import { SubscriptionConfig } from '../core/domain-configuration';
 import { SchemaBuilder } from './schema-builder';
+import { withFilter } from 'apollo-server';
 
 export abstract class SubscriptionBuilder extends SchemaBuilder {
 
@@ -18,6 +19,7 @@ export abstract class SubscriptionBuilder extends SchemaBuilder {
         const topic = subscription.subscribe;
         subscription.subscribe = () => this.runtime.pubsub.asyncIterator( topic )  ;
       }
+      if( _.isFunction( subscription.filter) ) subscription.subscribe = withFilter( subscription.subscribe, subscription.filter );
       if( ! _.isFunction( subscription.resolve) ) subscription.resolve = (payload:any) => payload;
       return _.set( {}, this.name(), subscription );
     });
