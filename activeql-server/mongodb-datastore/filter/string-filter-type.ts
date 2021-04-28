@@ -19,7 +19,8 @@ export class StringFilterType extends AttributeFilterType {
     beginsWith: { type: 'String', description: 'begins with this value, case-sensitive can be be applied (default: true)' },
     endsWith: { type: 'String', description: 'ends with this value, case-sensitive can be be applied (default: true)' },
     caseSensitive: { type: 'Boolean', description: 'default:true, can be applied to all operators except "in" and "notIn"' },
-    regex: { type: 'String', description: 'any regex, case-sensitive can be be applied (default: true)' }
+    regex: { type: 'String', description: 'any regex, case-sensitive can be be applied (default: true)' },
+    isNull: { type: 'Boolean', description: 'either null or non-null value'}
   }}
 
 
@@ -47,6 +48,7 @@ export class StringFilterType extends AttributeFilterType {
       case 'beginsWith': return { $regex : new RegExp(`^(${operand})`, i) };
       case 'endsWith': return { $regex : new RegExp(`(${operand})$`, i) };
       case 'regex': return { $regex : new RegExp(operand, i) };
+      case 'isNull': return { $exists : ! operand };
     }
     console.warn(`StringFilterType unknown operator '${operator}' `);
 

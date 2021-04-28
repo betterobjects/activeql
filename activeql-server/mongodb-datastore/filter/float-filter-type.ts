@@ -18,7 +18,8 @@ export class FloatFilterType extends AttributeFilterType {
     greater: { type: 'Float', description: 'greater than' },
     isIn: { type: '[Float]', description: 'is in list of numbers' },
     notIn: { type: '[Float]', description: 'is not in list of numbers' },
-    between: { type: '[Float]', description: 'is greater or equal than the first and lower then the last number of a list' }
+    between: { type: '[Float]', description: 'is greater or equal than the first and lower then the last number of a list' },
+    isNull: { type: 'Boolean', description: 'either null or non-null value'}
   }}
 
   getFilterExpression( condition:any ):any {
@@ -36,6 +37,7 @@ export class FloatFilterType extends AttributeFilterType {
       case 'isIn': return { $in : operand };
       case 'notIn': return { $nin : operand };
       case 'between': return { $gte: _.first( operand ), $lt: _.last( operand )  };
+      case 'isNull': return { $exists : ! operand };
     }
     console.warn(`IntFilter unknown operator '${operator}' `);
   }

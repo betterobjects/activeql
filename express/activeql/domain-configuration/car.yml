@@ -1,0 +1,26 @@
+enum:
+  Brand:
+    - Mercedes
+    - Porsche
+    - BMW
+    - Volkswagen
+
+entity:
+  Car:
+    attributes:
+      mileage: Int
+      brand: Brand!
+      name: String
+
+    seeds:
+      - mileage: 20000
+        brand: Mercedes
+        name: Mausi
+      - mileage: 20000
+        brand: BMW
+      - mileage: 25000
+        brand: Porsche
+      - brand: Volkswagen
+        name: Vicky
+      - brand: Volkswagen
+        mileage: 0

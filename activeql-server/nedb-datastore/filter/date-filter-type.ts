@@ -19,7 +19,8 @@ export class DateFilterType extends AttributeFilterType {
       after: { type: 'Date' },
       isIn: { type: '[Date]', description: 'is in list of dates' },
       notIn: { type: '[Date]', description: 'is not in list of dates' },
-      between: { type: '[Date]', description: 'is before or equal to the first and after the last date of the list' }
+      between: { type: '[Date]', description: 'is before or equal to the first and after the last date of the list' },
+      isNull: { type: 'Boolean', description: 'either null or non-null value'}
     };
   }
 
@@ -37,6 +38,7 @@ export class DateFilterType extends AttributeFilterType {
       case 'isIn': return { $in : operand };
       case 'notIn': return { $nin : operand };
       case 'between': return { $gte: _.first( operand ), $lt: _.last( operand )  };
+      case 'isNull': return { $exists : ! operand };
     }
     console.warn(`DateFilter unknown operator '${operator}' `);
   }

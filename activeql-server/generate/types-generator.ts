@@ -191,8 +191,11 @@ export class TypesGenerator {
   private addAssocTo( assocTo:AssocToType ){
     const entity = this.runtime.entity( assocTo.type );
     const mayBeUndefined = assocTo.required ? '' : '|undefined';
-    this.result.push(`  ${entity.foreignKey}: string${assocTo.required ? " = ''" : mayBeUndefined };` );
     this.result.push(`  ${entity.typeQueryName}: () => Promise<${assocTo.type}${mayBeUndefined}> = () => {throw 'will be decorated'};`);
+    this.result.push(`  ${entity.foreignKey}: string${assocTo.required ? " = ''" : mayBeUndefined };` );
+    if( entity.isPolymorph ){
+      this.result.push(`  ${entity.typeField}: string${assocTo.required ? " = ''" : mayBeUndefined };` );
+    }
   }
 
   private addAssocToMany( assocToMany:AssocToManyType ){

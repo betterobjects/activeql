@@ -11,7 +11,7 @@ export abstract class AttributeFilterType extends FilterType {
     if( _.isArray( condition ) ) return _.set( expression, field, { $in: condition } );
     if( ! _.isObject( condition ) ) return _.set( expression, field, condition );
     const e = this.getFilterExpression( condition, field );
-    if( ! e ) return;
+    if( _.isNil(e) ) return;
     _.set( expression, field, e );
   } 
 

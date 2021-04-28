@@ -12,7 +12,8 @@ export class BooleanFilterType extends AttributeFilterType {
 
   attributes() { return {
     is: { type: 'Boolean', description: 'is' },
-    isNot: { type: 'Boolean', description: 'is not' }
+    isNot: { type: 'Boolean', description: 'is not' },
+    isNull: { type: 'Boolean', description: 'either null or non-null value'}
   }}
 
 
@@ -22,6 +23,7 @@ export class BooleanFilterType extends AttributeFilterType {
     switch( operator ){
       case 'is': return { $eq : operand };
       case 'isNot': return { $ne : operand };
+      case 'isNull': return { $exists : ! operand };
     }
     console.warn(`BooleanFilter unknown operator '${operator}' `);
   }

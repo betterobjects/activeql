@@ -15,7 +15,8 @@ export class EnumFilterType extends AttributeFilterType {
       is: { type: this.enumName },
       isNot: { type: this.enumName },
       in: { type: `[${this.enumName}]` },
-      notIn: { type: `[${this.enumName}]` }
+      notIn: { type: `[${this.enumName}]` },
+      isNull: { type: 'Boolean', description: 'either null or non-null value'}
     }
   }
 
@@ -31,6 +32,7 @@ export class EnumFilterType extends AttributeFilterType {
       case 'isNot': return { $ne: operand };
       case 'in': return { $in: operand };
       case 'notIn': return { $nin: operand };
+      case 'isNull': return { $exists : ! operand };
     }
     console.warn(`EnumFilterType '${this.enumName}' unknown operator '${operator}' `);
   }

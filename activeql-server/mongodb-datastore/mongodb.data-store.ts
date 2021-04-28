@@ -1,6 +1,6 @@
 // import ts from 'es6-template-strings';
 import _ from 'lodash';
-import { Collection, Db, FilterQuery, MongoClient, ObjectID, ObjectId } from 'mongodb';
+import { Collection, Db, FilterQuery, MongoClient, MongoClientOptions, ObjectId } from 'mongodb';
 
 import { FilterType } from '../builder/filter-type';
 import { DataStore, Paging, Sort } from '../core/data-store';
@@ -19,12 +19,13 @@ export class MongoDbDataStore extends DataStore {
 
   constructor( protected client:MongoClient, protected db:Db ){ super() }
 
-  public static async create( config:{url:string, dbName:string} ):Promise<DataStore> {
+  public static async create( config:{url:string, dbName:string}, options:MongoClientOptions = {} ):Promise<DataStore> {
+    options = _.defaults(options, { useNewUrlParser: true, useUnifiedTopology: true, poolSize: 100 } );
     const url = _.get( config, 'url' );
     if( ! url ) throw `please provide url`;
     const dbName = _.get( config, 'dbName' );
     if( ! dbName ) throw `please provide dbName`;
-    const client = await MongoClient.connect( url, { useNewUrlParser: true, useUnifiedTopology: true } );
+    const client = await MongoClient.connect( url, options );
     return new MongoDbDataStore( client, client.db(dbName) );
   }
 
