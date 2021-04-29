@@ -4,6 +4,17 @@ import { ActiveQLServer } from '../activeql-server';
 import { AssocFromType, AssocToManyType, AssocToType, AttributeType, TypeType } from '../core/domain-configuration';
 import { Runtime } from '../core/runtime';
 import { Entity } from '../entities/entity';
+import { ValidationViolation } from '../entities/entity-validation';
+
+export class ValidationViolationError extends Error {
+  constructor(name:string, public validationViolations:ValidationViolation[]) {
+    super(name);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, ValidationViolationError);
+    }
+  }
+}
+
 
 // generate typed classes to programmatically use entities and types
 export class TypesGenerator {
@@ -14,7 +25,7 @@ export class TypesGenerator {
 
   generate(){
     this.result = [];
-    this.result.push( 'import { TypesGenerator, ActiveQLServer, Entity, ValidationViolation } from "activeql-server";' );
+    this.result.push( 'import { TypesGenerator, ActiveQLServer, Entity, ValidationViolationError } from "activeql-server";' );
     this.result.push( 'import _ from "lodash";' );
     this.result.push( ''  );
 
@@ -140,11 +151,11 @@ export class TypesGenerator {
 
   private addSave( typeName:string ){
     this.result.push( ''  );
-    this.result.push( `  static async save( item:any ):Promise<${typeName}|ValidationViolation[]>{`  );
+    this.result.push( `  static async save( item:any ):Promise<${typeName}>{`  );
     this.result.push( `    if( item.id === '') _.unset( item, 'id');`);
     this.result.push( `    const entity = ActiveQLServer.runtime?.entity('${typeName}') as Entity;`);
     this.result.push( `    item = await entity.accessor.save( item );`);
-    this.result.push( `    if( Array.isArray(item) ) return item;`);
+    this.result.push( `    if( Array.isArray(item) ) throw new ValidationViolationError('${typeName}', item);`);
     this.result.push( `    return TypesGenerator.decorateItems( entity, item );`);
     this.result.push( `  }`  );
   }
@@ -249,7 +260,7 @@ export class TypesGenerator {
     _.set( item, 'save', async () => {
       if( item.id === '') _.unset( item, 'id');
       const result = await entity.accessor.save( item );
-      if( _.isArray( result ) ) throw new Error( JSON.stringify(result) );
+      if( _.isArray( result ) ) throw new ValidationViolationError( entity.typeName, result );
       _.merge( item, result );
       return this.decorateItems( entity, result );
     });
